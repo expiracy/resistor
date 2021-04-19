@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+<body>
+<h1>Resistance Calculator</h1>
+
+    </div class="w3-container">
+
+        <div class="w3-container">
+
+            <input type="button" id="select_button" value="Select Resistor" class="w3-btn w3-black"
+                   onclick="document.getElementById('select_input').click();"/>
+            <input type="file" id="select_input" style="display:none;" accept="image/*"/>
+
+            <input type="button" id="scan_button" value="Scan Resistor" class="w3-btn w3-black" style="display:none;"/>
+        </div>
+
+    </div class="w3-container">
+
+    <div class="w3-container">
+        <canvas id="canvas_id"></canvas>
+    </div>
+
+</body>
+
+<script>
+    var select_input = document.querySelector('#select_input');
+    var scan_button = document.querySelector('#scan_button');
+    var canvas = document.querySelector('#canvas_id');
+    var image = new Image();
+
+    var dragging = false;
+    var target = null
+    var snapshot = null
+
+    canvas = document.querySelector("#canvas_id");
+    context = canvas.getContext('2d');
+    context.strokeStyle = 'green';
+    context.lineWidth = 3;
+    context.lineCap = 'round';
+
+    canvas.addEventListener('mousedown', dragStart, false);
+    canvas.addEventListener('mousemove', drag, false);
+    canvas.addEventListener('mouseup', dragStop, false);
+
+    canvas.addEventListener('touchstart', dragStart, false);
+    canvas.addEventListener('touchmove', drag, false);
+    canvas.addEventListener('touchend', dragStop, false);
+
+    select_input.onchange = function () {
+        file = select_input.files[0];
+        drawFile(file);
+        scan_button.style.display = 'inline'
+    };
+
+
+    scan_button.onclick = function () {
+        file = select_input.files[0];
+        upload(file, target);
+    };
+
+    function uploadAndResponse(file, position) {
+        var form = new FormData();
+        var xhr = new XMLHttpRequest();
+
+        x = position.x * image.width / canvas.width
+        y = position.y * image.height / canvas.height
+
+        form.append( "x", x )
+        form.append( "y", y )
+        form.append("file", file);
+        xhr.open('post', '', true);
+        xhr.send(form);
+    }
+
+    function drawFile(file) {
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          var dataURL = e.target.result,
+              ctx = canvas.getContext('2d')
+
+          image.onload = function() {
+            width = window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+
+            canvas.width = width * 3/ 4
+            canvas.height = canvas.width * 3 / 4;
+            context.drawImage(image, 0, 0, image.width, image.height, 0, 0,  canvas.width,  canvas.height);
+            takeSnapshot()
+            target =  { x: (canvas.width / 2), y: (canvas.height / 2) }
+            drawCircle(target)
+          };
+
+          image.src = dataURL;
+        };
+
+        reader.readAsDataURL(file);
+      }
+
+    function getCanvasCoordinates(event) {
+        var x = event.clientX - canvas.getBoundingClientRect().left,
+            y = event.clientY - canvas.getBoundingClientRect().top;
+
+        return {x: x, y: y};
+    }
+
+    function takeSnapshot() {
+        snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
+    }
+
+    function restoreSnapshot() {
+        context.putImageData(snapshot, 0, 0);
+    }
+
+    function drawCircle(position) {
+        var radius = 20
+        context.beginPath();
+        context.strokeStyle = '#00FF00'
+        context.lineWidth = 3
+        context.shadowBlur = 5;
+        context.shadowColor = "black";
+        context.arc(position.x, position.y, radius, 0, 2 * Math.PI);
+        context.stroke();
+    }
+
+    function dragStart(event) {
+        dragging = true;
+        restoreSnapshot();
+        target = getCanvasCoordinates(event);
+        drawCircle(target);
+    }
+
+    function drag(event) {
+
+        if (dragging === true) {
+            restoreSnapshot();
+            target = getCanvasCoordinates(event);
+            drawCircle(target);
+        }
+    }
+
+    function dragStop(event) {
+        dragging = false;
+        restoreSnapshot();
+        target = getCanvasCoordinates(event);
+        drawCircle(target);
+    }
+
+</script>
+</html>

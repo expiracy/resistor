@@ -1,0 +1,144 @@
+    body {
+        background-color: #e0e0e0;
+        margin: 25px
+    }
+
+    td {
+        text-align: center;
+    }
+
+    .band_button {
+        color: #000000;
+        padding: 10px 20px;
+        text-decoration: NONE;
+        margin: 4px 1px;
+        cursor: pointer;
+        display: block;
+        border: solid 0;
+        border-radius: 4px;
+        width: 90px;
+        height: 50px;
+        position: relative;
+    }
+
+    .band_1 {
+        top: -54px;
+    }
+
+    .band_2 {
+        top: -54px;
+    }
+
+    .band_3 {
+        top: -54px;
+    }
+
+    .band_4 {
+    }
+
+    .band_5 {
+    }
+
+    .band_6 {
+        top: -108px;
+    }
+
+    .BLACK {
+        background-color: #1a1a1a;
+    }
+
+    .BROWN {
+        background-color: #4a2f00;
+    }
+
+    .RED {
+        background-color: #ff1b1b;
+    }
+
+    .ORANGE {
+        background-color: #ff950c;
+    }
+
+    .YELLOW {
+        background-color: #d6bd16;
+    }
+
+    .GREEN {
+        background-color: #61ae00;
+    }
+
+    .BLUE {
+        background-color: #3636ff;
+    }
+
+    .VIOLET {
+        background-color: #ad59ea;
+    }
+
+    .GREY {
+        background-color: #878787;
+    }
+
+    .WHITE {
+        background-color: #ffffff;
+    }
+
+     .GOLD {
+         background-image: linear-gradient(to right, #F09819 0%, #EDDE5D  51%, #f09819 100%)
+     }
+
+    .SILVER {
+        background-image: linear-gradient(to right, #8f8f8f 0%, #ffffff 51%, #8a8a8a 100%)
+    }
+
+    .NONE {
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: NONE;
+        cursor:pointer;
+        overflow: hidden;
+        outline:NONE;
+    }
+
+    .add_margin{
+        margin: 4px 2px;
+    }
+
+    .add_curve{
+        border-radius: 4px;
+    }
+
+    .add_shadow{
+        box-shadow: 0 5px 3px #aaaaaa;
+    }
+
+    .add_selected {
+        border: solid 2px #ffffff;
+        outline: solid 2px #000000;
+    }
+
+    .resistor {
+        height: 100px;
+        width: 500px;
+        background-color: #ffefc5;
+    }
+
+    .wire {
+        height: 10px;
+        width: 600px;
+        background-color: #000000;
+    }
+
+    .resistor_position {
+        left: 50px;
+        top: 0;
+        z-index: 0;
+        position: relative;
+    }
+
+    .wire_position {
+        right: 500px;
+        top: -45px;
+        z-index: -1;
+        position: relative;
+    }

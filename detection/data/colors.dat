@@ -1,0 +1,38 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Color lookup dictionary colors with consistent naming
+! To make it easy to match to resistor values
+!
+! R  G  B		    Color Name
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+0   0   0           black
+20  20  20          paleblack
+
+139 69 19           brown
+160 82 45           palerbrown
+210 180 140         palebrown
+
+255 0   0           red
+
+255 165 19          orange
+
+0   255 0           green
+0   128 0           darkgreen
+50  192 50          palegreen
+
+0   0   255         blue
+0   0   128         darkblue
+
+255 255 0           yellow
+192 192 0           darkyellow
+
+0   255 255         cyan
+
+255 0   255         purple
+128 0   128         darkpurple
+
+128 0   128         grey
+
+255 255 255         white
+
+

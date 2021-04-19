@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" type="text/css" href="static/ResistorCSS.css">
+<link rel="icon"
+      type="image/png"
+      href="https://images-na.ssl-images-amazon.com/images/I/716cFc4OXFL.png">
+
+<body>
+    <table border="0">
+        <tr>
+            <h1>Resistor Calculator</h1>
+        </tr>
+
+        <tr>
+            <td>
+
+                <input type="button" id="select_button" value="Select Resistor" class="w3-btn add_curve w3-black"
+                       onclick="clickButton('select_input')"/>
+                <input type="file" id="select_input" style="display:NONE;" accept="image/*"
+                        onchange="drawFileAndShowScanButton()"/>
+
+                <input type="button" id="scan_button" value="Scan Resistor" class="w3-btn add_curve w3-black" style="display:NONE;"
+                        onclick="uploadFile()"/>
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <input type="button" id="3_band" value="3 Band" class="w3-btn add_curve w3-black"
+                       onclick="resistorType(3)"/>
+
+                <input type="button" id="3_band" value="4 Band" class="w3-btn add_curve w3-black"
+                       onclick="resistorType(4)"/>
+
+                <input type="button" id="3_band" value="5 Band" class="w3-btn add_curve w3-black"
+                       onclick="resistorType(5)"/>
+
+                <input type="button" id="3_band" value="6 Band" class="w3-btn add_curve w3-black"
+
+                       onclick="resistorType(6)"/>
+            </td>
+        </tr>
+
+    </table>
+
+    <table border="0">
+        <tr>
+            <td>
+                <canvas id="canvas_id"></canvas>
+            </td>
+        </tr>
+    </table>
+
+    <table border="0">
+
+        <tr>
+            <td id="band_1_header"><p>1</p></td>
+            <td id="band_2_header"><p>2</p></td>
+            <td id="band_3_header"><p>3</p></td>
+            <td id="band_4_header"><p>Mul</p></td>
+            <td id="band_5_header"><p>Tol</p></td>
+            <td id="band_6_header"><p>ppm/K</p></td>
+        </tr>
+
+        <tr>
+            <td id="band_1">
+
+                <input type="button" id="band_button_1_BLACK" class="band_button band_1 BLACK"
+                       onclick="bandButtonPress(1, 'BLACK')"/>
+
+                <input type="button" id="band_button_1_BROWN" class="band_button band_1 BROWN"
+
+                       onclick="bandButtonPress(1, 'BROWN')"/>
+
+                <input type="button" id="band_button_1_RED" class="band_button band_1 RED"
+                       onclick="bandButtonPress(1, 'RED')"/>
+
+                <input type="button" id="band_button_1_ORANGE" class="band_button band_1 ORANGE"
+                       onclick="bandButtonPress(1, 'ORANGE')"/>
+
+                <input type="button" id="band_button_1_YELLOW" class="band_button band_1 YELLOW"
+                       onclick="bandButtonPress(1, 'YELLOW')"/>
+
+                <input type="button" id="band_button_1_GREEN" class="band_button band_1 GREEN"
+                       onclick="bandButtonPress(1, 'GREEN')"/>
+
+                <input type="button" id="band_button_1_BLUE" class="band_button band_1 BLUE"
+                       onclick="bandButtonPress(1, 'BLUE')"/>
+
+                <input type="button" id="band_button_1_VIOLET" class="band_button band_1 VIOLET"
+                       onclick="bandButtonPress(1, 'VIOLET')"/>
+
+                <input type="button" id="band_button_1_GREY" class="band_button band_1 GREY"
+                       onclick="bandButtonPress(1, 'GREY')"/>
+
+                <input type="button" id="band_button_1_WHITE" class="band_button band_1 WHITE"
+                       onclick="bandButtonPress(1, 'WHITE')"/>
+
+            </td>
+
+            <td id="band_2">
+
+                <input type="button" id="band_button_2_BLACK" class="band_button band_2 BLACK"
+                       onclick="bandButtonPress(2, 'BLACK')"/>
+
+                <input type="button" id="band_button_2_BROWN" class="band_button band_2 BROWN"
+                       onclick="bandButtonPress(2, 'BROWN')"/>
+
+                <input type="button" id="band_button_2_RED" class="band_button band_2 RED"
+                       onclick="bandButtonPress(2, 'RED')"/>
+
+                <input type="button" id="band_button_2_ORANGE" class="band_button band_2 ORANGE"
+                       onclick="bandButtonPress(2, 'ORANGE')"/>
+
+                <input type="button" id="band_button_2_YELLOW" class="band_button band_2 YELLOW"
+                       onclick="bandButtonPress(2, 'YELLOW')"/>
+
+                <input type="button" id="band_button_2_GREEN" class="band_button band_2 GREEN"
+                       onclick="bandButtonPress(2, 'GREEN')"/>
+
+                <input type="button" id="band_button_2_BLUE" class="band_button band_2 BLUE"
+                       onclick="bandButtonPress(2, 'BLUE')"/>
+
+                <input type="button" id="band_button_2_VIOLET" class="band_button band_2 VIOLET"
+                       onclick="bandButtonPress(2, 'VIOLET')"/>
+
+                <input type="button" id="band_button_2_GREY" class="band_button band_2 GREY"
+                       onclick="bandButtonPress(2, 'GREY')"/>
+
+                <input type="button" id="band_button_2_WHITE" class="band_button band_2 WHITE"
+                       onclick="bandButtonPress(2, 'WHITE')"/>
+
+            </td>
+
+            <td id="band_3">
+
+                <input type="button" id="band_button_3_BLACK" class="band_button band_3 BLACK"
+                       onclick="bandButtonPress(3, 'BLACK')"/>
+
+                <input type="button" id="band_button_3_BROWN" class="band_button band_3 BROWN"
+                       onclick="bandButtonPress(3, 'BROWN')"/>
+
+                <input type="button" id="band_button_3_RED" class="band_button band_3 RED"
+                       onclick="bandButtonPress(3, 'RED')"/>
+
+                <input type="button" id="band_button_3_ORANGE" class="band_button band_3 ORANGE"
+                       onclick="bandButtonPress(3, 'ORANGE')"/>
+
+                <input type="button" id="band_button_3_YELLOW" class="band_button band_3 YELLOW"
+                       onclick="bandButtonPress(3, 'YELLOW')"/>
+
+                <input type="button" id="band_button_3_GREEN" class="band_button band_3 GREEN"
+                       onclick="bandButtonPress(3, 'GREEN')"/>
+
+                <input type="button" id="band_button_3_BLUE" class="band_button band_3 BLUE"
+                       onclick="bandButtonPress(3, 'BLUE')"/>
+
+                <input type="button" id="band_button_3_VIOLET" class="band_button band_3 VIOLET"
+                       onclick="bandButtonPress(3, 'VIOLET')"/>
+
+                <input type="button" id="band_button_3_GREY" class="band_button band_3 GREY"
+                       onclick="bandButtonPress(3, 'GREY')"/>
+
+                <input type="button" id="band_button_3_WHITE" class="band_button band_3 WHITE"
+                       onclick="bandButtonPress(3, 'WHITE')"/>
+
+            </td>
+
+            <td id="band_4">
+
+                <input type="button" id="band_button_4_BLACK" class="band_button band_4 BLACK"
+                       onclick="bandButtonPress(4, 'BLACK')"/>
+
+                <input type="button" id="band_button_4_BROWN" class="band_button band_4 BROWN"
+                       onclick="bandButtonPress(4, 'BROWN')"/>
+
+                <input type="button" id="band_button_4_RED" class="band_button band_4 RED"
+                       onclick="bandButtonPress(4, 'RED')"/>
+
+                <input type="button" id="band_button_4_ORANGE" class="band_button band_4 ORANGE"
+                       onclick="bandButtonPress(4, 'ORANGE')"/>
+
+                <input type="button" id="band_button_4_YELLOW" class="band_button band_4 YELLOW"
+                       onclick="bandButtonPress(4, 'YELLOW')"/>
+
+                <input type="button" id="band_button_4_GREEN" class="band_button band_4 GREEN"
+                       onclick="bandButtonPress(4, 'GREEN')"/>
+
+                <input type="button" id="band_button_4_BLUE" class="band_button band_4 BLUE"
+                       onclick="bandButtonPress(4, 'BLUE')"/>
+
+                <input type="button" id="band_button_4_VIOLET" class="band_button band_4 VIOLET"
+                       onclick="bandButtonPress(4, 'VIOLET')"/>
+
+                <input type="button" id="band_button_4_GREY" class="band_button band_4 GREY"
+                       onclick="bandButtonPress(4, 'GREY')"/>
+
+                <input type="button" id="band_button_4_WHITE" class="band_button band_4 WHITE"
+                       onclick="bandButtonPress(4, 'WHITE')"/>
+
+                <input type="button" id="band_button_4_GOLD" class="band_button band_4 GOLD"
+                       onclick="bandButtonPress(4, 'GOLD')"/>
+
+                <input type="button" id="band_button_4_SILVER" class="band_button band_4 SILVER"
+                       onclick="bandButtonPress(4, 'SILVER')"/>
+
+            </td>
+
+            <td id="band_5">
+
+                <button class="band_button band_5 NONE"></button>
+
+                <input type="button" id="band_button_5_BROWN" class="band_button band_5 BROWN"
+                       onclick="bandButtonPress(5, 'BROWN')"/>
+
+                <input type="button" id="band_button_5_RED" class="band_button band_5 RED"
+                       onclick="bandButtonPress(5, 'RED')"/>
+
+                <input type="button" id="band_button_5_ORANGE" class="band_button band_5 ORANGE"
+                       onclick="bandButtonPress(5, 'ORANGE')"/>
+
+                <input type="button" id="band_button_5_YELLOW" class="band_button band_5 YELLOW"
+                       onclick="bandButtonPress(5, 'YELLOW')"/>
+
+                <input type="button" id="band_button_5_GREEN" class="band_button band_5 GREEN"
+                       onclick="bandButtonPress(5, 'GREEN')"/>
+
+                <input type="button" id="band_button_5_BLUE" class="band_button band_5 BLUE"
+                       onclick="bandButtonPress(5, 'BLUE')"/>
+
+                <input type="button" id="band_button_5_VIOLET" class="band_button band_5 VIOLET"
+                       onclick="bandButtonPress(5, 'VIOLET')"/>
+
+                <input type="button" id="band_button_5_GREY" class="band_button band_5 GREY"
+                       onclick="bandButtonPress(5, 'GREY')"/>
+
+                <button class="band_button band_5 NONE"></button>
+
+                <input type="button" id="band_button_5_GOLD" class="band_button band_5 GOLD"
+                       onclick="bandButtonPress(5, 'GOLD')"/>
+
+                <input type="button" id="band_button_5_SILVER" class="band_button band_5 SILVER"
+                       onclick="bandButtonPress(5, 'SILVER')"/>
+
+            </td>
+
+            <td id="band_6">
+
+                <button class="band_button band_6 NONE"></button>
+
+                <input type="button" id="band_button_6_BROWN" class="band_button band_6 BROWN"
+                       onclick="bandButtonPress(6, 'BROWN')"/>
+
+                <input type="button" id="band_button_6_RED" class="band_button band_6 RED"
+                       onclick="bandButtonPress(6, 'RED')"/>
+
+                <input type="button" id="band_button_6_ORANGE" class="band_button band_6 ORANGE"
+                       onclick="bandButtonPress(6, 'ORANGE')"/>
+
+                <input type="button" id="band_button_6_YELLOW" class="band_button band_6 YELLOW"
+                       onclick="bandButtonPress(6, 'YELLOW')"/>
+
+                <button class="band_button band_6 NONE"></button>
+
+                <input type="button" id="band_button_6_BLUE" class="band_button band_6 BLUE"
+                       onclick="bandButtonPress(6, 'BLUE')"/>
+
+                <input type="button" id="band_button_6_VIOLET" class="band_button band_6 VIOLET"
+                       onclick="bandButtonPress(6, 'VIOLET')"/>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+    <table border="0">
+        <tr>
+            <td><p id="resistance"></p></td>
+            <td><p id="tolerance"></p></td>
+            <td><p id="temperature_constant"></p></td>
+        </tr>
+    </table>
+
+</body>
+
+<script src="static/ResistorJS.js"></script>
+

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+<style>
+
+    body {
+      background-color: #e0e0e0;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    .band_button {
+        color: #000000;
+        padding: 10px 20px;
+        text-decoration: none;
+        margin: 4px 1px;
+        cursor: pointer;
+        display: block;
+        border: solid 0;
+        border-radius: 4px;
+        width: 90px;
+        height: 50px;
+        position: relative;
+    }
+
+    .band_1 {
+        top: -54px;
+    }
+
+    .band_2 {
+        top: -54px;
+    }
+
+    .band_3 {
+        top: -54px;
+    }
+
+    .band_4 {
+    }
+
+    .band_5 {
+    }
+
+    .band_6 {
+        top: -108px;
+    }
+
+    .black {
+        background-color: #1a1a1a;
+    }
+
+    .brown {
+        background-color: #4a2f00;
+    }
+
+    .red {
+        background-color: #ff1b1b;
+    }
+
+    .orange {
+        background-color: #ff950c;
+    }
+
+    .yellow {
+        background-color: #d6bd16;
+    }
+
+    .green {
+        background-color: #61ae00;
+    }
+
+    .blue {
+        background-color: #3636ff;
+    }
+
+    .violet {
+        background-color: #ad59ea;
+    }
+
+    .grey {
+        background-color: #878787;
+    }
+
+    .white {
+        background-color: #ffffff;
+    }
+
+     .gold {
+         background-image: linear-gradient(to right, #F09819 0%, #EDDE5D  51%, #f09819 100%)
+     }
+
+    .silver {
+        background-image: linear-gradient(to right, #8f8f8f 0%, #ffffff 51%, #8a8a8a 100%)
+    }
+
+    .none {
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        cursor:pointer;
+        overflow: hidden;
+        outline:none;
+    }
+
+
+    .add_margin{
+        margin: 4px 4px;
+    }
+
+    .add_curve{
+        border-radius: 4px;
+    }
+
+    .add_shadow{
+        box-shadow: 0 5px 3px #aaaaaa;
+    }
+
+    .add_selected {
+        border: solid 3px;
+
+    }
+
+</style>
+
+<body>
+
+<div class="w3-container">
+    <table border="0">
+        <tr>
+            <h1>Resistance Calculator</h1>
+        </tr>
+
+        <tr>
+            <td>
+
+                <input type="button" id="select_button" value="Select Resistor" class="w3-btn w3-black add_shadow"
+                       onclick="document.getElementById('select_input').click();"/>
+                <input type="file" id="select_input" style="display:none;" accept="image/*"/>
+
+                <input type="button" id="scan_button" value="Scan Resistor" class="w3-btn w3-black add_margin" style="display:none;"/>
+
+                <input type="button" id="submit_button" value="Submit Resistor" class="w3-btn w3-black add_shadow"
+                onclick="calculateResistance()"/>
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+            <canvas id="canvas_id"></canvas>
+            </td>
+        </tr>
+    </table>
+
+    <table border="0">
+
+        <tr>
+            <td><p>1</p></td>
+            <td><p>2</p></td>
+            <td><p>3</p></td>
+            <td><p>Mul</p></td>
+            <td><p>Tol</p></td>
+            <td><p>ppm/K</p></td>
+        </tr>
+
+        <tr>
+            <td>
+
+                <input type="button" id="band_button_1_black" class="band_button band_1 black"
+                onclick="bandButtonPress(1, 'black')"/>
+
+                <input type="button" id="band_button_1_brown" class="band_button band_1 brown"
+                onclick="bandButtonPress(1, 'brown')"/>
+
+                <input type="button" id="band_button_1_red" class="band_button band_1 red"
+                onclick="bandButtonPress(1, 'red')"/>
+
+                <input type="button" id="band_button_1_orange" class="band_button band_1 orange"
+                onclick="bandButtonPress(1, 'orange')"/>
+
+                <input type="button" id="band_button_1_yellow" class="band_button band_1 yellow"
+                onclick="bandButtonPress(1, 'yellow')"/>
+
+                <input type="button" id="band_button_1_green" class="band_button band_1 green"
+                onclick="bandButtonPress(1, 'green')"/>
+
+                <input type="button" id="band_button_1_blue" class="band_button band_1 blue"
+                onclick="bandButtonPress(1, 'blue')"/>
+
+                <input type="button" id="band_button_1_violet" class="band_button band_1 violet"
+                onclick="bandButtonPress(1, 'violet')"/>
+
+                <input type="button" id="band_button_1_grey" class="band_button band_1 grey"
+                onclick="bandButtonPress(1, 'grey')"/>
+
+                <input type="button" id="band_button_1_white" class="band_button band_1 white"
+                onclick="bandButtonPress(1, 'white')"/>
+
+            </td>
+
+            <td>
+
+                <input type="button" id="band_button_2_black" class="band_button band_2 black"
+                onclick="bandButtonPress(2, 'black')"/>
+
+                <input type="button" id="band_button_2_brown" class="band_button band_2 brown"
+                onclick="bandButtonPress(2, 'brown')"/>
+
+                <input type="button" id="band_button_2_red" class="band_button band_2 red"
+                onclick="bandButtonPress(2, 'red')"/>
+
+                <input type="button" id="band_button_2_orange" class="band_button band_2 orange"
+                onclick="bandButtonPress(2, 'orange')"/>
+
+                <input type="button" id="band_button_2_yellow" class="band_button band_2 yellow"
+                onclick="bandButtonPress(2, 'yellow')"/>
+
+                <input type="button" id="band_button_2_green" class="band_button band_2 green"
+                onclick="bandButtonPress(2, 'green')"/>
+
+                <input type="button" id="band_button_2_blue" class="band_button band_2 blue"
+                onclick="bandButtonPress(2, 'blue')"/>
+
+                <input type="button" id="band_button_2_violet" class="band_button band_2 violet"
+                onclick="bandButtonPress(2, 'violet')"/>
+
+                <input type="button" id="band_button_2_grey" class="band_button band_2 grey"
+                onclick="bandButtonPress(2, 'grey')"/>
+
+                <input type="button" id="band_button_2_white" class="band_button band_2 white"
+                onclick="bandButtonPress(2, 'white')"/>
+
+            </td>
+
+            <td>
+
+                <input type="button" id="band_button_3_black" class="band_button band_3 black"
+                onclick="bandButtonPress(3, 'black')"/>
+
+                <input type="button" id="band_button_3_brown" class="band_button band_3 brown"
+                onclick="bandButtonPress(3, 'brown')"/>
+
+                <input type="button" id="band_button_3_red" class="band_button band_3 red"
+                onclick="bandButtonPress(3, 'red')"/>
+
+                <input type="button" id="band_button_3_orange" class="band_button band_3 orange"
+                onclick="bandButtonPress(3, 'orange')"/>
+
+                <input type="button" id="band_button_3_yellow" class="band_button band_3 yellow"
+                onclick="bandButtonPress(3, 'yellow')"/>
+
+                <input type="button" id="band_button_3_green" class="band_button band_3 green"
+                onclick="bandButtonPress(3, 'green')"/>
+
+                <input type="button" id="band_button_3_blue" class="band_button band_3 blue"
+                onclick="bandButtonPress(3, 'blue')"/>
+
+                <input type="button" id="band_button_3_violet" class="band_button band_3 violet"
+                onclick="bandButtonPress(3, 'violet')"/>
+
+                <input type="button" id="band_button_3_grey" class="band_button band_3 grey"
+                onclick="bandButtonPress(3, 'grey')"/>
+
+                <input type="button" id="band_button_3_white" class="band_button band_3 white"
+                onclick="bandButtonPress(3, 'white')"/>
+
+            </td>
+
+            <td>
+
+                <input type="button" id="band_button_4_black" class="band_button band_4 black"
+                onclick="bandButtonPress(4, 'black')"/>
+
+                <input type="button" id="band_button_4_brown" class="band_button band_4 brown"
+                onclick="bandButtonPress(4, 'brown')"/>
+
+                <input type="button" id="band_button_4_red" class="band_button band_4 red"
+                onclick="bandButtonPress(4, 'red')"/>
+
+                <input type="button" id="band_button_4_orange" class="band_button band_4 orange"
+                onclick="bandButtonPress(4, 'orange')"/>
+
+                <input type="button" id="band_button_4_yellow" class="band_button band_4 yellow"
+                onclick="bandButtonPress(4, 'yellow')"/>
+
+                <input type="button" id="band_button_4_green" class="band_button band_4 green"
+                onclick="bandButtonPress(4, 'green')"/>
+
+                <input type="button" id="band_button_4_blue" class="band_button band_4 blue"
+                onclick="bandButtonPress(4, 'blue')"/>
+
+                <input type="button" id="band_button_4_violet" class="band_button band_4 violet"
+                onclick="bandButtonPress(4, 'violet')"/>
+
+                <input type="button" id="band_button_4_grey" class="band_button band_4 grey"
+                onclick="bandButtonPress(4, 'grey')"/>
+
+                <input type="button" id="band_button_4_white" class="band_button band_4 white"
+                onclick="bandButtonPress(4, 'white')"/>
+
+                <input type="button" id="band_button_4_gold" class="band_button band_4 gold"
+                onclick="bandButtonPress(4, 'gold')"/>
+
+                <input type="button" id="band_button_4_silver" class="band_button band_4 silver"
+                onclick="bandButtonPress(4, 'silver')"/>
+
+            </td>
+
+            <td>
+
+                <button class="band_button band_5 none"></button>
+
+                <input type="button" id="band_button_5_brown" class="band_button band_5 brown"
+                onclick="bandButtonPress(5, 'brown')"/>
+
+                <input type="button" id="band_button_5_red" class="band_button band_5 red"
+                onclick="bandButtonPress(5, 'red')"/>
+
+                <input type="button" id="band_button_5_orange" class="band_button band_5 orange"
+                onclick="bandButtonPress(5, 'orange')"/>
+
+                <input type="button" id="band_button_5_yellow" class="band_button band_5 yellow"
+                onclick="bandButtonPress(5, 'yellow')"/>
+
+                <input type="button" id="band_button_5_green" class="band_button band_5 green"
+                onclick="bandButtonPress(5, 'green')"/>
+
+                <input type="button" id="band_button_5_blue" class="band_button band_5 blue"
+                onclick="bandButtonPress(5, 'blue')"/>
+
+                <input type="button" id="band_button_5_violet" class="band_button band_5 violet"
+                onclick="bandButtonPress(5, 'violet')"/>
+
+                <input type="button" id="band_button_5_grey" class="band_button band_5 grey"
+                onclick="bandButtonPress(5, 'grey')"/>
+
+                <button class="band_button band_5 none"></button>
+
+                <input type="button" id="band_button_5_gold" class="band_button band_5 gold"
+                onclick="bandButtonPress(5, 'gold')"/>
+
+                <input type="button" id="band_button_5_silver" class="band_button band_5 silver"
+                onclick="bandButtonPress(5, 'silver')"/>
+
+            </td>
+
+            <td>
+
+                <input type="button" id="band_button_6_black" class="band_button band_6 black"
+                onclick="bandButtonPress(6, 'black')"/>
+
+                <input type="button" id="band_button_6_brown" class="band_button band_6 brown"
+                onclick="bandButtonPress(6, 'brown')"/>
+
+                <input type="button" id="band_button_6_red" class="band_button band_6 red"
+                onclick="bandButtonPress(6, 'red')"/>
+
+                <input type="button" id="band_button_6_orange" class="band_button band_6 orange"
+                onclick="bandButtonPress(6, 'orange')"/>
+
+                <input type="button" id="band_button_6_yellow" class="band_button band_6 yellow"
+                onclick="bandButtonPress(6, 'yellow')"/>
+
+                <button class="band_button band_6 none"></button>
+
+                <input type="button" id="band_button_6_blue" class="band_button band_6 blue"
+                onclick="bandButtonPress(6, 'blue')"/>
+
+                <input type="button" id="band_button_6_violet" class="band_button band_6 violet"
+                onclick="bandButtonPress(6, 'violet')"/>
+
+
+            </td>
+
+        </tr>
+
+    </table>
+</div>
+</body>
+
+<script>
+
+    var select_input = document.querySelector('#select_input');
+    var scan_button = document.querySelector('#scan_button');
+    var canvas = document.querySelector('#canvas_id');
+
+    var image = new Image();
+
+    var dragging = false;
+    var target = null
+    var snapshot = null
+
+    var resistor_bands = [];
+    var button_presses = [];
+    var band_presses = [];
+    var dark_colours = ['black', 'brown', 'blue', 'violet'];
+
+    canvas = document.querySelector("#canvas_id");
+    context = canvas.getContext('2d');
+    context.strokeStyle = 'green';
+    context.lineWidth = 3;
+    context.lineCap = 'round';
+
+    canvas.addEventListener('mousedown', dragStart, false);
+    canvas.addEventListener('mousemove', drag, false);
+    canvas.addEventListener('mouseup', dragStop, false);
+
+    canvas.addEventListener('touchstart', dragStart, false);
+    canvas.addEventListener('touchmove', drag, false);
+    canvas.addEventListener('touchend', dragStop, false);
+
+    select_input.onchange = function () {
+        file = select_input.files[0];
+        drawFile(file);
+        scan_button.style.display = 'inline'
+    };
+
+
+    scan_button.onclick = function () {
+        file = select_input.files[0];
+        upload(file, target);
+    };
+
+    function uploadAndResponse(file, position) {
+        var form = new FormData();
+        var xhr = new XMLHttpRequest();
+
+        x = position.x * image.width / canvas.width
+        y = position.y * image.height / canvas.height
+
+        form.append( "x", x )
+        form.append( "y", y )
+        form.append("file", file);
+        xhr.open('post', '', true);
+        xhr.send(form);
+    }
+
+    function drawFile(file) {
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          var dataURL = e.target.result,
+              ctx = canvas.getContext('2d')
+
+          image.onload = function() {
+            width = window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+
+            canvas.width = width * 3 / 4
+            canvas.height = canvas.width * 3 / 4;
+            context.drawImage(image, 0, 0, image.width, image.height, 0, 0,  canvas.width,  canvas.height);
+            takeSnapshot()
+            target =  { x: (canvas.width / 2), y: (canvas.height / 2) }
+            drawCircle(target)
+          };
+
+          image.src = dataURL;
+        };
+
+        reader.readAsDataURL(file);
+      }
+
+    function getCanvasCoordinates(event) {
+        var x = event.clientX - canvas.getBoundingClientRect().left,
+            y = event.clientY - canvas.getBoundingClientRect().top;
+
+        return {x: x, y: y};
+    }
+
+    function takeSnapshot() {
+        snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
+    }
+
+    function restoreSnapshot() {
+        context.putImageData(snapshot, 0, 0);
+    }
+
+    function drawCircle(position) {
+        var radius = 20
+        context.beginPath();
+        context.strokeStyle = '#00FF00'
+        context.lineWidth = 3
+        context.shadowBlur = 5;
+        context.shadowColor = "black";
+        context.arc(position.x, position.y, radius, 0, 2 * Math.PI);
+        context.stroke();
+    }
+
+    function dragStart(event) {
+        dragging = true;
+        restoreSnapshot();
+        target = getCanvasCoordinates(event);
+        drawCircle(target);
+    }
+
+    function drag(event) {
+
+        if (dragging === true) {
+            restoreSnapshot();
+            target = getCanvasCoordinates(event);
+            drawCircle(target);
+        }
+    }
+
+    function dragStop(event) {
+        dragging = false;
+        restoreSnapshot();
+        target = getCanvasCoordinates(event);
+        drawCircle(target);
+    }
+
+    function stopBandButtonFlash(element_id) {
+
+        document.getElementById(element_id).classList.remove("add_select_border");
+
+    }
+
+    function checkBandPressDupes(band, colour) {
+
+        if (band_presses.includes(band)) {
+
+            var index = band_presses.indexOf(band);
+            var dupe_flash_element = button_presses[index];
+
+            delete button_presses[index];
+            delete band_presses[index];
+
+            stopBandButtonFlash(dupe_flash_element);
+        }
+
+    }
+
+    function findElementId(band, colour) {
+
+        band.toString()
+
+        var element_target = ("_" + band + "_" + colour)
+
+        var element_id = "band_button" + element_target;
+
+        return element_id
+    }
+
+    function bandButtonFlash(band, colour) {
+
+        var element_id = findElementId(band, colour);
+        checkBandPressDupes(band, colour);
+
+        button_presses.push(element_id);
+        band_presses.push(band);
+
+        document.getElementById(element_id).className += " add_select_border";
+
+    }
+
+
+    function bandButtonPress(band, colour) {
+
+        bandButtonFlash(band, colour)
+
+        if (band == 1) {
+            resistor_bands[0] = colour
+        }
+
+        if (band == 2) {
+            resistor_bands[1] = colour
+        }
+
+        if (band == 3) {
+            resistor_bands[2] = colour
+        }
+
+        if (band == 4) {
+            resistor_bands[3] = colour
+
+        }
+
+        if (band == 5) {
+            resistor_bands[4] = colour
+
+        }
+
+        if (band == 6) {
+            resistor_bands[5] = colour
+        }
+
+    }
+
+    function getDigits(band_1, band_2, band_3) {
+
+        var multipliers = {
+            "black":0,
+            "brown":1,
+            "red":2,
+            "orange":3,
+            "yellow":4,
+            "green":5,
+            "blue":6,
+            "violet":7,
+            "grey":8,
+            "white":9
+        }
+
+        digit1 = multipliers[band_1] * 100
+        digit2 = multipliers[band_2] * 10
+        digit3 = multipliers[band_3]
+
+        var resistor_digits = digit1 + digit2 + digit3
+
+        return resistor_digits
+
+    }
+
+    function getMultiplier(colour) {
+
+        var multipliers = {
+            "black":1,
+            "brown":10,
+            "red":100,
+            "orange":1000,
+            "yellow":10000,
+            "green":100000,
+            "blue":1000000,
+            "violet":10000000,
+            "grey":100000000,
+            "white":1000000000,
+            "gold":0.1,
+            "silver":0.01
+        }
+
+        var multiplier = multipliers[colour]
+
+        return multiplier
+
+    }
+
+    function getTolerance(colour) {
+
+        var tolerances = {
+            "black":0,
+            "brown":1,
+            "red":2,
+            "orange":3,
+            "yellow":4,
+            "green":0.5,
+            "blue":0.25,
+            "violet":0.1,
+            "grey":0.05,
+            "gold":5,
+            "silver":10
+        }
+
+        var tolerance = tolerances[colour]
+
+        return tolerance
+
+    }
+
+    function getTemperatureConstant(colour) {
+
+        var temperature_constants = {
+            "black":0,
+            "brown":100,
+            "red":50,
+            "orange":15,
+            "yellow":25,
+            "blue":10,
+            "violet":5
+        }
+
+        var temperature_constant = temperature_constants[colour]
+
+        return temperature_constant
+
+    }
+
+    function processResistor() {
+
+        var band_1 = resistor_bands[0]
+        var band_2 = resistor_bands[1]
+        var band_3 = resistor_bands[2]
+        var band_4 = resistor_bands[3]
+        var band_5 = resistor_bands[4]
+        var band_6 = resistor_bands[5]
+
+        var digits = getDigits(band_1, band_2, band_3)
+        var multiplier = getMultiplier(band_4)
+        var tolerance = getTolerance(band_5)
+        var temperature_constant = getTemperatureConstant(band_6)
+
+        resistor_value = digits * multiplier
+
+        console.log("Resistor value", resistor_value)
+        console.log("Tolerance +-", tolerance, "%")
+        console.log("Temperature_constant", temperature_constant)
+
+    }
+
+</script>
+
+</html>
+
+
