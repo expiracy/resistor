@@ -86,7 +86,7 @@ class Detector:
         Colors().display(self.colors)
 
         # processing resistor specific parts of image
-        self.resistor = image.resistorBands(self.resistor, self.colors)
+        self.resistor = image.identifyBands(self.resistor, self.colors)
 
         return image.showList(
             [image.bgr(), adjusted_image.bgr(), blurred_image.bgr(), monochrome_image.bgr(),
