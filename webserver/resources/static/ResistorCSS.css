@@ -44,7 +44,7 @@
     }
 
     .BLACK {
-        background-color: #1a1a1a;
+        background-color: #262626;
     }
 
     .BROWN {
@@ -113,8 +113,7 @@
     }
 
     .add_selected {
-        border: solid 2px #ffffff;
-        outline: solid 2px #000000;
+        border: solid 4px #000000;
     }
 
     .resistor {

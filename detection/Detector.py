@@ -85,6 +85,8 @@ class Detector:
 
         Colors().display(self.colors)
 
+        # processing resistor specific parts of image
+        self.resistor = image.resistorBands(self.resistor, self.colors)
 
         return image.showList(
             [image.bgr(), adjusted_image.bgr(), blurred_image.bgr(), monochrome_image.bgr(),
@@ -106,10 +108,6 @@ class Detector:
 
         cv2.destroyAllWindows()
 
-        # changing the value of the bands of the resistance class
-
-        self.resistor.bands = self.resistor.findBands(self.colors)
-        self.resistor.type = self.resistor.findType(self.resistor.bands)
-
         return self.resistor
+
 

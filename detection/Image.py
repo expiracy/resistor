@@ -168,4 +168,11 @@ class Image:
 
             print(color)
 
+    def resistorBands(self, resistor, colors):
+
+        resistor.type = 6
+        resistor.bands = colors
+
+        return resistor
+
 

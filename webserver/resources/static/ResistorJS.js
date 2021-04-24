@@ -71,17 +71,15 @@ function uploadAndResponse(file, position) {
 
             resistor = JSON.parse(xhr.responseText)
 
-            console.log(resistor)
-
-            resistor_bands = resistor['bands'];
+            var resistor_bands = resistor['bands'];
             var number_of_bands = resistor['type'];
 
+            console.log(resistor)
             console.log(number_of_bands)
 
             // calculating values for resistor
-            var resistor_information = processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5])
-            outputResistorValues(resistor_information)
             resistorType(number_of_bands)
+            outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 
             // selecting bands
             var index = 0;
@@ -205,6 +203,7 @@ function checkBandPressDupes(band, colour) {
     }
 }
 
+
 function findElementId(band, colour) {
     band.toString()
 
@@ -258,7 +257,6 @@ function bandButtonPress(band, colour) {
     outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 }
 
-
 function getDigits(band_1, band_2, band_3) {
     var digits = {
         'BLACK':'0',
@@ -291,7 +289,6 @@ function getDigits(band_1, band_2, band_3) {
 
     return digit_1 + digit_2 + digit_3
 }
-
 
 function getMultiplier(colour) {
     var multipliers = {
