@@ -33,10 +33,12 @@ class Colors:
     def __init__(self):
 
         self.colors = []
-        self.load_colors(os.curdir + "/detection/data/colors.dat")
+        self.load_colors("../detection/data/colors.dat")
         self.detected_colors = []
 
     def load_colors(self, location):
+
+        print(os.path.abspath(location))
 
         with open(location) as file:
             for line in file.readlines():
