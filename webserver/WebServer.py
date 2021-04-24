@@ -1,3 +1,5 @@
+import os.path
+
 from flask import Flask, request, render_template, url_for, redirect, jsonify
 import requests
 from os.path import join, dirname, realpath
@@ -18,7 +20,8 @@ def api():
     x = int(float(request.form["x"]))
     y = int(float(request.form["y"]))
 
-    location = "images/" + file.filename
+    location = "../images/" + file.filename
+    location = os.path.abspath(location)
 
     with open(location, "wb") as target:
         file.save(target)

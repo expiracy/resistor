@@ -26,8 +26,8 @@ class Detector:
 
         angle = 0
 
-        offset = int(y - size / 2)
-
+        #offset = int(y - size / 2)
+        offset = 0
         while True:
 
             # self.image = self.image.rotate(angle, (x, offset))

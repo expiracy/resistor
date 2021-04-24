@@ -171,8 +171,6 @@ class Image:
     # method to identify the resistor bands from the identified colours
     def identifyBands(self, resistor, colors):
 
-
-
         resistor.type = 6
         resistor.bands = colors
 
