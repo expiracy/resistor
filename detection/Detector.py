@@ -36,17 +36,17 @@ class Detector:
 
             key = section.show()
 
-            if key == ord('4'):
-                angle = angle + 1
+            if key == ord('a'):
+                angle += 1
 
-            if key == ord('6'):
-                angle = angle - 1
+            if key == ord('d'):
+                angle -= 1
 
-            if key == ord('8'):
-                offset = offset - 10 if offset > 10 else 0
+            if key == ord('w'):
+                offset -= 10 if offset > 10 else 0
 
-            if key == ord('2'):
-                offset = offset + 10 if offset < height - 10 else height - 10
+            if key == ord('s'):
+                offset += 10 if offset < height - 10 else height - 10
 
             if key == 13:
                 key = self.process_section(section)
