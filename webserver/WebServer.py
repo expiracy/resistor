@@ -1,7 +1,6 @@
 import os.path
 
 from flask import Flask, request, render_template, url_for, redirect, jsonify
-import requests
 from os.path import join, dirname, realpath
 from detection.Detector import Detector
 
@@ -9,9 +8,11 @@ from detection.Detector import Detector
 UPLOADS_PATH = join(dirname(realpath(__file__)))
 app = Flask(__name__, template_folder="resources", static_folder="resources/static/")
 
+
 @app.route("/ui", methods=["GET"])
 def ui():
     return render_template("Resistor.html")
+
 
 @app.route("/api", methods=["POST"])
 def api():
