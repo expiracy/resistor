@@ -9,7 +9,6 @@ var target = null;
 var snapshot = null;
 
 // defining resistor variables
-var resistor = null
 var resistor_bands = [];
 var resistor_type = 6;
 
@@ -38,25 +37,25 @@ function clickButton(element_id) {
 }
 
 function drawFileAndShowScanButton() {
-    file = select_input.files[0];
+    let file = select_input.files[0];
     drawFile(file);
     document.getElementById('scan_button').style.display = 'inline'
 }
 
 function uploadFile() {
     // getting uploaded file and its location
-    file = select_input.files[0];
+    let file = select_input.files[0];
     uploadAndResponse(file, target);
 }
 
 function uploadAndResponse(file, position) {
     // creating variables for ajax
-    var form = new FormData();
-    var xhr = new XMLHttpRequest();
+    let form = new FormData();
+    let xhr = new XMLHttpRequest();
 
     // setting the x and y positions
-    x = position.x * image.width / canvas.width
-    y = position.y * image.height / canvas.height
+    let x = position.x * image.width / canvas.width
+    let y = position.y * image.height / canvas.height
 
     // posting the values to flask
     form.append('x', x)
@@ -69,7 +68,8 @@ function uploadAndResponse(file, position) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
 
-            resistor = JSON.parse(xhr.responseText)
+            // change back to global if it doesn't work
+            let resistor = JSON.parse(xhr.responseText)
 
             var resistor_bands = resistor['bands'];
             var number_of_bands = resistor['type'];
@@ -82,7 +82,7 @@ function uploadAndResponse(file, position) {
             outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 
             // selecting bands
-            var index = 0;
+            let index = 0;
 
             for (; index < resistor_bands.length; index++) {
                 bandButtonSelected(index + 1, resistor_bands[index])
@@ -93,10 +93,10 @@ function uploadAndResponse(file, position) {
 
 
 function drawFile(file) {
-    var reader = new FileReader();
+    let reader = new FileReader();
 
     reader.onload = function (e) {
-      var dataURL = e.target.result,
+      let dataURL = e.target.result,
           ctx = canvas.getContext('2d')
 
       image.onload = function() {
@@ -118,7 +118,8 @@ function drawFile(file) {
   }
 
 function getCanvasCoordinates(event) {
-    var x = event.clientX - canvas.getBoundingClientRect().left,
+    // getting the coordinates of the cursor on the canvas
+    let x = event.clientX - canvas.getBoundingClientRect().left,
         y = event.clientY - canvas.getBoundingClientRect().top;
 
     return {x: x, y: y};
@@ -132,15 +133,15 @@ function restoreSnapshot() {
     context.putImageData(snapshot, 0, 0);
 }
 
-
 function drawCircle(position) {
-    var radius = 20
+    // drawing the cursor
+    const radius = 15;
     context.beginPath();
     context.strokeStyle = '#00FF00'
     context.lineWidth = 3
     context.shadowBlur = 5;
     context.shadowColor = 'BLACK';
-    context.arc(position.x, position.y, radius, 0, 2 * Math.PI);
+    context.arc(position['x'], position['y'], radius, 0, 2 * Math.PI);
     context.stroke();
 }
 
@@ -152,7 +153,6 @@ function dragStart(event) {
     drawCircle(target);
 }
 
-
 function drag(event) {
     if (dragging === true) {
         restoreSnapshot();
@@ -161,14 +161,12 @@ function drag(event) {
     }
 }
 
-
 function dragStop(event) {
     dragging = false;
     restoreSnapshot();
     target = getCanvasCoordinates(event);
     drawCircle(target);
 }
-
 
 function stopBandButtonSelected(element_id) {
     try {
@@ -193,8 +191,8 @@ function addBandButtonSelected(element_id) {
 function checkBandPressDupes(band, colour) {
     if (band_presses.includes(band)) {
 
-        var index = band_presses.indexOf(band);
-        var dupe_flash_element = button_presses[index];
+        let index = band_presses.indexOf(band);
+        let dupe_flash_element = button_presses[index];
 
         delete button_presses[index];
         delete band_presses[index];
@@ -207,14 +205,14 @@ function checkBandPressDupes(band, colour) {
 function findElementId(band, colour) {
     band.toString()
 
-    var element_target = ('_' + band + '_' + colour)
+    let element_target = ('_' + band + '_' + colour)
 
     return 'band_button' + element_target;
 }
 
 
 function bandButtonSelected(band, colour) {
-    var element_id = findElementId(band, colour);
+    let element_id = findElementId(band, colour);
 
     checkBandPressDupes(band, colour);
 
@@ -228,29 +226,29 @@ function bandButtonSelected(band, colour) {
 function bandButtonPress(band, colour) {
     bandButtonSelected(band, colour)
 
-    if (band == 1) {
+    if (band === 1) {
         resistor_bands[0] = colour
     }
 
-    if (band == 2) {
+    if (band === 2) {
         resistor_bands[1] = colour
     }
 
-    if (band == 3) {
+    if (band === 3) {
         resistor_bands[2] = colour
     }
 
-    if (band == 4) {
+    if (band === 4) {
         resistor_bands[3] = colour
 
     }
 
-    if (band == 5) {
+    if (band === 5) {
         resistor_bands[4] = colour
 
     }
 
-    if (band == 6) {
+    if (band === 6) {
         resistor_bands[5] = colour
     }
 
@@ -258,7 +256,7 @@ function bandButtonPress(band, colour) {
 }
 
 function getDigits(band_1, band_2, band_3) {
-    var digits = {
+    let digits = {
         'BLACK':'0',
         'BROWN':'1',
         'RED':'2',
@@ -271,9 +269,9 @@ function getDigits(band_1, band_2, band_3) {
         'WHITE':'9'
     }
 
-    var digit_1 = digits[band_1]
-    var digit_2 = digits[band_2]
-    var digit_3 = digits[band_3]
+    let digit_1 = digits[band_1]
+    let digit_2 = digits[band_2]
+    let digit_3 = digits[band_3]
 
     if (typeof digit_1 === 'undefined') {
         digit_1 = ''
@@ -291,7 +289,7 @@ function getDigits(band_1, band_2, band_3) {
 }
 
 function getMultiplier(colour) {
-    var multipliers = {
+    let multipliers = {
         'BLACK':1,
         'BROWN':10,
         'RED':100,
@@ -306,18 +304,17 @@ function getMultiplier(colour) {
         'SILVER':0.01
     }
 
-    var multiplier = multipliers[colour]
+    let multiplier = multipliers[colour]
 
     if (typeof multiplier === 'undefined') {
-        var multiplier = 1
+        return 1
     }
-
     return multiplier
 }
 
 
 function getTolerance(colour) {
-    var tolerances = {
+    let tolerances = {
         'BLACK':0,
         'BROWN':1,
         'RED':2,
@@ -334,14 +331,11 @@ function getTolerance(colour) {
     if (typeof tolerances[colour] === 'undefined') {
         return undefined
     }
-
     return tolerances[colour]
-
 }
 
-
 function getTemperatureConstant(colour) {
-    var temperature_constants = {
+    let temperature_constants = {
         'BLACK':0,
         'BROWN':100,
         'RED':50,
@@ -360,30 +354,31 @@ function getTemperatureConstant(colour) {
 
 
 function processResistor(band_1, band_2, band_3, band_4, band_5, band_6) {
-    var digits = getDigits(band_1, band_2, band_3);
-    var multiplier = getMultiplier(band_4);
-    var tolerance = getTolerance(band_5);
-    var temperature_constant = getTemperatureConstant(band_6);
+    resistor_bands = [band_1, band_2, band_3, band_4, band_5, band_6]
 
-    var resistance = digits * multiplier;
+    let digits = getDigits(band_1, band_2, band_3);
+    let multiplier = getMultiplier(band_4);
+    let tolerance = getTolerance(band_5);
+    let temperature_constant = getTemperatureConstant(band_6);
 
-    return [resistance, tolerance, temperature_constant]
+    let resistance = digits * multiplier;
 
+    return {'resistance':resistance, 'tolerance':tolerance, 'temperature_constant':temperature_constant}
 }
 
 
 function removeTableColumns(band_amount) {
     deselectColumns()
 
-    var inactive_bands = {
+    let inactive_bands = {
         3:['band_3', 'band_5', 'band_6'],
         4:['band_3', 'band_6'],
         5:['band_6']
     }
 
-    var index = 0;
+    let index = 0;
 
-    var remove_columns = inactive_bands[band_amount];
+    let remove_columns = inactive_bands[band_amount];
 
     for (; index < remove_columns.length; index++) {
 
@@ -394,16 +389,16 @@ function removeTableColumns(band_amount) {
 
 
 function addTableColumns(band_amount) {
-    var columns_for_band = {
+    let columns_for_band = {
         3:['band_1', 'band_2', 'band_4'],
         4:['band_1', 'band_2', 'band_4', 'band_5'],
         5:['band_1', 'band_2', 'band_3', 'band_4', 'band_5'],
         6:['band_1', 'band_2', 'band_3', 'band_4', 'band_5', 'band_6']
     }
 
-    var index = 0;
+    let index = 0;
 
-    var add_columns = columns_for_band[band_amount];
+    let add_columns = columns_for_band[band_amount];
 
     for (; index < add_columns.length; index++) {
 
@@ -417,23 +412,24 @@ function resistorType(band_amount) {
     if (band_amount < resistor_type) {
 
         removeTableColumns(band_amount);
-        resistor_type = band_amount;
     }
 
     else {
         addTableColumns(band_amount);
-        resistor_type = band_amount;
     }
+
+    resistor_type = band_amount;
+
 }
 
 function deselectColumns() {
-    var index = 0;
+    let index = 0;
 
     for (; index < button_presses.length; index++) {
 
         if (typeof button_presses[index] !== 'undefined') {
 
-            var element_id = button_presses[index];
+            let element_id = button_presses[index];
 
             try {
                 document.getElementById(element_id).classList.remove('add_selected');
@@ -452,22 +448,26 @@ function deselectColumns() {
     outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 }
 
-function outputResistorValues(resistor_value) {
+function outputResistorValues(resistor_values) {
+    // converting string to int
+    let resistance = resistor_values['resistance']
+    console.log(resistance)
+
     // outputting the resistance by updating HTML for specific elements
-    document.getElementById('resistance').innerText = 'Resistor: ' + resistor_value[0] + 'Ω';
-    document.getElementById('tolerance').innerText = 'Tolerance +-: ' + resistor_value[1] + '%';
-    document.getElementById('temperature_constant').innerText = 'Temperature Constant: ' + resistor_value[2] + 'ppm/K';
+    document.getElementById('resistance').innerText = 'Resistor: ' + resistor_values['resistance'] + 'Ω';
+    document.getElementById('tolerance').innerText = 'Tolerance +-: ' + resistor_values['tolerance'] + '%';
+    document.getElementById('temperature_constant').innerText = 'Temperature Constant: ' + resistor_values['temperature_constant'] + 'ppm/K';
 
     // hiding the elements if no values are present
-    if (resistor_value[0] === 0) {
+    if (resistance === 0) {
         document.getElementById('resistance').innerText = '';
     }
 
-    if (typeof resistor_value[1] === 'undefined') {
+    if (typeof resistor_values['tolerance'] === 'undefined') {
         document.getElementById('tolerance').innerText = '';
     }
 
-    if (typeof resistor_value[2] === 'undefined') {
+    if (typeof resistor_values['temperature_constant'] === 'undefined') {
         document.getElementById('temperature_constant').innerText = '';
     }
 }

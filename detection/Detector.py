@@ -20,14 +20,20 @@ class Detector:
 
     def scan(self, x, y):
 
+        print(f"x: {x}, y: {y}")
+
         height = self.image.height()
+
+        print(f"height {height}")
 
         size = 32
 
         angle = 0
 
         #offset = int(y - size / 2)
-        offset = int(y + size / 2)
+        offset = int(y / 3)
+
+        print(f"offset {offset}")
 
         while True:
 
