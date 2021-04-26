@@ -8,4 +8,10 @@ class Resistor:
     def create(cls):
         return Resistor()
 
+    def identify_type(self, resistor):
+
+        self.type = len(resistor)
+
+        return self.type
+
 

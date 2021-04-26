@@ -31,7 +31,7 @@ class Detector:
         angle = 0
 
         #offset = int(y - size / 2)
-        offset = int(y / 3)
+        offset = 0
 
         print(f"offset {offset}")
 
@@ -44,10 +44,10 @@ class Detector:
             key = section.show()
 
             if key == ord('a'):
-                angle += 1
+                angle += 10
 
             if key == ord('d'):
-                angle -= 1
+                angle -= 10
 
             if key == ord('w'):
                 offset -= 10 if offset > 10 else 0
@@ -56,7 +56,7 @@ class Detector:
                 offset += 10 if offset < height - 10 else height - 10
 
             if key == 13:
-                key = self.process_section(section)
+                key = self.process_section(section, size)
 
             if key == ord('+'):
                 self.image = self.image.brighten(1.1)
@@ -76,7 +76,7 @@ class Detector:
         return 27
 
 
-    def process_section(self, image):
+    def process_section(self, image, size):
 
         adjusted_image = image.invert_light()
 
@@ -84,7 +84,10 @@ class Detector:
 
         monochrome_image = blurred_image.monochrome(inverted=True)
 
-        contours = Contours.create().scan(monochrome_image).select(8).boxes()
+        # background_color = image.background(size)
+
+        # start and end points of select to ignore solid background
+        contours = Contours.create().scan(monochrome_image).select(7, 1).boxes()
 
         contour_image = contours.draw(image)
 
@@ -93,7 +96,8 @@ class Detector:
         Colors().display(self.colors)
 
         # processing resistor specific parts of image
-        self.resistor = image.identifyBands(self.resistor, self.colors)
+        self.resistor = image.bands(self.resistor, self.colors)
+        self.resistor.type = self.resistor.identify_type(self.colors)
 
         return image.showList(
             [image.bgr(), adjusted_image.bgr(), blurred_image.bgr(), monochrome_image.bgr(),

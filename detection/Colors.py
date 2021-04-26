@@ -87,3 +87,6 @@ class Colors:
             self.detected_colors.append(color)
 
         return self
+
+
+

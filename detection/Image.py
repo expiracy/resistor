@@ -168,8 +168,15 @@ class Image:
 
             print(color)
 
+    def background(self, size):
+        width = self.width()
+        background_color = self.bgr_image[int(size / 2), width - 1]
+        print(f"background colour: {background_color}")
+        return background_color
+
+
     # method to identify the resistor bands from the identified colours
-    def identifyBands(self, resistor, colors):
+    def bands(self, resistor, colors):
 
         resistor.type = 6
         resistor.bands = colors
