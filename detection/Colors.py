@@ -19,7 +19,7 @@ class Colors:
         YELLOW = 4,
         GREEN = 5,
         BLUE = 6,
-        PURPLE = 7,
+        VIOLET = 7,
         GREY = 8,
         WHITE = 9,
         SILVER = 10,

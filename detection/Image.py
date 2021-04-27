@@ -150,7 +150,7 @@ class Image:
 
         return cv2.waitKey(0) & 0xff
 
-    def showList(self, images, axis):
+    def show_list(self, images, axis):
 
         display_image = numpy.concatenate(images, axis=axis)
 
@@ -173,7 +173,6 @@ class Image:
         background_color = self.bgr_image[int(size / 2), width - 1]
         print(f"background colour: {background_color}")
         return background_color
-
 
     # method to identify the resistor bands from the identified colours
     def bands(self, resistor, colors):

@@ -71,8 +71,8 @@ function uploadAndResponse(file, position) {
             // change back to global if it doesn't work
             let resistor = JSON.parse(xhr.responseText)
 
-            var resistor_bands = resistor['bands'];
-            var number_of_bands = resistor['type'];
+            let resistor_bands = resistor['bands'];
+            let number_of_bands = resistor['type'];
 
             console.log(resistor)
             console.log(number_of_bands)
@@ -85,12 +85,11 @@ function uploadAndResponse(file, position) {
             let index = 0;
 
             for (; index < resistor_bands.length; index++) {
-                bandButtonSelected(index + 1, resistor_bands[index])
+                selectBandButton(index + 1, resistor_bands[index])
             }
         }
     }
 }
-
 
 function drawFile(file) {
     let reader = new FileReader();
@@ -178,7 +177,7 @@ function stopBandButtonSelected(element_id) {
 }
 
 
-function addBandButtonSelected(element_id) {
+function addSelected(element_id) {
     try {
         document.getElementById(element_id).className += ' add_selected';
     }
@@ -188,7 +187,7 @@ function addBandButtonSelected(element_id) {
 }
 
 
-function checkBandPressDupes(band, colour) {
+function checkBandPressDupes(band) {
     if (band_presses.includes(band)) {
 
         let index = band_presses.indexOf(band);
@@ -211,20 +210,22 @@ function findElementId(band, colour) {
 }
 
 
-function bandButtonSelected(band, colour) {
-    let element_id = findElementId(band, colour);
+function selectBandButton(band, colour) {
+    if (band !== 'NONE') {
+        let element_id = findElementId(band, colour);
 
-    checkBandPressDupes(band, colour);
+        checkBandPressDupes(band);
 
-    button_presses.push(element_id);
-    band_presses.push(band);
+        button_presses.push(element_id);
+        band_presses.push(band);
 
-    addBandButtonSelected(element_id)
+        addSelected(element_id)
+    }
 }
 
 
 function bandButtonPress(band, colour) {
-    bandButtonSelected(band, colour)
+    selectBandButton(band, colour)
 
     if (band === 1) {
         resistor_bands[0] = colour
@@ -410,16 +411,13 @@ function addTableColumns(band_amount) {
 
 function resistorType(band_amount) {
     if (band_amount < resistor_type) {
-
         removeTableColumns(band_amount);
     }
 
     else {
         addTableColumns(band_amount);
     }
-
     resistor_type = band_amount;
-
 }
 
 function deselectColumns() {
@@ -428,7 +426,6 @@ function deselectColumns() {
     for (; index < button_presses.length; index++) {
 
         if (typeof button_presses[index] !== 'undefined') {
-
             let element_id = button_presses[index];
 
             try {

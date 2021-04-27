@@ -56,7 +56,7 @@ class Detector:
                 offset += 10 if offset < height - 10 else height - 10
 
             if key == 13:
-                key = self.process_section(section, size)
+                key = self.process_section(section)
 
             if key == ord('+'):
                 self.image = self.image.brighten(1.1)
@@ -75,8 +75,7 @@ class Detector:
 
         return 27
 
-
-    def process_section(self, image, size):
+    def process_section(self, image):
 
         adjusted_image = image.invert_light()
 
@@ -98,8 +97,9 @@ class Detector:
         # processing resistor specific parts of image
         self.resistor = image.bands(self.resistor, self.colors)
         self.resistor.identify_type(self.colors)
+        self.resistor.bands_for_type()
 
-        return image.showList(
+        return image.show_list(
             [image.bgr(), adjusted_image.bgr(), blurred_image.bgr(), monochrome_image.bgr(),
              contour_image.bgr()],
             axis=0)
