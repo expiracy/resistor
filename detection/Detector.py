@@ -30,7 +30,7 @@ class Detector:
 
         angle = 0
 
-        #offset = int(y - size / 2)
+        # offset = int(y - size / 2)
         offset = 0
 
         print(f"offset {offset}")
@@ -43,11 +43,11 @@ class Detector:
 
             key = section.show()
 
-            if key == ord('a'):
+            '''if key == ord('a'):
                 angle += 10
 
             if key == ord('d'):
-                angle -= 10
+                angle -= 10'''
 
             if key == ord('w'):
                 offset -= 10 if offset > 10 else 0
@@ -97,7 +97,7 @@ class Detector:
 
         # processing resistor specific parts of image
         self.resistor = image.bands(self.resistor, self.colors)
-        self.resistor.type = self.resistor.identify_type(self.colors)
+        self.resistor.identify_type(self.colors)
 
         return image.showList(
             [image.bgr(), adjusted_image.bgr(), blurred_image.bgr(), monochrome_image.bgr(),

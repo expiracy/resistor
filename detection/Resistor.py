@@ -12,6 +12,6 @@ class Resistor:
 
         self.type = len(resistor)
 
-        return self.type
+
 
 

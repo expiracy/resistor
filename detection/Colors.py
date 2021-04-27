@@ -8,7 +8,7 @@ from detection.Color import Color
 class Colors:
     class Name(Enum):
 
-        #to return only the name of the enum
+        # to return only the name of the enum
         def __str__(self):
             return str(self.name)
 
@@ -23,7 +23,7 @@ class Colors:
         GREY = 8,
         WHITE = 9,
         SILVER = 10,
-        GOLD = 11
+        GOLD = 11,
         UNKNOWN = 13
 
     @classmethod
