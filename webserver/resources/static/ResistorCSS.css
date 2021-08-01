@@ -1,36 +1,41 @@
     body {
-        background-color: #e0e0e0;
-        margin: 25px
+        background-color: #36393F;
     }
 
     td {
         text-align: center;
+        padding: 0
+    }
+
+    table {
+        margin-left:auto;
+        margin-right:auto;
+        border: 0;
     }
 
     .band_button {
         color: #000000;
-        padding: 10px 20px;
         text-decoration: NONE;
-        margin: 4px 1px;
+        margin: 10px 5px;
         cursor: pointer;
         display: block;
         border: solid 0;
-        border-radius: 4px;
-        width: 90px;
+        border-radius: 8px;
+        width: 60px;
         height: 50px;
         position: relative;
     }
 
     .band_1 {
-        top: -54px;
+        top: -60px;
     }
 
     .band_2 {
-        top: -54px;
+        top: -60px;
     }
 
     .band_3 {
-        top: -54px;
+        top: -60px;
     }
 
     .band_4 {
@@ -40,11 +45,11 @@
     }
 
     .band_6 {
-        top: -108px;
+        top: -120px;
     }
 
     .BLACK {
-        background-color: #262626;
+        background-color: #1a1a1a;
     }
 
     .BROWN {
@@ -52,60 +57,64 @@
     }
 
     .RED {
-        background-color: #ff1b1b;
+        background-color: #ff3333;
     }
 
     .ORANGE {
-        background-color: #ff950c;
+        background-color: #ff7308;
     }
 
     .YELLOW {
-        background-color: #d6bd16;
+        background-color: #ffd966;
     }
 
     .GREEN {
-        background-color: #61ae00;
+        background-color: #99ff33;
     }
 
     .BLUE {
-        background-color: #3636ff;
+        background-color: #6666ff;
     }
 
     .VIOLET {
-        background-color: #ad59ea;
+        background-color: #ff66b3;
     }
 
     .GREY {
-        background-color: #878787;
+        background-color: #8f8f8f;
+    }
+
+    .DARKGREY {
+        background-color: #202225;
     }
 
     .WHITE {
         background-color: #ffffff;
     }
 
-     .GOLD {
-         background-image: linear-gradient(to right, #F09819 0%, #EDDE5D  51%, #f09819 100%)
-     }
+    .GOLD {
+         background-image: linear-gradient(to top, #F09819 0%, #EDDE5D  51%, #f09819 100%)
+    }
 
     .SILVER {
-        background-image: linear-gradient(to right, #8f8f8f 0%, #ffffff 51%, #8a8a8a 100%)
+        background-image: linear-gradient(to top, #8f8f8f 0%, #ffffff 51%, #8a8a8a 100%)
     }
 
     .NONE {
         background-color: Transparent;
         background-repeat:no-repeat;
         border: NONE;
-        cursor:pointer;
+        cursor: default;
         overflow: hidden;
-        outline:NONE;
+        outline: NONE;
     }
 
     .add_margin{
-        margin: 4px 2px;
+        margin: 5px 3px;
     }
 
     .add_curve{
-        border-radius: 4px;
+        border-radius: 8px;
     }
 
     .add_shadow{
@@ -116,28 +125,77 @@
         border: solid 4px #000000;
     }
 
-    .resistor {
-        height: 100px;
-        width: 500px;
-        background-color: #ffefc5;
-    }
-
-    .wire {
-        height: 10px;
-        width: 600px;
-        background-color: #000000;
-    }
-
-    .resistor_position {
-        left: 50px;
+    #banner {
+        position: absolute;
         top: 0;
-        z-index: 0;
-        position: relative;
+        left: 0;
+        background-color: #202225;
+        width: 100%;
+     }
+
+    #banner-content {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px;
+        color: white;
+        text-align: center;
+        font-family: 'Questrial', sans-serif;
+        font-size: 30px;
+     }
+
+    #main-content {
+        max-width: 500px;
+        padding: 90px;
+        margin: 0 auto;
+        font-family: 'Questrial', sans-serif;
+        font-size: 20px;
     }
 
-    .wire_position {
-        right: 500px;
-        top: -45px;
-        z-index: -1;
-        position: relative;
+
+    .input_button {
+        background-color: #5865F2;
+        border: none;
+        color: white;
+        text-align: center;
+        margin: 5px 5px;
+        font-family: 'Questrial', sans-serif;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .band_amount_button {
+        width: 98px;
+        height: 50px;
+    }
+
+    .input_image_button {
+        width: 428px;
+        height: 50px;
+    }
+
+    .output_window {
+        background-color: #ffffff;
+        border: none;
+        color: black;
+        width: 135px;
+        height: 50px;
+        text-align: center;
+        display: inline-block;
+        margin: 10px 5px;
+        font-family: 'Questrial', sans-serif;
+        font-size: 20px;
+        vertical-align:top;
+    }
+
+    .space_top {
+        padding-top: 25px
+    }
+
+    .space_bottom {
+        padding-bottom: 25px;
+    }
+
+    .placeholder {
+        font-style: italic;
+        color: #8a8a8a;
     }

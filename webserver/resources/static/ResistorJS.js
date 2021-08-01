@@ -197,6 +197,8 @@ function checkBandPressDupes(band) {
         delete band_presses[index];
 
         stopBandButtonSelected(dupe_flash_element);
+
+
     }
 }
 
@@ -218,11 +220,11 @@ function selectBandButton(band, colour) {
 
         button_presses.push(element_id);
         band_presses.push(band);
-
         addSelected(element_id)
+
+
     }
 }
-
 
 function bandButtonPress(band, colour) {
     selectBandButton(band, colour)
@@ -448,24 +450,23 @@ function deselectColumns() {
 function outputResistorValues(resistor_values) {
     // converting string to int
     let resistance = resistor_values['resistance']
-    console.log(resistance)
 
     // outputting the resistance by updating HTML for specific elements
-    document.getElementById('resistance').innerText = 'Resistor: ' + resistor_values['resistance'] + 'Ω';
-    document.getElementById('tolerance').innerText = 'Tolerance +-: ' + resistor_values['tolerance'] + '%';
-    document.getElementById('temperature_constant').innerText = 'Temperature Constant: ' + resistor_values['temperature_constant'] + 'ppm/K';
+    document.getElementById('resistance').innerText = resistor_values['resistance'] + 'Ω';
+    document.getElementById('tolerance').innerText = resistor_values['tolerance'] + '%';
+    document.getElementById('temperature_constant').innerText = resistor_values['temperature_constant'] + 'ppm/K';
 
     // hiding the elements if no values are present
     if (resistance === 0) {
-        document.getElementById('resistance').innerText = '';
+        document.getElementById('resistance').innerText = 'N/A';
     }
 
     if (typeof resistor_values['tolerance'] === 'undefined') {
-        document.getElementById('tolerance').innerText = '';
+        document.getElementById('tolerance').innerText = 'N/A';
     }
 
     if (typeof resistor_values['temperature_constant'] === 'undefined') {
-        document.getElementById('temperature_constant').innerText = '';
+        document.getElementById('temperature_constant').innerText = 'N/A';
     }
 }
 
