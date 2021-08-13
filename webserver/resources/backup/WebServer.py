@@ -23,10 +23,10 @@ def index():
 
         resistance = Detector.create().detect(location, x, y)
 
-        bands = resistance.bands
+        bands = resistance.colours
 
         return redirect(url_for("resistor"), code=307)
-        #return render_template("Resistor.html", data=bands)
+        #return render_template("ResistorBands.html", data=colours)
 
     else:
         return render_template("Resistor.html", data=data)

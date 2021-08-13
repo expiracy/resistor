@@ -4,11 +4,11 @@ import numpy
 from detection.Colors import Colors
 from detection.Image import Image
 
-class Contours:
+class BandLocator:
 
     @classmethod
     def create(cls, contours=[]):
-        return Contours(contours)
+        return BandLocator(contours)
 
     def __init__(self, contours=[]):
         self.contours = contours
@@ -18,7 +18,7 @@ class Contours:
         return self.contours
 
     def clone(self):
-        return Contours(self.image, self.contours)
+        return BandLocator(self.image, self.contours)
 
     def scan(self, image):
 
@@ -48,7 +48,7 @@ class Contours:
         # Relies on the box points being put with lowest x value first
         boxes = sorted(boxes, key=lambda point: point[0][0])
 
-        return Contours(boxes)
+        return BandLocator(boxes)
 
     def colors(self, image):
 
@@ -76,7 +76,7 @@ class Contours:
 
     def select(self, end, start=0):
 
-        return Contours(self.contours[start:end])
+        return BandLocator(self.contours[start:end])
 
     def draw(self, image):
 

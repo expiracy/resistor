@@ -29,7 +29,7 @@ def api():
 
     resistor = Detector.create().detect(location, x, y)
 
-    return jsonify(bands=resistor.bands, type=resistor.type)
+    return jsonify(bands=resistor.colours, type=resistor.amount)
 
 
 if __name__ == "__main__":

@@ -2,9 +2,9 @@ import cv2
 import numpy
 
 from detection.Colors import Colors
-from detection.Contours import Contours
+from detection.BandLocator import BandLocator
 from detection.Image import Image
-from detection.Resistor import Resistor
+from detection.ResistorBands import ResistorBands
 
 
 class Detector:
@@ -15,7 +15,7 @@ class Detector:
 
     def __init__(self):
         self.image = Image.create()
-        self.resistor = Resistor.create()
+        self.resistor = ResistorBands.create()
         self.colors = None
 
     def scan(self, x, y):
@@ -86,7 +86,7 @@ class Detector:
         # background_color = image.background(size)
 
         # start and end points of select to ignore solid background
-        contours = Contours.create().scan(monochrome_image).select(7, 1).boxes()
+        contours = BandLocator.create().scan(monochrome_image).select(7, 1).boxes()
 
         contour_image = contours.draw(image)
 
@@ -95,7 +95,7 @@ class Detector:
         Colors().display(self.colors)
 
         # processing resistor specific parts of image
-        self.resistor = image.bands(self.resistor, self.colors)
+        self.resistor = image.colours(self.resistor, self.colors)
         self.resistor.identify_type(self.colors)
         self.resistor.bands_for_type()
 

@@ -387,7 +387,7 @@ function deselectColumns() {
 
 function outputResistorValues(resistor_value) {
 
-    document.getElementById("resistance").innerText = "Resistor: " + resistor_value[0] + "Ω";
+    document.getElementById("resistance").innerText = "ResistorBands: " + resistor_value[0] + "Ω";
     document.getElementById("tolerance").innerText = "Tolerance +-: " + resistor_value[1] + "%";
     document.getElementById("temperature_constant").innerText = "Temperature Constant: " + resistor_value[2] + "ppm/K";
 

@@ -2,7 +2,6 @@ from colormath.color_objects import sRGBColor, LabColor
 from colormath.color_diff import delta_e_cie2000
 from colormath.color_conversions import convert_color
 
-
 class Color:
 
     def __init__(self, name, red, green, blue):

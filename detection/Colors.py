@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from detection.Resistor import Resistor
+from detection.ResistorBands import ResistorBands
 
 from detection.Color import Color
 
