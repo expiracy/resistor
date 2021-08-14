@@ -1,6 +1,5 @@
 import cv2
 import numpy
-from matplotlib import pyplot as plt
 
 class Image:
 
@@ -106,7 +105,7 @@ class Image:
         return Image(blurred_image)
 
     def monochrome(self, inverted=False):
-
+        '''
         height, width, channels = self.image.shape
 
         greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
@@ -119,6 +118,13 @@ class Image:
         bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
 
         return Image(bgr_image)
+        '''
+
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+
+        thresh, self.image = cv2.threshold(greyscale_image, 127, 255, cv2.THRESH_BINARY)
+        return self
+
 
     def recolor(self, shift=0):
 
@@ -181,64 +187,44 @@ class Image:
 
         return resistor
 
-    def apply_canny(self):
-        self.image = cv2.Canny(self.image, 50, 150, apertureSize=3)
+    def canny(self):
+
+        self.image = cv2.Canny(self.image, 500, 500, apertureSize=3)
 
         return self
 
-    def apply_hough_lines(self, edges):
-        lines = cv2.HoughLinesP(edges, 3, numpy.pi/180, 10, minLineLength=10, maxLineGap=30)
+    def hough_lines(self, edges):
+        lines = cv2.HoughLinesP(edges, 10, numpy.pi/180, 100, minLineLength=1, maxLineGap=2)
 
         for line in lines:
             for x1, y1, x2, y2 in line:
-                cv2.line(self.image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.line(self.image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+                #cv2.circle(self.image, (x1, y1), radius=0, color=(0, 0, 255), thickness=10)
+                #cv2.circle(self.image, (x2, y2), radius=0, color=(0, 0, 255), thickness=10)
 
         return self, lines
 
-    def apply_greyscale(self):
-        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+    def greyscale(self):
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
-        return self
+        return Image(greyscale_image)
 
-    def apply_kmeans(self):
-        '''
-        img = self.image
-        Z = img.reshape((-1, 3))
-        # convert to np.float32
-        Z = numpy.float32(Z)
-        # define criteria, number of clusters(K) and apply kmeans()
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        K = 2
-        ret, label, center = cv2.kmeans(Z, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-        # Now convert back into uint8, and make original image
-        center = numpy.uint8(center)
-        res = center[label.flatten()]
-        res2 = res.reshape(img.shape)
-        cv2.imshow('res2', res2)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        '''
+    def draw_circle(self, x, y, thickness=10):
+        image_with_plots = cv2.circle(self.image, (x, y), radius=0, color=(0, 0, 255), thickness=thickness)
 
-        image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)  # Change color to RGB (from BGR)
+        return Image(image_with_plots)
 
-        # Reshaping the image into a 2D array of pixels and 3 color values (RGB)
-        pixel_values = image.reshape((-1, 3))
-        # Convert to float type only for supporting cv2.kmean
-        pixel_values = numpy.float32(pixel_values)
+    def contours(self):
 
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.85)  # criteria
-        k = 2  # Choosing number of cluster
-        retval, labels, centers = cv2.kmeans(pixel_values, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+        ret, thresh = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-        centers = numpy.uint8(centers)  # convert data into 8-bit values
-        segmented_data = centers[labels.flatten()]  # Mapping labels to center points( RGB Value)
-        segmented_image = segmented_data.reshape((image.shape))  # reshape data into the original image dimensions
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-        plt.imshow(segmented_image)
+        return contours
 
-        self.image = segmented_image
 
-        return self
+
+
 
 
 
