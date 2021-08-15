@@ -7,9 +7,9 @@ import math
 import os
 import cv2
 from Image import Image
-from matplotlib import pyplot
 import numpy
 import glob
+import random
 
 class ResistorLocator:
     def __init__(self, image_file):
@@ -17,10 +17,15 @@ class ResistorLocator:
 
     def locate(self):
         image = Image().load(self.image_file)
+        image2 = Image().load(self.image_file)
 
-        canny_image = Image(image.image).greyscale().canny()
+        canny_image = Image(image.image).blur().greyscale().canny()
 
-        canny_image.show()
+        contours = canny_image.contours()
+
+        #canny_image = Image(image.image).blur().show()
+
+       # canny_image.show()
 
         #contours = canny_image.contours(image.image)
 
@@ -28,10 +33,14 @@ class ResistorLocator:
 
         x_centres, y_centres = self.find_cluster(lines)
 
+        self.bounding_box(contours, image)
+
 
 
         for k in range(len(x_centres)):
-            image.draw_circle(x_centres[k][0], y_centres[k][0])
+            x = int(x_centres[k][0])
+            y = int(y_centres[k][0])
+            image.draw_circle(x, y)
 
 
         image.show()
@@ -62,6 +71,34 @@ class ResistorLocator:
 
         return x_centre, y_centre
 
+    def bounding_box(self, contours, image):
+
+        x_list = []
+        y_list = []
+
+        for k in contours:
+            for i in k:
+                for j in i:
+                    x_list.append(j[0])
+                    y_list.append(j[1])
+
+        x_list.sort()
+        y_list.sort()
+
+        largest_x = x_list[-1]
+        smallest_x = x_list[0]
+
+        largest_y = y_list[-1]
+        smallest_y = y_list[0]
+
+        image.draw_circle(largest_x, largest_y)
+        image.draw_circle(largest_x, smallest_y)
+        image.draw_circle(smallest_x, largest_y)
+        image.draw_circle(smallest_x, smallest_y)
+
+        image.show()
+
+        #draw box round resistor using contours
 
 
 if __name__ == "__main__":
@@ -70,8 +107,42 @@ if __name__ == "__main__":
 
     directory = os.path.abspath(os.curdir)
 
+    file_name = f'{directory}\\images\\0.25_normal_IMG_3048.JPG'
+
     for file_name in glob.glob(directory + '\\images\\' + '*.jpg'):
+        pass
 
-        resistor_locator = ResistorLocator(file_name)
+        '''
+        image = cv2.imread(file_name)
 
-        resistor_locator.locate()
+        canny = cv2.Canny(image, 100, 200, apertureSize=3)
+
+        _, contours = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        
+        contours_poly = [None] * len(contours)
+        boundRect = [None] * len(contours)
+        centers = [None] * len(contours)
+        radius = [None] * len(contours)
+        for i, c in enumerate(contours):
+            #contours_poly[i] = cv2.approxPolyDP(c, 3, True)
+            boundRect[i] = cv2.boundingRect(contours_poly[i])
+            #centers[i], radius[i] = cv2.minEnclosingCircle(contours_poly[i])
+
+        drawing = numpy.zeros((canny.shape[0], canny.shape[1], 3), dtype=numpy.uint8)
+
+        for i in range(len(contours)):
+            color = (random .randint(0, 256), random .randint(0, 256), random.randint(0, 256))
+            #cv2.drawContours(drawing, contours_poly, i, color)
+            cv2.rectangle(drawing, (int(boundRect[i][0]), int(boundRect[i][1])), \
+                         (int(boundRect[i][0] + boundRect[i][2]), int(boundRect[i][1] + boundRect[i][3])), color, 2)
+            #cv2.circle(drawing, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), color, 2)
+
+        cv2.imshow('Contours', drawing)
+
+        cv2.waitKey(-1)
+        
+        '''
+
+    resistor_locator = ResistorLocator(file_name)
+
+    resistor_locator.locate()

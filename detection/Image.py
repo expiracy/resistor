@@ -99,8 +99,8 @@ class Image:
 
         height = self.height() if height < 0 else height
 
-        blurred_image = cv2.blur(self.image, (width, height))
-        blurred_image = cv2.bilateralFilter(blurred_image, 5, 75, 75)
+        #blurred_image = cv2.blur(self.image, (width, height))
+        blurred_image = cv2.bilateralFilter(self.image, 50, 100, 100)
 
         return Image(blurred_image)
 
@@ -189,12 +189,12 @@ class Image:
 
     def canny(self):
 
-        self.image = cv2.Canny(self.image, 500, 500, apertureSize=3)
+        self.image = cv2.Canny(self.image, 250, 250, apertureSize=3)
 
         return self
 
     def hough_lines(self, edges):
-        lines = cv2.HoughLinesP(edges, 10, numpy.pi/180, 100, minLineLength=1, maxLineGap=2)
+        lines = cv2.HoughLinesP(edges, 10, numpy.pi/180, 10, minLineLength=1, maxLineGap=100)
 
         for line in lines:
             for x1, y1, x2, y2 in line:
@@ -210,9 +210,9 @@ class Image:
         return Image(greyscale_image)
 
     def draw_circle(self, x, y, thickness=10):
-        image_with_plots = cv2.circle(self.image, (x, y), radius=0, color=(0, 0, 255), thickness=thickness)
+        cv2.circle(self.image, (x, y), radius=1, color=(0, 0, 255), thickness=thickness)
 
-        return Image(image_with_plots)
+        return self
 
     def contours(self):
 

@@ -50,7 +50,7 @@ function uploadFile() {
 
 function uploadAndResponse(file, position) {
     // creating variables for ajax
-    let form = new FormData();
+    let form = new FormData();	
     let xhr = new XMLHttpRequest();
 
     // setting the x and y positions
@@ -93,7 +93,7 @@ function uploadAndResponse(file, position) {
 
 function drawFile(file) {
     let reader = new FileReader();
-
+	
     reader.onload = function (e) {
       let dataURL = e.target.result,
           ctx = canvas.getContext('2d')
@@ -243,7 +243,6 @@ function bandButtonPress(band, colour) {
 
     if (band === 4) {
         resistor_bands[3] = colour
-
     }
 
     if (band === 5) {
