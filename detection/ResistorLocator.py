@@ -1,148 +1,123 @@
-"""
-@file hough_lines.py
-@brief This program demonstrates line finding with the Hough transform
-"""
-import sys
 import math
 import os
-import cv2
-from Image import Image
-import numpy
-import glob
 import random
+from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
 
-class ResistorLocator:
-    def __init__(self, image_file):
-        self.image_file = image_file
+import cv2 as cv
+import imutils
+import numpy as np
+from imutils import contours, perspective
 
-    def locate(self):
-        image = Image().load(self.image_file)
-        image2 = Image().load(self.image_file)
+def crop(image):
 
-        canny_image = Image(image.image).blur().greyscale().canny()
+    denoised = cv.bilateralFilter(image, 15, 150, 150)
+    #denoised = cv.fastNlMeansDenoisingColored(image, None, 10, 10, 7, 14)
 
-        contours = canny_image.contours()
+    edges = cv.Canny(denoised, 50, 250)
 
-        #canny_image = Image(image.image).blur().show()
+    x, y, w, h = cv.boundingRect(edges)
 
-       # canny_image.show()
+    x = max(0, x - 50)
+    y = max(0, y - 50)
+    w = w + 100
+    h = h + 100
 
-        #contours = canny_image.contours(image.image)
+    image = image[y:y+h, x:x+w]
 
-        hough_lines_image, lines = image.hough_lines(canny_image.image)
-
-        x_centres, y_centres = self.find_cluster(lines)
-
-        self.bounding_box(contours, image)
-
-
-
-        for k in range(len(x_centres)):
-            x = int(x_centres[k][0])
-            y = int(y_centres[k][0])
-            image.draw_circle(x, y)
+    return image
 
 
-        image.show()
+def locate(image):
 
-    def find_cluster(self, coordinates):
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-        x = []
-        y = []
+    features = cv.goodFeaturesToTrack(gray, 10, 0.0001, 1, blockSize=25)
 
-        for coordinate in coordinates:
-            for x1, y1, x2, y2 in coordinate:
+    corners = []
 
-                x.append(x1)
-                x.append(x2)
+    for feature in features:
+        x = int(feature[0][0])
+        y = int(feature[0][1])
+        corner = (x, y)
+        corners.append(corner)
 
-                y.append(y1)
-                y.append(y2)
+    kmeans = KMeans(
+        init="random",
+        n_clusters=2,
+        n_init=3,
+        max_iter=300,
+        random_state=30
+    )
 
-        X = numpy.float32(x)
-        Y = numpy.float32(y)
+    #kmeans.fit(dbscan.components_)
+    kmeans.fit(corners)
 
-        # define criteria, number of clusters(K) and apply kmeans()
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1)
-        K = 1
+    counts = np.zeros(len(kmeans.labels_))
 
-        x_ret, x_label, x_centre = cv2.kmeans(X, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-        y_ret, y_label, y_centre = cv2.kmeans(Y, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    biggest = 0
 
-        return x_centre, y_centre
+    for label in kmeans.labels_:
+        counts[label] = counts[label] + 1
+        if counts[label] > counts[biggest]:
+            biggest = label
 
-    def bounding_box(self, contours, image):
+    #for point in kmeans.cluster_centers_:
+    #    cv.circle(image, (x, y), 3, (0, 0, 255), 3)
 
-        x_list = []
-        y_list = []
+    x = int(kmeans.cluster_centers_[biggest][0])
+    y = int(kmeans.cluster_centers_[biggest][1])
+    cv.circle(image, (x, y), 3, (0, 0, 255), 3)
 
-        for k in contours:
-            for i in k:
-                for j in i:
-                    x_list.append(j[0])
-                    y_list.append(j[1])
-
-        x_list.sort()
-        y_list.sort()
-
-        largest_x = x_list[-1]
-        smallest_x = x_list[0]
-
-        largest_y = y_list[-1]
-        smallest_y = y_list[0]
-
-        image.draw_circle(largest_x, largest_y)
-        image.draw_circle(largest_x, smallest_y)
-        image.draw_circle(smallest_x, largest_y)
-        image.draw_circle(smallest_x, smallest_y)
-
-        image.show()
-
-        #draw box round resistor using contours
+    return (x, y), image
 
 
-if __name__ == "__main__":
+
+def sharpen(image, kernel_size=(5, 5), sigma=1.0, amount=1.0, threshold=0):
+    """Return a sharpened version of the image, using an unsharp mask."""
+    blurred = cv.GaussianBlur(image, kernel_size, sigma)
+    sharpened = float(amount + 1) * image - float(amount) * blurred
+    sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
+    sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
+    sharpened = sharpened.round().astype(np.uint8)
+    if threshold > 0:
+        low_contrast_mask = np.absolute(image - blurred) < threshold
+        np.copyto(sharpened, image, where=low_contrast_mask)
+    return sharpened
+
+def main(filename):
+
+    image = cv.imread(filename)
+
+    #image = crop(image)
+
+    #image = sharpen(image)
+
+    point, image = locate(image)
+
+    cv.circle(image, (point[0], point[1]), 20, (0, 0, 255), 20)
+
+    cv.imshow("image", image)
+
+    cv.waitKey()
+
+    cv.destroyAllWindows()
+
+
+
+
+
+if __name__ == '__main__':
 
     os.chdir("..")
 
-    directory = os.path.abspath(os.curdir)
+    folder = f"{os.path.abspath(os.curdir)}\\images\\"
 
-    file_name = f'{directory}\\images\\0.25_normal_IMG_3048.JPG'
+    for filename in os.listdir(folder) :
 
-    for file_name in glob.glob(directory + '\\images\\' + '*.jpg'):
-        pass
+        print(filename)
 
-        '''
-        image = cv2.imread(file_name)
+        if filename.endswith('JPG') :
+            main(folder + '\\' + filename)
 
-        canny = cv2.Canny(image, 100, 200, apertureSize=3)
-
-        _, contours = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        
-        contours_poly = [None] * len(contours)
-        boundRect = [None] * len(contours)
-        centers = [None] * len(contours)
-        radius = [None] * len(contours)
-        for i, c in enumerate(contours):
-            #contours_poly[i] = cv2.approxPolyDP(c, 3, True)
-            boundRect[i] = cv2.boundingRect(contours_poly[i])
-            #centers[i], radius[i] = cv2.minEnclosingCircle(contours_poly[i])
-
-        drawing = numpy.zeros((canny.shape[0], canny.shape[1], 3), dtype=numpy.uint8)
-
-        for i in range(len(contours)):
-            color = (random .randint(0, 256), random .randint(0, 256), random.randint(0, 256))
-            #cv2.drawContours(drawing, contours_poly, i, color)
-            cv2.rectangle(drawing, (int(boundRect[i][0]), int(boundRect[i][1])), \
-                         (int(boundRect[i][0] + boundRect[i][2]), int(boundRect[i][1] + boundRect[i][3])), color, 2)
-            #cv2.circle(drawing, (int(centers[i][0]), int(centers[i][1])), int(radius[i]), color, 2)
-
-        cv2.imshow('Contours', drawing)
-
-        cv2.waitKey(-1)
-        
-        '''
-
-    resistor_locator = ResistorLocator(file_name)
-
-    resistor_locator.locate()

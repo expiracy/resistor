@@ -21,6 +21,10 @@ class Image:
     def bgr(self):
         return self.image
 
+    def hsv(self):
+        h, s, v = cv2.split(cv2.cvtColor(self.image, cv2.COLOR_RGB2HSV))
+        return h, s, v
+
     def width(self):
         height, width, channels = self.image.shape
         return width
@@ -99,8 +103,13 @@ class Image:
 
         height = self.height() if height < 0 else height
 
-        #blurred_image = cv2.blur(self.image, (width, height))
-        blurred_image = cv2.bilateralFilter(self.image, 50, 100, 100)
+        blurred_image = cv2.blur(self.image, (width, height))
+        blurred_image = cv2.bilateralFilter(blurred_image, 3, 50, 50)
+
+        return Image(blurred_image)
+
+    def gaussian_blur(self):
+        blurred_image = cv2.GaussianBlur(self.image, (7, 7), 0)
 
         return Image(blurred_image)
 
@@ -120,10 +129,11 @@ class Image:
         return Image(bgr_image)
         '''
 
-        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        #thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
 
-        thresh, self.image = cv2.threshold(greyscale_image, 127, 255, cv2.THRESH_BINARY)
-        return self
+        threshold, monochrome_image = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY)
+
+        return Image(monochrome_image)
 
 
     def recolor(self, shift=0):
@@ -187,14 +197,14 @@ class Image:
 
         return resistor
 
-    def canny(self):
+    def canny(self, threshold_1=50, threshold_2=50):
 
-        self.image = cv2.Canny(self.image, 250, 250, apertureSize=3)
+        self.image = cv2.Canny(self.image, threshold_1, threshold_2, apertureSize=3)
 
         return self
 
-    def hough_lines(self, edges):
-        lines = cv2.HoughLinesP(edges, 10, numpy.pi/180, 10, minLineLength=1, maxLineGap=100)
+    def hough_lines(self, edges, threshold=1, min_line_length=1, max_line_gap=1):
+        lines = cv2.HoughLinesP(edges, 100, numpy.pi/180, threshold, min_line_length, max_line_gap)
 
         for line in lines:
             for x1, y1, x2, y2 in line:
@@ -205,22 +215,54 @@ class Image:
         return self, lines
 
     def greyscale(self):
-        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-
-        return Image(greyscale_image)
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        return self
 
     def draw_circle(self, x, y, thickness=10):
-        cv2.circle(self.image, (x, y), radius=1, color=(0, 0, 255), thickness=thickness)
+        image_with_plot = cv2.circle(self.image, (x, y), radius=0, color=(0, 0, 255), thickness=thickness)
 
-        return self
+        return Image(image_with_plot)
+
+    def draw_rectangle(self, x, y, width, height):
+        image_with_rectangle = cv2.rectangle(self.image, (x, y), (x + width, y + height), (0, 255, 0), 2)
+
+        return image_with_rectangle
 
     def contours(self):
 
         ret, thresh = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        return contours
+        return contours, hierarchy
+
+    def remove_glare(self):
+        h, s, v = self.hsv()
+
+        non_saturated = s < 180  # Find all pixels that are not very saturated
+
+        disk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        non_saturated = cv2.erode(non_saturated.astype(numpy.uint8), disk)
+
+        v2 = v.copy()
+        v2[non_saturated == 0] = 0
+
+        glare = v2 > 200  # filter out very bright pixels.
+        # Slightly increase the area for each pixel
+        glare = cv2.dilate(glare.astype(numpy.uint8), disk)
+        glare = cv2.dilate(glare.astype(numpy.uint8), disk)
+
+        no_glare_image = cv2.inpaint(self.image, glare, 5, cv2.INPAINT_NS)
+
+        bgr_image = cv2.cvtColor(no_glare_image, cv2.COLOR_HSV2BGR)
+
+        return Image(bgr_image)
+
+    def save(self):
+        cv2.imwrite("image", self.image)
+
+
+
 
 
 
