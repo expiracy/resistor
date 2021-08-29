@@ -155,7 +155,7 @@ if __name__ == "__main__":
         pass
 
         '''
-        image = cv2.imread(file_name)
+        image = cv2.imread(file_name) 
 
         canny = cv2.Canny(image, 100, 200, apertureSize=3)
 

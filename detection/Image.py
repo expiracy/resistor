@@ -1,5 +1,7 @@
 import cv2
-import numpy
+import numpy as np
+import os
+import uuid
 
 class Image:
 
@@ -94,8 +96,8 @@ class Image:
 
     def color(self):
 
-        avg_color_per_row = numpy.average(self.image, axis=0)
-        avg_color = numpy.average(avg_color_per_row, axis=0)
+        avg_color_per_row = np.average(self.image, axis=0)
+        avg_color = np.average(avg_color_per_row, axis=0)
 
         return int(avg_color[0]), int(avg_color[1]), int(avg_color[2])
 
@@ -104,7 +106,7 @@ class Image:
         height = self.height() if height < 0 else height
 
         blurred_image = cv2.blur(self.image, (width, height))
-        blurred_image = cv2.bilateralFilter(blurred_image, 3, 50, 50)
+        blurred_image = cv2.bilateralFilter(blurred_image, 2, 100, 200)
 
         return Image(blurred_image)
 
@@ -113,7 +115,7 @@ class Image:
 
         return Image(blurred_image)
 
-    def monochrome(self, inverted=False):
+    def monochrome(self, inverted=False, blocksize=51, C=21):
         '''
         height, width, channels = self.image.shape
 
@@ -127,13 +129,26 @@ class Image:
         bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
 
         return Image(bgr_image)
-        '''
+
 
         #thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
 
         threshold, monochrome_image = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY)
 
         return Image(monochrome_image)
+        '''
+
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+
+        thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
+
+        monochrome_image = cv2.adaptiveThreshold(greyscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, thresholding, blocksize, C)
+
+        bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
+
+        return Image(bgr_image)
+
+
 
 
     def recolor(self, shift=0):
@@ -152,7 +167,7 @@ class Image:
 
     def brighten(self, gamma=1.0):
 
-        table = numpy.array([((i / 255.0) ** (1 / gamma)) * 255
+        table = np.array([((i / 255.0) ** (1 / gamma)) * 255
                              for i in numpy.arange(0, 256)]).astype('uint8')
 
         bgr_image = cv2.LUT(self.image, table)
@@ -168,7 +183,7 @@ class Image:
 
     def show_list(self, images, axis):
 
-        display_image = numpy.concatenate(images, axis=axis)
+        display_image = np.concatenate(images, axis=axis)
 
         cv2.imshow("Image", display_image)
         cv2.setMouseCallback("Image", self.mouse)
@@ -188,6 +203,7 @@ class Image:
         width = self.width()
         background_color = self.image[int(size / 2), width - 1]
         print(f"background colour: {background_color}")
+
         return background_color
 
     # method to identify the resistor colours from the identified colours
@@ -199,12 +215,19 @@ class Image:
 
     def canny(self, threshold_1=50, threshold_2=50):
 
-        self.image = cv2.Canny(self.image, threshold_1, threshold_2, apertureSize=3)
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
-        return self
+        canny_image = cv2.Canny(greyscale_image, threshold_1, threshold_2, apertureSize=3)
+
+        bgr_image = cv2.cvtColor(canny_image, cv2.COLOR_GRAY2BGR)
+
+        return Image(bgr_image)
 
     def hough_lines(self, edges, threshold=1, min_line_length=1, max_line_gap=1):
-        lines = cv2.HoughLinesP(edges, 100, numpy.pi/180, threshold, min_line_length, max_line_gap)
+
+        edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
+
+        lines = cv2.HoughLinesP(edges, 100, np.pi/180, threshold, min_line_length, max_line_gap)
 
         for line in lines:
             for x1, y1, x2, y2 in line:
@@ -215,8 +238,12 @@ class Image:
         return self, lines
 
     def greyscale(self):
-        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-        return self
+
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+
+        bgr_image = cv2.cvtColor(greyscale_image, cv2.COLOR_GRAY2BGR)
+
+        return Image(bgr_image)
 
     def draw_circle(self, x, y, thickness=10):
         image_with_plot = cv2.circle(self.image, (x, y), radius=0, color=(0, 0, 255), thickness=thickness)
@@ -224,42 +251,73 @@ class Image:
         return Image(image_with_plot)
 
     def draw_rectangle(self, x, y, width, height):
+
         image_with_rectangle = cv2.rectangle(self.image, (x, y), (x + width, y + height), (0, 255, 0), 2)
 
         return image_with_rectangle
 
+    def draw_contours(self, contours):
+
+        for contour in contours:
+            contour_image = cv2.drawContours(self.image, [contour], 0, (255, 255, 255), cv2.FILLED)
+
+        return Image(contour_image)
+
     def contours(self):
 
-        ret, thresh = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
-        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(greyscale_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         return contours, hierarchy
 
     def remove_glare(self):
+
         h, s, v = self.hsv()
 
         non_saturated = s < 180  # Find all pixels that are not very saturated
 
         disk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        non_saturated = cv2.erode(non_saturated.astype(numpy.uint8), disk)
+        non_saturated = cv2.erode(non_saturated.astype(np.uint8), disk)
 
         v2 = v.copy()
         v2[non_saturated == 0] = 0
 
         glare = v2 > 200  # filter out very bright pixels.
         # Slightly increase the area for each pixel
-        glare = cv2.dilate(glare.astype(numpy.uint8), disk)
-        glare = cv2.dilate(glare.astype(numpy.uint8), disk)
+        glare = cv2.dilate(glare.astype(np.uint8), disk)
+        glare = cv2.dilate(glare.astype(np.uint8), disk)
 
         no_glare_image = cv2.inpaint(self.image, glare, 5, cv2.INPAINT_NS)
 
-        bgr_image = cv2.cvtColor(no_glare_image, cv2.COLOR_HSV2BGR)
+        return Image(no_glare_image)
 
-        return Image(bgr_image)
+    def denoise(self):
+
+        denoised_image = cv2.fastNlMeansDenoisingColored(self.image, None, 10, 10, 7, 21)
+
+        return Image(denoised_image)
 
     def save(self):
-        cv2.imwrite("image", self.image)
+
+        id = uuid.uuid1()
+        filename = str(id.int)
+
+        save_file = f'{os.path.abspath(os.curdir)}\\resistor\\detection\\resistorImages\\{filename}.jpg'
+
+        print(save_file)
+
+        if not cv2.imwrite(f'{save_file}', self.image):
+            raise Exception("Could not write image")
+
+        return save_file
+
+    def erode(self):
+
+        element = cv2.getStructuringElement(cv2.MORPH_ERODE, (9, 9), (3, 3))
+        eroded_image = cv2.erode(self.image, element, iterations=2)
+
+        return Image(eroded_image)
 
 
 

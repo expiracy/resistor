@@ -1,123 +1,109 @@
 import math
 import os
 import random
-from sklearn.cluster import MiniBatchKMeans
-from sklearn.cluster import KMeans
-from sklearn.cluster import DBSCAN
 
-import cv2 as cv
+import cv2
 import imutils
 import numpy as np
 from imutils import contours, perspective
+from Image import Image
 
-def crop(image):
+class ResistorLocator:
 
-    denoised = cv.bilateralFilter(image, 15, 150, 150)
-    #denoised = cv.fastNlMeansDenoisingColored(image, None, 10, 10, 7, 14)
+    def __init__(self):
+        pass
 
-    edges = cv.Canny(denoised, 50, 250)
+## From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
+    def extract_rotated_rectangle(self, img, rect):
 
-    x, y, w, h = cv.boundingRect(edges)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
 
-    x = max(0, x - 50)
-    y = max(0, y - 50)
-    w = w + 100
-    h = h + 100
+        # get width and height of the detected rectangle
+        width = int(rect[1][0])
+        height = int(rect[1][1])
 
-    image = image[y:y+h, x:x+w]
+        src_pts = box.astype("float32")
 
-    return image
-
-
-def locate(image):
-
-    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
-    features = cv.goodFeaturesToTrack(gray, 10, 0.0001, 1, blockSize=25)
-
-    corners = []
-
-    for feature in features:
-        x = int(feature[0][0])
-        y = int(feature[0][1])
-        corner = (x, y)
-        corners.append(corner)
-
-    kmeans = KMeans(
-        init="random",
-        n_clusters=2,
-        n_init=3,
-        max_iter=300,
-        random_state=30
-    )
-
-    #kmeans.fit(dbscan.components_)
-    kmeans.fit(corners)
-
-    counts = np.zeros(len(kmeans.labels_))
-
-    biggest = 0
-
-    for label in kmeans.labels_:
-        counts[label] = counts[label] + 1
-        if counts[label] > counts[biggest]:
-            biggest = label
-
-    #for point in kmeans.cluster_centers_:
-    #    cv.circle(image, (x, y), 3, (0, 0, 255), 3)
-
-    x = int(kmeans.cluster_centers_[biggest][0])
-    y = int(kmeans.cluster_centers_[biggest][1])
-    cv.circle(image, (x, y), 3, (0, 0, 255), 3)
-
-    return (x, y), image
+        # coordinate of the points in box points after the rectangle has been
+        # straightened
+        dst_pts = np.array([[0, height - 1],
+                            [0, 0],
+                            [width - 1, 0],
+                            [width - 1, height - 1]], dtype="float32")
 
 
+        # the perspective transformation matrix
+        M = cv2.getPerspectiveTransform(src_pts, dst_pts)
 
-def sharpen(image, kernel_size=(5, 5), sigma=1.0, amount=1.0, threshold=0):
-    """Return a sharpened version of the image, using an unsharp mask."""
-    blurred = cv.GaussianBlur(image, kernel_size, sigma)
-    sharpened = float(amount + 1) * image - float(amount) * blurred
-    sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
-    sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
-    sharpened = sharpened.round().astype(np.uint8)
-    if threshold > 0:
-        low_contrast_mask = np.absolute(image - blurred) < threshold
-        np.copyto(sharpened, image, where=low_contrast_mask)
-    return sharpened
+        # directly warp the rotated rectangle to get the straightened rectangle
+        warped = cv2.warpPerspective(img, M, (width, height))
 
-def main(filename):
+        if warped.shape[0] > warped.shape[1]:
+            warped = cv2.rotate(warped, cv2.ROTATE_90_CLOCKWISE)
 
-    image = cv.imread(filename)
-
-    #image = crop(image)
-
-    #image = sharpen(image)
-
-    point, image = locate(image)
-
-    cv.circle(image, (point[0], point[1]), 20, (0, 0, 255), 20)
-
-    cv.imshow("image", image)
-
-    cv.waitKey()
-
-    cv.destroyAllWindows()
+        return warped
 
 
+    def extract_resistor(self, image):
 
+        image = Image(image)
+
+        monochrome_image = image.monochrome(inverted=True)
+
+        contours, _ = monochrome_image.contours()
+
+        ## Fill in the holes in the resistor area so we can safely erode the image later
+        contour_image = monochrome_image.draw_contours(contours)
+
+        ## Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
+        eroded_image = contour_image.erode()
+
+        ## Now the biggest contour should only be the resistor body
+        contours, _ = eroded_image.contours()
+
+        ## Sort the contours so  the biggest contour is first
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        ## Get the first (biggest) contour
+        contour = contours[0]
+
+        ## This should  wrap a box with the correct orientation around the resistor body
+        rectangle = cv2.minAreaRect(contour)
+
+        image = self.extract_rotated_rectangle(image.image, rectangle)
+
+        cv2.imshow("final", image)
+
+        cv2.waitKey()
+
+        cv2.destroyAllWindows()
+
+        return image
+
+
+    def locate(self, filename):
+
+        image = cv2.imread(filename)
+
+        resistor_image = self.extract_resistor(image)
+
+        return Image(resistor_image)
 
 
 if __name__ == '__main__':
 
-    os.chdir("..")
+    os.chdir("../..")
 
-    folder = f"{os.path.abspath(os.curdir)}\\images\\"
+    directory = os.path.abspath(os.curdir)
 
-    for filename in os.listdir(folder) :
+    folder = f'{directory}\\resistor\\images'
+
+    for filename in os.listdir(folder):
+
+        resistor_locator = ResistorLocator()
 
         print(filename)
 
         if filename.endswith('JPG') :
-            main(folder + '\\' + filename)
-
+            resistor_image = resistor_locator.locate(f'{folder}\\{filename}')

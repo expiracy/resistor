@@ -99,33 +99,114 @@ class BandLocator:
 
         return Image(bgr_image)
 
-if __name__ == "__main__":
+    def remove_background(self, image):
+        # Load the aerial image and convert to HSV colourspace
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    os.chdir("..")
+        # Define lower and uppper limits of what we call "brown"
+        brown_lo = np.array([74, 90, 97])
+        brown_hi = np.array([106, 113, 121])
+
+        # Mask image to only select browns
+        mask = cv2.inRange(hsv, brown_lo, brown_hi)
+
+        # Change image to red where we found brown
+        image[mask > 0] = (0, 0, 255)
+
+        cv2.imshow("epic", image)
+
+
+    def locate(self, image):
+        resized_image = image.resize(image.width(), image.height()*3)
+        no_glare_image = resized_image.remove_glare()
+
+        blurred_image = no_glare_image.blur(1, round(resized_image.height()/2))
+
+        inverted_image = blurred_image.invert_light()
+
+        canny_image = inverted_image.canny(50, 50)
+        canny_image.show()
+
+        canny_image.show()
+
+        contours, _ = canny_image.contours()
+
+        for cnt in contours:
+            x, y, w, h = cv2.boundingRect(cnt)
+            cv2.rectangle(resized_image.image, (x, y), (x + w, y + h), (200, 0, 0), 1)
+
+
+
+if __name__ == "__main__":
 
     directory = os.path.abspath(os.curdir)
 
-    file_name = f'{directory}\\images\\cropped\\1_normal_IMG_3062.JPG'
-    #file_name = f'{directory}\\images\\cropped\\1_normal_IMG_3063.JPG'
-    file_name = f'{directory}\\images\\cropped\\1_normal_IMG_3064.JPG'
-    #file_name = f'{directory}\\images\\cropped\\1_rotated_180_IMG_3063.JPG'
-    file_name = f'{directory}\\images\\cropped\\1_normal_IMG_3065.JPG'
+    folder = f'{directory}\\resistorImages'
+
+    for filename in os.listdir(folder):
+
+        band_locator = BandLocator()
+
+        if filename.endswith('jpg'):
+            resistor_image = cv2.imread(f'{folder}\\{filename}')
+
+            band_locator.locate(Image(resistor_image))
 
 
-    image = Image().load(file_name)
 
-    resized_image = image.resize(image.width(), image.height())
+    '''
+    image = Image().load(filename)
 
-    no_glare_image = image.remove_glare()
+    greyscale_image = image.greyscale()
+    greyscale_image.show()
 
-    blurred_image = no_glare_image.blur(1, 1)
+    canny = image.canny()
 
+    canny.show()
+    '''
+
+    """
+    resized_image = image.resize(image.width(), image.height()*5)
+
+    no_glare_image = resized_image.remove_glare()
+    no_glare_image.show()
+
+    denoised_image = no_glare_image.denoise()
+    denoised_image.show()
+
+
+    blurred_image = no_glare_image.blur(1, round(no_glare_image.height()/1.5))
+
+    blurred_image.show()
+
+    greyscale_image = blurred_image.greyscale()
+
+    canny_image = greyscale_image.canny(40, 40)
+    canny_image.show()
+
+    contours, _ = canny_image.contours()
+
+    band_locator = BandLocator(contours)
+
+    band_locator.remove_background(resized_image.image)
+
+    #result_image = band_locator.draw(resized_image)
+
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+        cv2.rectangle(resized_image.image, (x, y), (x + w, y + h), (200, 0, 0), 1)
+
+    resized_image.show()
+    """
+    """
     h, s, v = blurred_image.hsv()
     cv2.imshow("h", h)
     cv2.imshow("s", s)
     cv2.imshow("v", v)
     cv2.waitKey(0)
+    """
 
+    """
     min_hue = 0
     min_sat = 0
     min_val = 0
@@ -150,6 +231,7 @@ if __name__ == "__main__":
     canny_resistor_image = filled_in_image.canny(60, 60)
 
     canny_resistor_image.show()
+    """
 
     #resistor_image = cv2.bitwise_and(greyscale_image.image, mask)
 
@@ -160,21 +242,6 @@ if __name__ == "__main__":
     #canny_mask_image = mask_image.canny()
 
     #canny_mask_image.show()
-
-    contours, _ = canny_resistor_image.contours()
-
-    for i in range(0, len(contours)):
-        if (i % 1 == 0):
-            cnt = contours[i]
-
-
-            x,y,w,h = cv2.boundingRect(cnt)
-            #cv2.drawContours(resized_image.image ,contours, -1, (255,255,0), 3)
-            cv2.rectangle(resized_image.image,(x,y),(x+w,y+h),(255,0,0),2)
-
-
-    cv2.imshow("test", resized_image.image)
-    cv2.waitKey(0)
 
     """
     corners = []
