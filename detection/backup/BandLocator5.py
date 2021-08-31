@@ -6,9 +6,8 @@ import os
 import glob
 
 
-from detection.Colours import Colours
+from detection.Colors import Colors
 from detection.Image import Image
-from detection.ResistorBands import ResistorBands
 
 class BoundingBox:
     def __init__(self, x, y, w, h):
@@ -18,12 +17,21 @@ class BoundingBox:
         self.height = h
 
 
-
-
 class BandLocator:
 
-    def __init__(self):
-        pass
+    @classmethod
+    def create(cls, contours=[]):
+        return BandLocator(contours)
+
+    def __init__(self, contours=[]):
+        self.contours = contours
+        return
+
+    def get_contours(self):
+        return self.contours
+
+    def clone(self):
+        return BandLocator(self.image, self.contours)
 
     def scan(self, image):
 
@@ -33,6 +41,7 @@ class BandLocator:
 
         self.contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
+        return self
 
     def boxes(self):
 
@@ -54,28 +63,29 @@ class BandLocator:
 
         return BandLocator(boxes)
 
-    def colours(self, image, bounding_boxes):
+    def colors(self, image):
 
-        matcher = Colours.create()
+        matcher = Colors.create()
 
-        colours = []
+        colors = []
 
-        for index in range(len(bounding_boxes)):
+        for contour in self.contours:
+            x, y, w, h = cv2.boundingRect(contour)
 
-            #width = int(self.band_bounding_boxes[index].width / 2)
-            #x = int(self.band_bounding_boxes[index].x + self.band_bounding_boxes[index].width)
+            w = int(w / 2)
+            x = int(x + w)
 
-            region = image.region(bounding_boxes[index].x, bounding_boxes[index].y, bounding_boxes[index].width, bounding_boxes[index].height)
+            region = image.region(x, y, w, h)
 
-            brg = region.colour()
+            brg = region.color()
 
             print(str(brg))
 
-            colour = matcher.find(brg)
+            color = matcher.find(brg)
 
-            colours.append(colour)
+            colors.append(color)
 
-        return colours
+        return colors
 
     def select(self, end, start=0):
 
@@ -96,81 +106,39 @@ class BandLocator:
 
         return Image(bgr_image)
 
-
     def remove_bounding_box_outliers(self, bounding_boxes):
 
         areas = []
 
         for index in range(len(bounding_boxes)):
-
             areas.append(bounding_boxes[index].width * bounding_boxes[index].height)
 
         mean = np.mean(areas)
+        sd = np.std(areas)
 
-        lower_bound = mean - (mean * 0.6)
-
-        outliers = []
-
-        # write about different outlier algorithms tried
+        lower_outlier = mean - (2 * sd)
 
         for index in range(len(areas)):
+            if areas[index] < lower_outlier:
+                print(areas[index])
+                removed_bounding_box = bounding_boxes[index]
+                bounding_boxes.remove(bounding_boxes[index])
 
-            if areas[index] < lower_bound:
-
-                outliers.append(bounding_boxes[index])
-
-        for outlier in outliers:
-
-            bounding_boxes.remove(outlier)
 
         return bounding_boxes
 
-    def bounding_boxes(self, contours):
-
-        bounding_boxes = []
-
-        for contour in contours:
-            x, y, w, h = cv2.boundingRect(contour)
-
-            bounding_box = BoundingBox(x, y, w, h)
-
-            bounding_boxes.append(bounding_box)
-
-        bounding_boxes = self.remove_bounding_box_outliers(bounding_boxes)
-
-        return bounding_boxes
-
-    def trim_image(self, image):
-
-        image = image.region(round(image.width() * 0.025), 0, round(image.width() * 0.95), image.height())
-
-        return image
 
     def locate(self, image):
+        resized_image = image.resize(image.width(), image.height()*5)
+        no_glare_image = resized_image.remove_glare()
 
-        image = self.trim_image(image)
-        image.show()
+        blurred_image = resized_image.blur(1, round(resized_image.height()))
 
-        resized_image = image.resize(image.width() * 5, image.height()*5)
+        inverted_image = blurred_image.invert_light()
 
-        #no_glare_image = resized_image.remove_glare()
-        #no_glare_image.show()
+        #inverted_image.show()
 
-        #canny_image = no_glare_image.canny()
-        #canny_image.show()
-
-        b, g, r = cv2.split(resized_image.image)
-
-        b = cv2.cvtColor(b, cv2.COLOR_GRAY2BGR)
-
-        blue = Image(b)
-        blue.show()
-
-        blurred_image = blue.blur(1, round(resized_image.height()*2))
-        blurred_image.show()
-
-        monochrome_image = blurred_image.monochrome(inverted=True, block_size=131, C=5)
-        monochrome_image.show()
+        monochrome_image = inverted_image.monochrome(inverted=True, adaptive_method=2, block_size=121, C=1)
 
         #closing = cv2.morphologyEx(monochrome_image.image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (round(monochrome_image.width()*0.03), round(monochrome_image.height()*0.03))))
         #closing = cv2.erode(monochrome_image.image, np.ones((4, 4), np.uint8), 5)
@@ -183,13 +151,26 @@ class BandLocator:
 
         contours, _ = monochrome_image.contours()
 
-        band_bounding_boxes = self.bounding_boxes(contours)
+        bounding_boxes = []
 
-        #image = self.band_colours(no_glare_image)
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
 
-        colours = self.colours(no_glare_image, band_bounding_boxes)
+            bounding_box = BoundingBox(x, y, w, h)
+
+            bounding_boxes.append(bounding_box)
+
+        bounding_boxes = self.remove_bounding_box_outliers(bounding_boxes)
+
+        for bounding_box in bounding_boxes:
+
+            cv2.rectangle(resized_image.image, (bounding_box.x, bounding_box.y), (bounding_box.x + bounding_box.width, bounding_box.y + bounding_box.height), (0, 0, 255), 1)
+            #cv2.imshow('cut contour', no_glare_image.image[y:y + h, x:x + w])
+            print('Average color (BGR): ', np.array(cv2.mean(no_glare_image.image[bounding_box.y:bounding_box.y + bounding_box.height, bounding_box.x:bounding_box.x + bounding_box.width])).astype(np.uint8))
 
         resized_image.show()
+
+
 
 
 

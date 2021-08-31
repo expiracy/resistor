@@ -92,9 +92,11 @@ class Image:
 
         bgr_image = cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
 
+        cv2.imshow("bgr", bgr_image)
+
         return Image(bgr_image)
 
-    def color(self):
+    def colour(self):
 
         avg_color_per_row = np.average(self.image, axis=0)
         avg_color = np.average(avg_color_per_row, axis=0)
@@ -106,7 +108,7 @@ class Image:
         height = self.height() if height < 0 else height
 
         blurred_image = cv2.blur(self.image, (width, height))
-        blurred_image = cv2.bilateralFilter(blurred_image, 2, 100, 200)
+        #blurred_image = cv2.bilateralFilter(blurred_image, 2, 100, 100)
 
         return Image(blurred_image)
 
@@ -115,7 +117,7 @@ class Image:
 
         return Image(blurred_image)
 
-    def monochrome(self, inverted=False, blocksize=51, C=21):
+    def monochrome(self, inverted=False, block_size=51, C=21):
         '''
         height, width, channels = self.image.shape
 
@@ -139,10 +141,9 @@ class Image:
         '''
 
         greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-
         thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
 
-        monochrome_image = cv2.adaptiveThreshold(greyscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, thresholding, blocksize, C)
+        monochrome_image = cv2.adaptiveThreshold(greyscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, thresholding, block_size, C)
 
         bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
 
@@ -151,7 +152,7 @@ class Image:
 
 
 
-    def recolor(self, shift=0):
+    def recolour(self, shift=0):
 
         hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
@@ -207,9 +208,9 @@ class Image:
         return background_color
 
     # method to identify the resistor colours from the identified colours
-    def bands(self, resistor, colors):
+    def bands(self, resistor, colours):
         resistor.amount = 6
-        resistor.colours = colors
+        resistor.colours = colours
 
         return resistor
 
@@ -285,8 +286,7 @@ class Image:
 
         glare = v2 > 200  # filter out very bright pixels.
         # Slightly increase the area for each pixel
-        glare = cv2.dilate(glare.astype(np.uint8), disk)
-        glare = cv2.dilate(glare.astype(np.uint8), disk)
+        glare = cv2.dilate(glare.astype(np.uint8), disk, iterations=2)
 
         no_glare_image = cv2.inpaint(self.image, glare, 5, cv2.INPAINT_NS)
 
@@ -308,7 +308,7 @@ class Image:
         print(save_file)
 
         if not cv2.imwrite(f'{save_file}', self.image):
-            raise Exception("Could not write image")
+            raise Exception("Could not write image.")
 
         return save_file
 

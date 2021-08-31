@@ -2,10 +2,10 @@ import os
 from enum import Enum
 from detection.ResistorBands import ResistorBands
 
-from detection.Color import Color
+from detection.Colour import Colour
 
 
-class Colors:
+class Colours:
     class Name(Enum):
 
         # to return only the name of the enum
@@ -28,15 +28,15 @@ class Colors:
 
     @classmethod
     def create(cls):
-        return Colors()
+        return Colours()
 
     def __init__(self):
 
-        self.colors = []
-        self.load_colors("../detection/data/colors.dat")
-        self.detected_colors = []
+        self.colours = []
+        self.load_colours("../detection/data/colors.dat")
+        self.detected_colours = []
 
-    def load_colors(self, location):
+    def load_colours(self, location):
 
         print(os.path.abspath(location))
 
@@ -56,35 +56,35 @@ class Colors:
                 blue = int(elements[2])
                 name = elements[3]
 
-                color = Color(name, red, green, blue)
+                colour = Colour(name, red, green, blue)
 
-                self.colors.append(color)
+                self.colours.append(colour)
 
     def find(self, bgr):
 
-        colors = self.colors.copy()
+        colours = self.colours.copy()
 
-        colors = sorted(colors, key=lambda color: color.distance(bgr))
+        colours = sorted(colours, key=lambda colour: colour.distance(bgr))
 
-        nearest = colors[0]
+        nearest = colours[0]
 
         return self.enumeration(nearest)
 
     def enumeration(self, name):
 
-        for color in self.Name:
-            if color.name in str(name).upper():
-                return color.name
+        for colour in self.Name:
+            if colour.name in str(name).upper():
+                return colour.name
 
         return self.Name.UNKNOWN
 
-    def display(self, colors):
+    def display(self, colours):
 
-        for index in range(len(colors)):
-            color = colors[index]
-            print(color)
+        for index in range(len(colours)):
+            colour = colours[index]
+            print(colour)
 
-            self.detected_colors.append(color)
+            self.detected_colors.append(colour)
 
         return self
 

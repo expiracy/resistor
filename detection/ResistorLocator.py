@@ -3,19 +3,19 @@ import os
 import random
 
 import cv2
-import imutils
+
 import numpy as np
-from imutils import contours, perspective
+
 from Image import Image
+
 
 class ResistorLocator:
 
     def __init__(self):
         pass
 
-## From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
+    # From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
     def extract_rotated_rectangle(self, img, rect):
-
         box = cv2.boxPoints(rect)
         box = np.int0(box)
 
@@ -32,7 +32,6 @@ class ResistorLocator:
                             [width - 1, 0],
                             [width - 1, height - 1]], dtype="float32")
 
-
         # the perspective transformation matrix
         M = cv2.getPerspectiveTransform(src_pts, dst_pts)
 
@@ -44,46 +43,38 @@ class ResistorLocator:
 
         return warped
 
-
     def extract_resistor(self, image):
-
         image = Image(image)
 
         monochrome_image = image.monochrome(inverted=True)
 
         contours, _ = monochrome_image.contours()
 
-        ## Fill in the holes in the resistor area so we can safely erode the image later
+        # Fill in the holes in the resistor area so we can safely erode the image later
         contour_image = monochrome_image.draw_contours(contours)
 
-        ## Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
+        # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
         eroded_image = contour_image.erode()
 
-        ## Now the biggest contour should only be the resistor body
+        # Now the biggest contour should only be the resistor body
         contours, _ = eroded_image.contours()
 
-        ## Sort the contours so  the biggest contour is first
+        # Sort the contours so  the biggest contour is first
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-        ## Get the first (biggest) contour
+        # Get the first (biggest) contour
         contour = contours[0]
 
-        ## This should  wrap a box with the correct orientation around the resistor body
+        # This should  wrap a box with the correct orientation around the resistor body
         rectangle = cv2.minAreaRect(contour)
 
         image = self.extract_rotated_rectangle(image.image, rectangle)
-
-        cv2.imshow("final", image)
-
-        cv2.waitKey()
 
         cv2.destroyAllWindows()
 
         return image
 
-
     def locate(self, filename):
-
         image = cv2.imread(filename)
 
         resistor_image = self.extract_resistor(image)
@@ -105,5 +96,5 @@ if __name__ == '__main__':
 
         print(filename)
 
-        if filename.endswith('JPG') :
+        if filename.endswith('JPG'):
             resistor_image = resistor_locator.locate(f'{folder}\\{filename}')
