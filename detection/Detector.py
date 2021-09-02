@@ -4,7 +4,7 @@ import numpy
 from detection.Colors import Colors
 from detection.BandLocator import BandLocator
 from detection.Image import Image
-from detection.ResistorBands import ResistorBands
+from detection.ResistorBands import ResistorBand
 
 
 class Detector:
@@ -15,7 +15,7 @@ class Detector:
 
     def __init__(self):
         self.image = Image.create()
-        self.resistor = ResistorBands.create()
+        self.resistor = ResistorBand.create()
         self.colors = None
 
     def scan(self, x, y):

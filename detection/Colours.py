@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from detection.ResistorBands import ResistorBands
+from detection.ResistorBand import ResistorBand
 
 from detection.Colour import Colour
 
@@ -70,6 +70,7 @@ class Colours:
 
         return self.enumeration(nearest)
 
+
     def enumeration(self, name):
 
         for colour in self.Name:
@@ -87,6 +88,57 @@ class Colours:
             self.detected_colors.append(colour)
 
         return self
+
+    def hsv_ranges(self, colour):
+        h_ranges = {
+            'BLACK': [0, 180],
+            'BROWN': [0, 15],
+            'RED': [150, 180],
+            'ORANGE': [7, 15],
+            'YELLOW': [20, 70],
+            'GREEN': [40, 80],
+            'BLUE': [90, 140],
+            'VIOLET': [120, 160],
+            'GREY': [0, 0],
+            'WHITE': [0, 180],
+            'GOLD': [10, 20],
+            'SILVER': [0, 0],
+        }
+
+        s_ranges = {
+            'BLACK': [0, 255],
+            'BROWN': [40, 100],
+            'RED': [60, 255],
+            'ORANGE': [100, 150],
+            'YELLOW': [100, 255],
+            'GREEN': [100, 255],
+            'BLUE': [150, 255],
+            'VIOLET': [30, 140],
+            'GREY': [0, 0],
+            'WHITE': [0, 30],
+            'GOLD': [50, 110],
+            'SILVER': [0, 1],
+        }
+
+        v_ranges = {
+            'BLACK': [0, 50],
+            'BROWN': [40, 80],
+            'RED': [70, 255],
+            'ORANGE': [80, 150],
+            'YELLOW': [100, 255],
+            'GREEN': [0, 255],
+            'BLUE': [0, 130],
+            'VIOLET': [40, 120],
+            'GREY': [40, 130],
+            'WHITE': [127, 255],
+            'GOLD': [50, 80],
+            'SILVER': [80, 130],
+        }
+
+        return h_ranges[colour], s_ranges[colour], v_ranges[colour]
+
+
+
 
 
 

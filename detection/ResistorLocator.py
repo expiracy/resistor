@@ -7,21 +7,22 @@ import cv2
 import numpy as np
 
 from Image import Image
+from BandLocator import BandLocator
 
 
 class ResistorLocator:
 
-    def __init__(self):
-        pass
+    def __init__(self, image):
+        self.image = image
 
     # From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
-    def extract_rotated_rectangle(self, img, rect):
-        box = cv2.boxPoints(rect)
+    def extract_rotated_rectangle(self, rectangle):
+        box = cv2.boxPoints(rectangle)
         box = np.int0(box)
 
         # get width and height of the detected rectangle
-        width = int(rect[1][0])
-        height = int(rect[1][1])
+        width = int(rectangle[1][0])
+        height = int(rectangle[1][1])
 
         src_pts = box.astype("float32")
 
@@ -33,20 +34,19 @@ class ResistorLocator:
                             [width - 1, height - 1]], dtype="float32")
 
         # the perspective transformation matrix
-        M = cv2.getPerspectiveTransform(src_pts, dst_pts)
+        matrix = cv2.getPerspectiveTransform(src_pts, dst_pts)
 
         # directly warp the rotated rectangle to get the straightened rectangle
-        warped = cv2.warpPerspective(img, M, (width, height))
+        warped_image = cv2.warpPerspective(self.image.image, matrix, (width, height))
 
-        if warped.shape[0] > warped.shape[1]:
-            warped = cv2.rotate(warped, cv2.ROTATE_90_CLOCKWISE)
+        if warped_image.shape[0] > warped_image.shape[1]:
+            warped_image = cv2.rotate(warped_image, cv2.ROTATE_90_CLOCKWISE)
 
-        return warped
+        return Image(warped_image)
 
-    def extract_resistor(self, image):
-        image = Image(image)
+    def extract_resistor(self):
 
-        monochrome_image = image.monochrome(inverted=True)
+        monochrome_image = self.image.monochrome(inverted=True)
 
         contours, _ = monochrome_image.contours()
 
@@ -60,26 +60,22 @@ class ResistorLocator:
         contours, _ = eroded_image.contours()
 
         # Sort the contours so  the biggest contour is first
-        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+        sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
         # Get the first (biggest) contour
-        contour = contours[0]
+        biggest_contour = sorted_contours[0]
 
         # This should  wrap a box with the correct orientation around the resistor body
-        rectangle = cv2.minAreaRect(contour)
+        minimum_rectangle = cv2.minAreaRect(biggest_contour)
 
-        image = self.extract_rotated_rectangle(image.image, rectangle)
+        resistor_image = self.extract_rotated_rectangle(minimum_rectangle)
 
-        cv2.destroyAllWindows()
+        return resistor_image
 
-        return image
+    def locate(self):
+        resistor_image = self.extract_resistor()
 
-    def locate(self, filename):
-        image = cv2.imread(filename)
-
-        resistor_image = self.extract_resistor(image)
-
-        return Image(resistor_image)
+        return resistor_image
 
 
 if __name__ == '__main__':
@@ -91,10 +87,13 @@ if __name__ == '__main__':
     folder = f'{directory}\\resistor\\images'
 
     for filename in os.listdir(folder):
-
-        resistor_locator = ResistorLocator()
-
         print(filename)
 
-        if filename.endswith('JPG'):
-            resistor_image = resistor_locator.locate(f'{folder}\\{filename}')
+        image = cv2.imread(f'{folder}\\{filename}')
+
+        if filename.endswith('jpg'):
+            image = Image(image)
+            resistor_image = ResistorLocator(image).locate()
+            #BandLocator(resistor_image)
+            resistor_image.show()
+

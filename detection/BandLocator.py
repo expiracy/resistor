@@ -8,9 +8,10 @@ import glob
 
 from detection.Colours import Colours
 from detection.Image import Image
-from detection.ResistorBands import ResistorBands
+from detection.ResistorBand import ResistorBand
+from detection.Resistor import Resistor
 
-class BoundingBox:
+class BoundingRectangle:
     def __init__(self, x, y, w, h):
         self.x = x
         self.y = y
@@ -18,12 +19,13 @@ class BoundingBox:
         self.height = h
 
 
-
-
 class BandLocator:
 
-    def __init__(self):
-        pass
+    def __init__(self, image):
+        self.image = image
+        self.bounding_rectangles = []
+        self.band_colours = []
+
 
     def scan(self, image):
 
@@ -54,18 +56,18 @@ class BandLocator:
 
         return BandLocator(boxes)
 
-    def colours(self, image, bounding_boxes):
+    def colours(self, no_glare_image, rectangles):
 
         matcher = Colours.create()
 
         colours = []
 
-        for index in range(len(bounding_boxes)):
+        for index in range(len(rectangles)):
 
-            #width = int(self.band_bounding_boxes[index].width / 2)
-            #x = int(self.band_bounding_boxes[index].x + self.band_bounding_boxes[index].width)
+            # width = int(rectangles[index].width / 2)
+            # x = int(rectangles[index].x + rectangles[index].width)
 
-            region = image.region(bounding_boxes[index].x, bounding_boxes[index].y, bounding_boxes[index].width, bounding_boxes[index].height)
+            region = no_glare_image.region(rectangles[index].x, rectangles[index].y, rectangles[index].width, rectangles[index].height)
 
             brg = region.colour()
 
@@ -96,14 +98,13 @@ class BandLocator:
 
         return Image(bgr_image)
 
-
-    def remove_bounding_box_outliers(self, bounding_boxes):
+    def remove_outlier_rectangles(self, rectangles):
 
         areas = []
 
-        for index in range(len(bounding_boxes)):
+        for index in range(len(rectangles)):
 
-            areas.append(bounding_boxes[index].width * bounding_boxes[index].height)
+            areas.append(rectangles[index].width * rectangles[index].height)
 
         mean = np.mean(areas)
 
@@ -117,59 +118,80 @@ class BandLocator:
 
             if areas[index] < lower_bound:
 
-                outliers.append(bounding_boxes[index])
+                outliers.append(rectangles[index])
 
         for outlier in outliers:
 
-            bounding_boxes.remove(outlier)
+            rectangles.remove(outlier)
 
-        return bounding_boxes
+        return rectangles
 
-    def bounding_boxes(self, contours):
+    def bounding_rectangle(self, contours):
 
-        bounding_boxes = []
+        bounding_rectangles = []
 
         for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
 
-            bounding_box = BoundingBox(x, y, w, h)
+            bounding_rectangle = BoundingRectangle(x, y, w, h)
 
-            bounding_boxes.append(bounding_box)
+            bounding_rectangles.append(bounding_rectangle)
 
-        bounding_boxes = self.remove_bounding_box_outliers(bounding_boxes)
+        #bounding_rectangles = self.remove_outlier_rectangles(bounding_rectangles)
 
-        return bounding_boxes
+        return bounding_rectangles
 
-    def trim_image(self, image):
+    def trim_image(self):
 
-        image = image.region(round(image.width() * 0.025), 0, round(image.width() * 0.95), image.height())
+        image = self.image.region(round(self.image.width() * 0.04), 0, round(self.image.width() * 0.92), self.image.height() * 2)
 
         return image
 
-    def locate(self, image):
+    def locate(self):
 
-        image = self.trim_image(image)
-        image.show()
+        trimmed_image = self.trim_image()
 
-        resized_image = image.resize(image.width() * 5, image.height()*5)
+        resized_image = trimmed_image.resize(trimmed_image.width(), trimmed_image.height() * 5)
 
-        #no_glare_image = resized_image.remove_glare()
-        #no_glare_image.show()
+        blurred_image = resized_image.blur(1, round(resized_image.height()))
 
-        #canny_image = no_glare_image.canny()
-        #canny_image.show()
-
-        b, g, r = cv2.split(resized_image.image)
-
-        b = cv2.cvtColor(b, cv2.COLOR_GRAY2BGR)
-
-        blue = Image(b)
-        blue.show()
-
-        blurred_image = blue.blur(1, round(resized_image.height()*2))
         blurred_image.show()
 
-        monochrome_image = blurred_image.monochrome(inverted=True, block_size=131, C=5)
+        colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD', 'SILVER']
+
+        resistor_bands = []
+
+        for colour in colours:
+            resistor_band = blurred_image.find_bands(colour)
+
+            if resistor_band is not None:
+                resistor_bands.append(resistor_band)
+
+        Resistor(resistor_bands).main()
+
+
+
+
+
+    '''
+    def locate(self):
+
+        trimmed_image = self.trim_image(self.image)
+
+        resized_image = trimmed_image.resize(trimmed_image.width(), trimmed_image.height() * 5)
+
+        no_glare_image = resized_image.remove_glare()
+
+        b, g, r = cv2.split(resized_image.image)
+        b = cv2.cvtColor(b, cv2.COLOR_GRAY2BGR)
+
+        b_image = Image(b)
+        b_image.show()
+
+        blurred_image = b_image.blur(1, round(resized_image.height()*2))
+        blurred_image.show()
+
+        monochrome_image = blurred_image.monochrome(inverted=True, block_size=61, C=4)
         monochrome_image.show()
 
         #closing = cv2.morphologyEx(monochrome_image.image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (round(monochrome_image.width()*0.03), round(monochrome_image.height()*0.03))))
@@ -183,30 +205,31 @@ class BandLocator:
 
         contours, _ = monochrome_image.contours()
 
-        band_bounding_boxes = self.bounding_boxes(contours)
+        band_rectangles = self.bounding_rectangle(contours)
 
         #image = self.band_colours(no_glare_image)
 
-        colours = self.colours(no_glare_image, band_bounding_boxes)
+        colours = self.colours(no_glare_image, band_rectangles)
 
         resized_image.show()
-
+    '''
 
 
 if __name__ == "__main__":
 
     directory = os.path.abspath(os.curdir)
-
+    ''''
     folder = f'{directory}\\resistorImages'
 
     for filename in os.listdir(folder):
-
-        band_locator = BandLocator()
-
         if filename.endswith('jpg'):
             resistor_image = cv2.imread(f'{folder}\\{filename}')
+            
+    '''
+    resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\269661054352669044576758484705730405017.jpg')
+    resistor_image = Image(resistor_image)
 
-            band_locator.locate(Image(resistor_image))
+    BandLocator(resistor_image).locate()
 
 
 

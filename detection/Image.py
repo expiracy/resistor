@@ -3,6 +3,9 @@ import numpy as np
 import os
 import uuid
 
+from Colours import Colours
+from ResistorBand import ResistorBand
+
 class Image:
 
     @classmethod
@@ -95,13 +98,14 @@ class Image:
         cv2.imshow("bgr", bgr_image)
 
         return Image(bgr_image)
-
+    '''
     def colour(self):
 
         avg_color_per_row = np.average(self.image, axis=0)
         avg_color = np.average(avg_color_per_row, axis=0)
 
         return int(avg_color[0]), int(avg_color[1]), int(avg_color[2])
+    '''
 
     def blur(self, width=1, height=-1):
 
@@ -112,33 +116,7 @@ class Image:
 
         return Image(blurred_image)
 
-    def gaussian_blur(self):
-        blurred_image = cv2.GaussianBlur(self.image, (7, 7), 0)
-
-        return Image(blurred_image)
-
     def monochrome(self, inverted=False, block_size=51, C=21):
-        '''
-        height, width, channels = self.image.shape
-
-        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-
-        thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
-
-        monochrome_image = cv2.adaptiveThreshold(
-            greyscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, thresholding, (height * 2) + 1, 0)
-
-        bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
-
-        return Image(bgr_image)
-
-
-        #thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
-
-        threshold, monochrome_image = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY)
-
-        return Image(monochrome_image)
-        '''
 
         greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
@@ -148,9 +126,6 @@ class Image:
         bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
 
         return Image(bgr_image)
-
-
-
 
     def recolour(self, shift=0):
 
@@ -169,7 +144,7 @@ class Image:
     def brighten(self, gamma=1.0):
 
         table = np.array([((i / 255.0) ** (1 / gamma)) * 255
-                             for i in numpy.arange(0, 256)]).astype('uint8')
+                             for i in np.arange(0, 256)]).astype('uint8')
 
         bgr_image = cv2.LUT(self.image, table)
 
@@ -318,6 +293,42 @@ class Image:
         eroded_image = cv2.erode(self.image, element, iterations=2)
 
         return Image(eroded_image)
+
+    def find_bands(self, colour):
+
+        hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
+
+        h, s, v = cv2.split(hsv_image)
+
+        h_range, s_range, v_range = Colours().hsv_ranges(colour)
+
+        h_range = cv2.inRange(h, h_range[0], h_range[1])
+        s_range = cv2.inRange(s, s_range[0], s_range[1])
+        v_range = cv2.inRange(v, v_range[0], v_range[1])
+
+        mask = np.bitwise_and(h_range, s_range)
+        colour_mask = np.bitwise_and(mask, v_range)
+
+        cv2.imshow("original", self.image)
+        cv2.imshow("image", colour_mask)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        if cv2.countNonZero(colour_mask) != 0:
+            print(colour)
+            bgr_colour_mask = cv2.cvtColor(colour_mask, cv2.COLOR_GRAY2BGR)
+            colour_mask_image = Image(bgr_colour_mask)
+
+            contours, _ = colour_mask_image.contours()
+
+            return ResistorBand(colour, contours)
+
+        return None
+
+
+
+
+
 
 
 

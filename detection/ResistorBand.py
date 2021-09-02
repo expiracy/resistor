@@ -1,12 +1,10 @@
-class ResistorBands:
+class ResistorBand:
 
-    def __init__(self):
+    def __init__(self, colour, contours):
         self.colours = []
         self.amount = 6
-
-    @classmethod
-    def create(cls):
-        return ResistorBands()
+        self.colour = colour
+        self.contours = contours
 
     def identify_type(self, bands):
 
