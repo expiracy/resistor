@@ -13,6 +13,7 @@
         border: 0;
     }
 
+
     .band_button {
         color: #000000;
         text-decoration: NONE;
@@ -198,4 +199,9 @@
     .placeholder {
         font-style: italic;
         color: #8a8a8a;
+    }
+
+    .hide_canvas {
+        width: 0;
+        height: 0;
     }

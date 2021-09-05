@@ -3,8 +3,7 @@ import numpy as np
 import os
 import uuid
 
-from Colours import Colours
-from ResistorBand import ResistorBand
+from detection.Colours import Colours
 
 class Image:
 
@@ -189,11 +188,11 @@ class Image:
 
         return resistor
 
-    def canny(self, threshold_1=50, threshold_2=50):
+    def canny(self, threshold_1=50, threshold_2=50, aperture_size=3):
 
         greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
-        canny_image = cv2.Canny(greyscale_image, threshold_1, threshold_2, apertureSize=3)
+        canny_image = cv2.Canny(greyscale_image, threshold_1, threshold_2, aperture_size)
 
         bgr_image = cv2.cvtColor(canny_image, cv2.COLOR_GRAY2BGR)
 
@@ -294,36 +293,40 @@ class Image:
 
         return Image(eroded_image)
 
-    def find_bands(self, colour):
+    def monochrome_mask(self):
+        pass
+        #self.show()
+        #monochrome_image = self.monochrome(inverted=True, block_size=151, C=1)
+        #monochrome_image.show()
+
+        #get contours for monochrome mask then compare to hsv mask
+
+
+    def hsv_mask(self, hsv_ranges):
 
         hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
         h, s, v = cv2.split(hsv_image)
 
-        h_range, s_range, v_range = Colours().hsv_ranges(colour)
-
-        h_range = cv2.inRange(h, h_range[0], h_range[1])
-        s_range = cv2.inRange(s, s_range[0], s_range[1])
-        v_range = cv2.inRange(v, v_range[0], v_range[1])
+        h_range = cv2.inRange(h, hsv_ranges.h_range[0], hsv_ranges.h_range[1])
+        s_range = cv2.inRange(s, hsv_ranges.s_range[0], hsv_ranges.s_range[1])
+        v_range = cv2.inRange(v, hsv_ranges.v_range[0], hsv_ranges.v_range[1])
 
         mask = np.bitwise_and(h_range, s_range)
         colour_mask = np.bitwise_and(mask, v_range)
 
-        cv2.imshow("original", self.image)
-        cv2.imshow("image", colour_mask)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow("original", self.image)
+        #cv2.imshow("image", colour_mask)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
         if cv2.countNonZero(colour_mask) != 0:
-            print(colour)
             bgr_colour_mask = cv2.cvtColor(colour_mask, cv2.COLOR_GRAY2BGR)
             colour_mask_image = Image(bgr_colour_mask)
 
-            contours, _ = colour_mask_image.contours()
+            band_contours, _ = colour_mask_image.contours()
 
-            return ResistorBand(colour, contours)
-
-        return None
+            return band_contours
 
 
 

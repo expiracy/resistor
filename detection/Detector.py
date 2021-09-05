@@ -1,10 +1,10 @@
 import cv2
 import numpy
 
-from detection.Colors import Colors
+from detection.ResistorLocator import ResistorLocator
 from detection.BandLocator import BandLocator
 from detection.Image import Image
-from detection.ResistorBands import ResistorBand
+from detection.Resistor import Resistor
 
 
 class Detector:
@@ -15,9 +15,8 @@ class Detector:
 
     def __init__(self):
         self.image = Image.create()
-        self.resistor = ResistorBand.create()
         self.colors = None
-
+    '''
     def scan(self, x, y):
 
         print(f"x: {x}, y: {y}")
@@ -43,11 +42,11 @@ class Detector:
 
             key = section.show()
 
-            '''if key == ord('a'):
+            if key == ord('a'):
                 angle += 10
 
             if key == ord('d'):
-                angle -= 10'''
+                angle -= 10
 
             if key == ord('w'):
                 offset -= 10 if offset > 10 else 0
@@ -103,10 +102,11 @@ class Detector:
             [image.bgr(), adjusted_image.bgr(), blurred_image.bgr(), monochrome_image.bgr(),
              contour_image.bgr()],
             axis=0)
-
+    
     def detect(self, location, x, y):
 
         self.image = Image.create().load(location).resize(512, 384)
+        
 
         x = x * 512 / self.image.width()
         y = y * 384 / self.image.height()
@@ -120,5 +120,16 @@ class Detector:
         cv2.destroyAllWindows()
 
         return self.resistor
+    '''
+    def detect(self, location):
+        self.image = Image.create().load(location)
+
+        self.image = ResistorLocator(self.image).locate()
+
+        resistor_bands = BandLocator(self.image).locate()
+
+        return Resistor(resistor_bands).main()
+
+
 
 

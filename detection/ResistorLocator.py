@@ -6,8 +6,8 @@ import cv2
 
 import numpy as np
 
-from Image import Image
-from BandLocator import BandLocator
+from detection.Image import Image
+from detection.BandLocator import BandLocator
 
 
 class ResistorLocator:
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
         image = cv2.imread(f'{folder}\\{filename}')
 
-        if filename.endswith('jpg'):
+        if filename.endswith('JPG'):
             image = Image(image)
             resistor_image = ResistorLocator(image).locate()
             #BandLocator(resistor_image)

@@ -1,11 +1,12 @@
 // defining commonly used elements
 const select_input = document.getElementById('select_input');
 const canvas = document.getElementById('canvas_id');
-// picture canvas
-var context = canvas.getContext('2d');
 
 //defining variables
 var image = new Image();
+var dragging = false;
+var target = null;
+var snapshot = null;
 
 // defining resistor variables
 var resistor_bands = [];
@@ -14,6 +15,21 @@ var resistor_type = 6;
 // defining button tracking variables
 var button_presses = [];
 var band_presses = [];
+
+// picture canvas
+var context = canvas.getContext('2d');
+context.strokeStyle = 'green';
+context.lineWidth = 3;
+context.lineCap = 'round';
+
+// event listener to track mouse position
+canvas.addEventListener('mousedown', dragStart, false);
+canvas.addEventListener('mousemove', drag, false);
+canvas.addEventListener('mouseup', dragStop, false);
+
+canvas.addEventListener('touchstart', dragStart, false);
+canvas.addEventListener('touchmove', drag, false);
+canvas.addEventListener('touchend', dragStop, false);
 
 // simulate button click
 function clickButton(element_id) {
@@ -29,15 +45,21 @@ function drawFileAndShowScanButton() {
 function uploadFile() {
     // getting uploaded file and its location
     let file = select_input.files[0];
-    uploadAndResponse(file);
+    uploadAndResponse(file, target);
 }
 
-function uploadAndResponse(file) {
+function uploadAndResponse(file, position) {
     // creating variables for ajax
     let form = new FormData();	
     let xhr = new XMLHttpRequest();
 
+    // setting the x and y positions
+    let x = position.x * image.width / canvas.width
+    let y = position.y * image.height / canvas.height
+
     // posting the values to flask
+    form.append('x', x)
+    form.append('y', y)
     form.append('file', file);
     xhr.open('post', '/api', true);
     xhr.send(form);
@@ -69,34 +91,81 @@ function uploadAndResponse(file) {
     }
 }
 
-function calculateHeight() {
-    let ratio = image.width / image.height
-
-    let scale = 420 / ratio
-
-    return Math.round(scale)
-}
-
 function drawFile(file) {
     let reader = new FileReader();
-
-    canvas.classList.remove('hide_canvas')
-
+	
     reader.onload = function (e) {
-        let dataURL = e.target.result
+      let dataURL = e.target.result,
+          ctx = canvas.getContext('2d')
 
-    image.onload = function() {
-        canvas.width = 420
-        canvas.height = calculateHeight()
+      image.onload = function() {
+        width = window.innerWidth
+            || document.documentElement.clientWidth
+            || document.body.clientWidth;
 
+        canvas.width = width * 3 / 4
+        canvas.height = canvas.width * 3 / 4;
         context.drawImage(image, 0, 0, image.width, image.height, 0, 0,  canvas.width,  canvas.height);
-        }
-        image.src = dataURL;
-    }
+        takeSnapshot()
+        target =  { x: (canvas.width / 2), y: (canvas.height / 2) }
+        drawCircle(target)
+      };
+      image.src = dataURL;
+    };
 
     reader.readAsDataURL(file);
   }
 
+function getCanvasCoordinates(event) {
+    // getting the coordinates of the cursor on the canvas
+    let x = event.clientX - canvas.getBoundingClientRect().left,
+        y = event.clientY - canvas.getBoundingClientRect().top;
+
+    return {x: x, y: y};
+}
+
+function takeSnapshot() {
+    snapshot = context.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+function restoreSnapshot() {
+    context.putImageData(snapshot, 0, 0);
+}
+
+function drawCircle(position) {
+    // drawing the cursor
+    const radius = 15;
+    context.beginPath();
+    context.strokeStyle = '#00FF00'
+    context.lineWidth = 3
+    context.shadowBlur = 5;
+    context.shadowColor = 'BLACK';
+    context.arc(position['x'], position['y'], radius, 0, 2 * Math.PI);
+    context.stroke();
+}
+
+
+function dragStart(event) {
+    dragging = true;
+    restoreSnapshot();
+    target = getCanvasCoordinates(event);
+    drawCircle(target);
+}
+
+function drag(event) {
+    if (dragging === true) {
+        restoreSnapshot();
+        target = getCanvasCoordinates(event);
+        drawCircle(target);
+    }
+}
+
+function dragStop(event) {
+    dragging = false;
+    restoreSnapshot();
+    target = getCanvasCoordinates(event);
+    drawCircle(target);
+}
 
 function stopBandButtonSelected(element_id) {
     try {
@@ -150,6 +219,8 @@ function selectBandButton(band, colour) {
         button_presses.push(element_id);
         band_presses.push(band);
         addSelected(element_id)
+
+
     }
 }
 
