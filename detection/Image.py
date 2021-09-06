@@ -312,6 +312,7 @@ class Image:
         s_range = cv2.inRange(s, hsv_ranges.s_range[0], hsv_ranges.s_range[1])
         v_range = cv2.inRange(v, hsv_ranges.v_range[0], hsv_ranges.v_range[1])
 
+        # Narrowing down the image to only show the HSV values of the desired range
         mask = np.bitwise_and(h_range, s_range)
         colour_mask = np.bitwise_and(mask, v_range)
 
@@ -320,17 +321,16 @@ class Image:
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
 
-        if cv2.countNonZero(colour_mask) != 0:
-            bgr_colour_mask = cv2.cvtColor(colour_mask, cv2.COLOR_GRAY2BGR)
-            colour_mask_image = Image(bgr_colour_mask)
+        bgr_image = cv2.cvtColor(colour_mask, cv2.COLOR_GRAY2BGR)
 
-            band_contours, _ = colour_mask_image.contours()
+        return Image(bgr_image)
 
-            return band_contours
+    def count_non_zero_pixels(self):
+        greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
+        non_zero_pixels = cv2.countNonZero(greyscale_image)
 
-
-
+        return non_zero_pixels
 
 
 

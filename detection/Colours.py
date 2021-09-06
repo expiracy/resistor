@@ -28,7 +28,7 @@ class Colours:
             'VIOLET': [120, 160],
             'GREY': [0, 0],
             'WHITE': [0, 180],
-            'GOLD': [10, 20],
+            'GOLD': [10, 23],
             'SILVER': [0, 0],
         }
 
@@ -43,7 +43,7 @@ class Colours:
             'VIOLET': [30, 140],
             'GREY': [0, 0],
             'WHITE': [0, 30],
-            'GOLD': [50, 110],
+            'GOLD': [50, 100],
             'SILVER': [0, 1],
         }
 
@@ -58,7 +58,7 @@ class Colours:
             'VIOLET': [40, 120],
             'GREY': [40, 130],
             'WHITE': [127, 255],
-            'GOLD': [50, 80],
+            'GOLD': [20, 100],
             'SILVER': [80, 130],
         }
 

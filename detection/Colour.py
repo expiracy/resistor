@@ -4,11 +4,15 @@ from colormath.color_conversions import convert_color
 
 class Colour:
 
-    def __init__(self, name, red, green, blue):
-        self.name = name
+    def __init__(self, h, s, v):
 
-        self.rgb = sRGBColor(red, green, blue, is_upscaled=True)
+        self.rgb = self.HSV_to_RGB(h, s, v)
         self.lab = convert_color(self.rgb, LabColor)
+
+    def HSV_to_RGB(self, h, s, v):
+
+        # sRGBColor(red, green, blue, is_upscaled=True)
+        pass
 
     def distance(self, bgr):
 
@@ -20,7 +24,4 @@ class Colour:
         lab = convert_color(rgb, LabColor)
 
         return delta_e_cie2000(lab, self.lab)
-
-    def __str__(self):
-        return str(self.name)
 

@@ -29,7 +29,7 @@ class Resistor:
 
         for band in range(len(self.bands)):
 
-            if self.bands[band].bounding_rectangle.height < (resistor_height * 0.5):
+            if self.bands[band].bounding_rectangle.height < (resistor_height * 0.7):
                 invalid_bands.append(self.bands[band])
 
         for index in range(len(invalid_bands)):
@@ -38,7 +38,6 @@ class Resistor:
     def type(self):
 
         if self.bands:
-
             return len(self.bands)
 
     def colours(self):
@@ -68,13 +67,9 @@ class Resistor:
 
         colours = self.colours()
 
-        try:
-            for index in range(3):
-                if colours[index] != 'NONE':
-                    digit_band_colours.append(colours[index])
-
-        except:
-            print("Error trying to get digit bands.")
+        for index in range(3):
+            if colours[index] != 'NONE':
+                digit_band_colours.append(colours[index])
 
         return digit_band_colours
 
@@ -118,7 +113,7 @@ class Resistor:
 
         # if 2 x coordinates are less than 0.3 x the mean difference away from each other, assume it is a duplicate band
         for index in range(len(difference_list)):
-            if difference_list[index] < mean_difference * 0.3:
+            if difference_list[index] < mean_difference * 0.4:
                 dupe_band_indexes.append(index)
                 dupe_band_indexes.append(index + 1)
 
@@ -135,6 +130,7 @@ class Resistor:
         biggest_area_index = areas.index(biggest_area)
 
         for index in range(len(dupe_band_indexes)):
+            print(index)
             if index != biggest_area_index:
                 self.bands.remove(self.bands[index])
 

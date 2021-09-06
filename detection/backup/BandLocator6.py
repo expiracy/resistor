@@ -64,8 +64,8 @@ class BandLocator:
 
         for index in range(len(rectangles)):
 
-            # width = int(rectangles[index].width / 2)
-            # x = int(rectangles[index].x + rectangles[index].width)
+            # width = int(bounding_rectangles[index].width / 2)
+            # x = int(bounding_rectangles[index].x + bounding_rectangles[index].width)
 
             region = no_glare_image.region(rectangles[index].x, rectangles[index].y, rectangles[index].width, rectangles[index].height)
 

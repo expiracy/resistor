@@ -1,207 +1,207 @@
-    body {
-        background-color: #36393F;
-    }
+body {
+    background-color: #36393F;
+}
 
-    td {
-        text-align: center;
-        padding: 0
-    }
+td {
+    text-align: center;
+    padding: 0
+}
 
-    table {
-        margin-left:auto;
-        margin-right:auto;
-        border: 0;
-    }
-
-
-    .band_button {
-        color: #000000;
-        text-decoration: NONE;
-        margin: 10px 5px;
-        cursor: pointer;
-        display: block;
-        border: solid 0;
-        border-radius: 8px;
-        width: 60px;
-        height: 50px;
-        position: relative;
-    }
-
-    .band_1 {
-        top: -60px;
-    }
-
-    .band_2 {
-        top: -60px;
-    }
-
-    .band_3 {
-        top: -60px;
-    }
-
-    .band_4 {
-    }
-
-    .band_5 {
-    }
-
-    .band_6 {
-        top: -120px;
-    }
-
-    .BLACK {
-        background-color: #1a1a1a;
-    }
-
-    .BROWN {
-        background-color: #664100;
-    }
-
-    .RED {
-        background-color: #ff3333;
-    }
-
-    .ORANGE {
-        background-color: #ff7308;
-    }
-
-    .YELLOW {
-        background-color: #ffd966;
-    }
-
-    .GREEN {
-        background-color: #99ff33;
-    }
-
-    .BLUE {
-        background-color: #6666ff;
-    }
-
-    .VIOLET {
-        background-color: #ff66b3;
-    }
-
-    .GREY {
-        background-color: #8f8f8f;
-    }
-
-    .DARKGREY {
-        background-color: #202225;
-    }
-
-    .WHITE {
-        background-color: #ffffff;
-    }
-
-    .GOLD {
-         background-image: linear-gradient(to top, #F09819 0%, #EDDE5D  51%, #f09819 100%)
-    }
-
-    .SILVER {
-        background-image: linear-gradient(to top, #8f8f8f 0%, #ffffff 51%, #8a8a8a 100%)
-    }
-
-    .NONE {
-        background-color: Transparent;
-        background-repeat:no-repeat;
-        border: NONE;
-        cursor: default;
-        overflow: hidden;
-        outline: NONE;
-    }
-
-    .add_margin{
-        margin: 5px 3px;
-    }
-
-    .add_curve{
-        border-radius: 8px;
-    }
-
-    .add_shadow{
-        box-shadow: 0 5px 3px #aaaaaa;
-    }
-
-    .add_selected {
-        border: solid 4px #000000;
-    }
-
-    #banner {
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: #202225;
-        width: 100%;
-     }
-
-    #banner-content {
-        max-width: 500px;
-        margin: 0 auto;
-        padding: 30px;
-        color: white;
-        text-align: center;
-        font-family: 'Questrial', sans-serif;
-        font-size: 30px;
-     }
-
-    #main-content {
-        max-width: 500px;
-        padding: 90px;
-        margin: 0 auto;
-        font-family: 'Questrial', sans-serif;
-        font-size: 20px;
-    }
+table {
+    margin-left:auto;
+    margin-right:auto;
+    border: 0;
+}
 
 
-    .input_button {
-        background-color: #5865F2;
-        border: none;
-        color: white;
-        text-align: center;
-        margin: 5px 5px;
-        font-family: 'Questrial', sans-serif;
-        font-size: 20px;
-        cursor: pointer;
-    }
+.band_button {
+    color: #000000;
+    text-decoration: NONE;
+    margin: 10px 5px;
+    cursor: pointer;
+    display: block;
+    border: solid 0;
+    border-radius: 8px;
+    width: 60px;
+    height: 50px;
+    position: relative;
+}
 
-    .band_amount_button {
-        width: 98px;
-        height: 50px;
-    }
+.band_1 {
+    top: -60px;
+}
 
-    .input_image_button {
-        width: 428px;
-        height: 50px;
-    }
+.band_2 {
+    top: -60px;
+}
 
-    .output_window {
-        background-color: #ffffff;
-        border: none;
-        color: black;
-        width: 135px;
-        height: 50px;
-        text-align: center;
-        display: inline-block;
-        margin: 10px 5px;
-        font-family: 'Questrial', sans-serif;
-        font-size: 20px;
-        vertical-align:top;
-    }
+.band_3 {
+    top: -60px;
+}
 
-    .space_top {
-        padding-top: 25px
-    }
+.band_4 {
+}
 
-    .space_bottom {
-        padding-bottom: 25px;
-    }
+.band_5 {
+}
 
-    .placeholder {
-        font-style: italic;
-        color: #8a8a8a;
-    }
+.band_6 {
+    top: -120px;
+}
 
-    .hide_canvas {
-        width: 0;
-        height: 0;
-    }
+.BLACK {
+    background-color: #1a1a1a;
+}
+
+.BROWN {
+    background-color: #664100;
+}
+
+.RED {
+    background-color: #ff3333;
+}
+
+.ORANGE {
+    background-color: #ff7308;
+}
+
+.YELLOW {
+    background-color: #ffd966;
+}
+
+.GREEN {
+    background-color: #99ff33;
+}
+
+.BLUE {
+    background-color: #6666ff;
+}
+
+.VIOLET {
+    background-color: #ff66b3;
+}
+
+.GREY {
+    background-color: #8f8f8f;
+}
+
+.DARKGREY {
+    background-color: #202225;
+}
+
+.WHITE {
+    background-color: #ffffff;
+}
+
+.GOLD {
+     background-image: linear-gradient(to top, #F09819 0%, #EDDE5D  51%, #f09819 100%)
+}
+
+.SILVER {
+    background-image: linear-gradient(to top, #8f8f8f 0%, #ffffff 51%, #8a8a8a 100%)
+}
+
+.NONE {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: NONE;
+    cursor: default;
+    overflow: hidden;
+    outline: NONE;
+}
+
+.add_margin{
+    margin: 5px 3px;
+}
+
+.add_curve{
+    border-radius: 8px;
+}
+
+.add_shadow{
+    box-shadow: 0 5px 3px #aaaaaa;
+}
+
+.add_selected {
+    border: solid 4px #000000;
+}
+
+#banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #202225;
+    width: 100%;
+ }
+
+#banner-content {
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 30px;
+    color: white;
+    text-align: center;
+    font-family: 'Questrial', sans-serif;
+    font-size: 30px;
+ }
+
+#main-content {
+    max-width: 430px;
+    padding: 90px;
+    margin: 0 auto;
+    font-family: 'Questrial', sans-serif;
+    font-size: 20px;
+}
+
+
+.input_button {
+    background-color: #5865F2;
+    border: none;
+    color: white;
+    text-align: center;
+    margin: 5px 5px;
+    font-family: 'Questrial', sans-serif;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.band_amount_button {
+    width: 98px;
+    height: 50px;
+}
+
+.input_image_button {
+    width: 428px;
+    height: 50px;
+}
+
+.output_window {
+    background-color: #ffffff;
+    border: none;
+    color: black;
+    width: 135px;
+    height: 50px;
+    text-align: center;
+    display: inline-block;
+    margin: 10px 5px;
+    font-family: 'Questrial', sans-serif;
+    font-size: 20px;
+    vertical-align:top;
+}
+
+.space_top {
+    padding-top: 25px
+}
+
+.space_bottom {
+    padding-bottom: 25px;
+}
+
+.placeholder {
+    font-style: italic;
+    color: #8a8a8a;
+}
+
+.hide_canvas {
+    width: 0;
+    height: 0;
+}

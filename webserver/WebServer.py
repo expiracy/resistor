@@ -28,8 +28,6 @@ def api():
 
     resistor = Detector.create().detect(location)
 
-    print(resistor.colours)
-
     return jsonify(colours=resistor.colours(), type=resistor.type())
 
 
