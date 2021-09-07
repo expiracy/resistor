@@ -1,5 +1,6 @@
 import cv2
 import numpy
+import os
 
 from detection.ResistorLocator import ResistorLocator
 from detection.BandLocator import BandLocator
@@ -131,6 +132,23 @@ class Detector:
         resistor = Resistor(resistor_bands).main()
 
         return resistor
+
+if __name__ == "__main__":
+
+    os.getcwd()
+    os.chdir("../images")
+    '''
+    for filename in os.listdir():
+
+        print(filename)
+
+        if filename.endswith('JPG'):
+
+            Detector().detect(f'{os.curdir}\\{filename}')
+    '''
+
+    Detector().detect(f'{os.curdir}\\0.25_normal_IMG_3057.JPG')
+
 
 
 

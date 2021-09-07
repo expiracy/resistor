@@ -48,9 +48,9 @@ class BandLocator:
 
         return contours
 
-    def find_gold(self):
+    def threshold_bands(self):
 
-        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.7))
+        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.5))
 
         monochrome_image = blurred_image.clone().monochrome(inverted=True, block_size=151, C=1)
 
@@ -65,6 +65,8 @@ class BandLocator:
         self.image = self.image.region(round(self.image.width() * 0.04), 0, round(self.image.width() * 0.92),
                                        self.image.height() * 2).resize(self.image.width(), self.image.height() * 5)
 
+        self.image.show()
+
         blurred_image = self.image.blur()
 
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
@@ -78,16 +80,20 @@ class BandLocator:
 
             band_contours = None
 
-            #if colour == 'GOLD':
+            if colour == 'GOLD':
 
-                #band_contours = self.find_gold()
+                band_contours = self.threshold_bands()
 
-            colour_mask = blurred_image.hsv_mask(colour_hsv_ranges)
+            else:
 
-            non_zero_pixels = colour_mask.count_non_zero_pixels()
+                colour_mask = blurred_image.hsv_mask(colour_hsv_ranges)
 
-            if non_zero_pixels != 0:
-                band_contours, _ = colour_mask.contours()
+                #colour_mask.show()
+
+                non_zero_pixels = colour_mask.count_non_zero_pixels()
+
+                if non_zero_pixels != 0:
+                    band_contours, _ = colour_mask.contours()
 
             if band_contours is not None:
 
