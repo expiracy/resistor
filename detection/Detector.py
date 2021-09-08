@@ -129,10 +129,16 @@ class Detector:
 
         resistor_bands = BandLocator(self.image).locate()
 
+        print(resistor_bands)
+
         resistor = Resistor(resistor_bands).main()
 
         print(resistor.type())
-        print(resistor.colours())
+
+        for band in resistor.bands:
+            print('FINAL: ', band.colour, band.bounding_rectangle.x)
+
+        self.image.show()
 
         return resistor
 
@@ -140,7 +146,7 @@ if __name__ == "__main__":
 
     os.getcwd()
     os.chdir("../images")
-    '''
+
     for filename in os.listdir():
 
         print(filename)
@@ -148,9 +154,9 @@ if __name__ == "__main__":
         if filename.endswith('JPG'):
 
             Detector().detect(f'{os.curdir}\\{filename}')
-    '''
 
-    Detector().detect(f'{os.curdir}\\0.25_normal_IMG_3057.JPG')
+
+    #Detector().detect(f'{os.curdir}\\0.25_normal_IMG_3057.JPG')
 
 
 

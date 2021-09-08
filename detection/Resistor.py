@@ -12,21 +12,20 @@ class Resistor:
 
         self.bands = bands
 
-    def order_bands(self):
+    def order_bands(self, reverse=False):
 
-        self.bands = sorted(self.bands, key=lambda resistor_band: resistor_band.bounding_rectangle.x, reverse=False)
+        self.bands = sorted(self.bands, key=lambda resistor_band: resistor_band.bounding_rectangle.x, reverse=reverse)
 
     def remove_non_bands(self):
 
-        heights = []
-
-        for band in self.bands:
-            heights.append(band.bounding_rectangle.height)
+        heights = [band.bounding_rectangle.height for band in self.bands]
+        widths = [band.bounding_rectangle.width for band in self.bands]
 
         resistor_height = max(heights)
+        mean_band_width = np.mean(widths)
 
         for band in self.bands[:]:
-            if band.bounding_rectangle.height < (resistor_height * 0.4):
+            if band.bounding_rectangle.height < (resistor_height * 0.3) or band.bounding_rectangle.width < (mean_band_width * 0.3):
                 self.bands.remove(band)
 
     def type(self):
@@ -39,24 +38,22 @@ class Resistor:
         colours = []
         type = self.type()
 
-        if type == 2:
-            colours = [self.bands[0].colour, self.bands[1].colour, "NONE", self.bands[1].colour, "NONE", "NONE"]
-            print("INVALID")
-
         if type == 3:
-            colours = [self.bands[0].colour, self.bands[1].colour, "NONE", self.bands[2].colour, "NONE", "NONE"]
+            colours = [self.bands[0].colour, self.bands[1].colour, 'NONE', self.bands[2].colour, 'NONE', 'NONE']
 
-        if type == 4:
-            colours = [self.bands[0].colour, self.bands[1].colour, "NONE", self.bands[2].colour,
-                       self.bands[3].colour, "NONE"]
+        elif type == 4:
+            colours = [self.bands[0].colour, self.bands[1].colour, 'NONE', self.bands[2].colour,
+                       self.bands[3].colour, 'NONE']
 
-        if type == 5:
+        elif type == 5:
             colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
-                       self.bands[4].colour, "NONE"]
+                       self.bands[4].colour, 'NONE']
 
-        if type == 6:
+        elif type == 6:
             colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
                        self.bands[4].colour, self.bands[5].colour]
+        else:
+            colours = ['NONE', 'NONE', 'NONE', 'NONE', 'NONE', 'NONE']
 
         return colours
 
@@ -66,7 +63,6 @@ class Resistor:
         colours = self.colours()
 
         if colours:
-
             for index in range(3):
                 if colours[index] != 'NONE':
                     digit_band_colours.append(colours[index])
@@ -98,76 +94,63 @@ class Resistor:
                 return False
 
     def identify_dupe_bands(self):
-        x_list = []
-
         # getting x coordinate of each band and appending them to a list
-        for band in self.bands:
-            x_list.append(band.bounding_rectangle.x)
+        x_list = [band.bounding_rectangle.x for band in self.bands]
 
         # calculating the mean difference of the x coordinates
-        mean_difference, difference_list = self.band_distances(x_list)
-
-        dupe_band_indexes = []
+        mean_difference, differences = self.band_distance_differences(x_list)
 
         # if 2 x coordinates are less than 0.4 x the mean difference away from each other, assume it is a duplicate band
-        for index in range(len(difference_list)):
-            if difference_list[index] < mean_difference * 0.4:
-                dupe_band_indexes.append(index)
-                dupe_band_indexes.append(index + 1)
+        for index in range(len(differences)):
+            if differences[index] < mean_difference * 0.4:
+                self.bands[index].dupe = True
+                self.bands[index + 1].dupe = True
 
-        return dupe_band_indexes
-
-    def band_distances(self, list):
+    def band_distance_differences(self, list):
         np_list = np.array(list)
-        difference_list = np.diff(np_list)
-        mean_difference = np.mean(difference_list)
+        differences = np.diff(np_list)
+        mean_difference = np.mean(differences)
 
-        return mean_difference, difference_list
+        return mean_difference, differences
 
-    def keep_biggest_dupe_band(self, dupe_band_indexes):
-        print(dupe_band_indexes)
+    def keep_biggest_dupe_band(self):
+
+        for band in self.bands:
+            if band.colour == 'GOLD' and band.dupe is True:
+                band.dupe = False
+                print("GOLD DUPE")
 
         areas = []
 
-        for index in dupe_band_indexes:
-            areas.append(self.bands[index].bounding_rectangle.width * self.bands[index].bounding_rectangle.height)
+        for band in self.bands:
+            if band.dupe is True:
+                area = band.bounding_rectangle.width * band.bounding_rectangle.height
+                areas.append(area)
 
-        # I am assuming that the best colour match is the best band
-        biggest_area = max(areas)
-        biggest_area_index = areas.index(biggest_area)
+        if areas:
+            # I am assuming that the best colour match is the best band
+            biggest_area = max(areas)
+            biggest_area_index = areas.index(biggest_area)
 
-        dupe_bands = []
-
-        for index in range(len(self.bands))[:]:
-            if index != biggest_area_index:
-                self.bands.remove(self.bands[index])
-
-
-    def flip(self):
-        self.bands.reverse()
+            for band in self.bands[:]:
+                if self.bands.index(band) != biggest_area_index:
+                    self.bands.remove(band)
 
     def best_match(self):
         pass
 
     def find_gold(self):
 
-        gold_x_list = []
-        x_list = []
+        gold_x_list = [band.bounding_rectangle.x for band in self.bands if band.colour == 'GOLD']
+        x_list = [band.bounding_rectangle.x for band in self.bands if band.colour != 'GOLD']
 
-        for band in self.bands:
-            if band.colour == 'GOLD':
-                gold_x_list.append(band.bounding_rectangle.x)
-
-            else:
-                x_list.append(band.bounding_rectangle.x)
-
-        mean_difference, difference_list = self.band_distances(x_list)
+        mean_difference, difference_list = self.band_distance_differences(x_list)
 
         gold_x_false_positives = []
 
         for x in x_list:
             for gold_x in gold_x_list:
-                if (x + (mean_difference * 0.3)) < gold_x < (x - (mean_difference * 0.3)):
+                if (x + (mean_difference * 0.7)) < gold_x < (x - (mean_difference * 0.7)):
                     gold_x_false_positives.append(gold_x)
 
         for band in self.bands[:]:
@@ -177,18 +160,21 @@ class Resistor:
     def main(self):
 
         self.remove_non_bands()
-        self.find_gold()
+        #self.find_gold()
         self.order_bands()
 
-        dupe_band_indexes = self.identify_dupe_bands()
+        self.identify_dupe_bands()
 
-        if dupe_band_indexes:
-            self.keep_biggest_dupe_band(dupe_band_indexes)
+        for band in self.bands:
+            if band.dupe is True:
+                self.keep_biggest_dupe_band()
+                break
+
 
         valid = self.check_digit_band_colour_validity()
 
         if not valid:
-            self.flip()
+            self.order_bands(True)
             valid = self.check_digit_band_colour_validity()
 
             if not valid:
@@ -201,8 +187,3 @@ class Resistor:
 
         else:
             return self
-
-
-
-
-

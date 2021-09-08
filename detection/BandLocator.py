@@ -26,10 +26,7 @@ class BandLocator:
 
             bounding_rectangles.append(bounding_rectangle)
 
-        areas = []
-
-        for index in range(len(bounding_rectangles)):
-            areas.append(bounding_rectangles[index].width * bounding_rectangles[index].height)
+        areas = [bounding_rectangle.width * bounding_rectangle.height for bounding_rectangle in bounding_rectangles]
 
         mean = np.mean(areas)
 
@@ -39,24 +36,23 @@ class BandLocator:
 
         outlier_indexes = []
 
-        for index in range(len(areas)):
+        for index in range(len(areas))[:]:
             if areas[index] < lower_bound:
-                outlier_indexes.append(index)
-
-        for index in outlier_indexes:
-            contours.remove(contours[index])
+                contours.remove(contours[index])
 
         return contours
 
-    def threshold_bands(self):
+    def threshold(self):
 
-        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.7))
+        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.2))
 
-        monochrome_image = blurred_image.clone().monochrome(inverted=True, block_size=21, C=1)
+        blurred_image.show()
+
+        monochrome_image = blurred_image.clone().monochrome(inverted=True, block_size=151, C=5)
 
         contours, _ = monochrome_image.contours()
 
-        # contours_image = self.image.draw_contours(contours)
+        contours_image = blurred_image.clone().draw_contours(contours).show()
 
         return contours
 
@@ -64,8 +60,6 @@ class BandLocator:
 
         self.image = self.image.region(round(self.image.width() * 0.04), 0, round(self.image.width() * 0.92),
                                        self.image.height() * 2).resize(self.image.width(), self.image.height() * 5)
-
-        self.image.show()
 
         blurred_image = self.image.blur()
 
@@ -82,15 +76,14 @@ class BandLocator:
 
             if colour == 'GOLD':
 
-                band_contours = self.threshold_bands()
-
-                contours_image = self.image.clone().draw_contours(band_contours).show()
+                #band_contours = self.threshold()
+                pass
 
             else:
 
                 colour_mask = blurred_image.hsv_mask(colour_hsv_ranges)
 
-                print(colour)
+                #print(colour)
                 #colour_mask.show()
 
                 non_zero_pixels = colour_mask.count_non_zero_pixels()

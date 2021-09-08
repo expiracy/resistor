@@ -27,6 +27,7 @@ class Image:
 
     def hsv(self):
         h, s, v = cv2.split(cv2.cvtColor(self.image, cv2.COLOR_RGB2HSV))
+
         return h, s, v
 
     def width(self):
@@ -115,6 +116,12 @@ class Image:
 
         return Image(blurred_image)
 
+    def bilateral_filter(self):
+        blurred_image = cv2.bilateralFilter(self.image, 10, 100, 1000, 1000)
+
+        return Image(blurred_image)
+
+
     def monochrome(self, inverted=False, block_size=51, C=21):
 
         greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
@@ -128,9 +135,7 @@ class Image:
 
     def recolour(self, shift=0):
 
-        hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
-
-        h, s, v = cv2.split(hsv_image)
+        h, s, v = cv2.split(cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV))
 
         h = ((h.astype('int16') + shift) % 180).astype('uint8')
 
