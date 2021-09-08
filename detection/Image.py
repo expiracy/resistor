@@ -234,7 +234,7 @@ class Image:
     def draw_contours(self, contours):
 
         for contour in contours:
-            contour_image = cv2.drawContours(self.image, [contour], 0, (255, 255, 255), cv2.FILLED)
+            contour_image = cv2.drawContours(self.image, [contour], 0, (0, 0, 255), cv2.FILLED)
 
         return Image(contour_image)
 

@@ -131,6 +131,9 @@ class Detector:
 
         resistor = Resistor(resistor_bands).main()
 
+        print(resistor.type())
+        print(resistor.colours())
+
         return resistor
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 from detection.Colours import Colours
+from detection.BoundingRectangles import BoundingRectangles
 
 
 class Resistor:
@@ -19,20 +20,14 @@ class Resistor:
 
         heights = []
 
-        for band in range(len(self.bands)):
-            heights.append(self.bands[band].bounding_rectangle.height)
+        for band in self.bands:
+            heights.append(band.bounding_rectangle.height)
 
         resistor_height = max(heights)
 
-        invalid_bands = []
-
-        for band in range(len(self.bands)):
-
-            if self.bands[band].bounding_rectangle.height < (resistor_height * 0.4):
-                invalid_bands.append(self.bands[band])
-
-        for index in range(len(invalid_bands)):
-            self.bands.remove(invalid_bands[index])
+        for band in self.bands[:]:
+            if band.bounding_rectangle.height < (resistor_height * 0.4):
+                self.bands.remove(band)
 
     def type(self):
 
@@ -106,11 +101,11 @@ class Resistor:
         x_list = []
 
         # getting x coordinate of each band and appending them to a list
-        for index in range(len(self.bands)):
-            x_list.append(self.bands[index].bounding_rectangle.x)
+        for band in self.bands:
+            x_list.append(band.bounding_rectangle.x)
 
         # calculating the mean difference of the x coordinates
-        mean_difference, difference_list = self.differences(x_list)
+        mean_difference, difference_list = self.band_distances(x_list)
 
         dupe_band_indexes = []
 
@@ -122,7 +117,7 @@ class Resistor:
 
         return dupe_band_indexes
 
-    def differences(self, list):
+    def band_distances(self, list):
         np_list = np.array(list)
         difference_list = np.diff(np_list)
         mean_difference = np.mean(difference_list)
@@ -143,12 +138,10 @@ class Resistor:
 
         dupe_bands = []
 
-        for index in range(len(self.bands)):
+        for index in range(len(self.bands))[:]:
             if index != biggest_area_index:
-                dupe_bands.append(self.bands[index])
+                self.bands.remove(self.bands[index])
 
-        for dupe_band in dupe_bands:
-            self.bands.remove(dupe_band)
 
     def flip(self):
         self.bands.reverse()
@@ -161,14 +154,14 @@ class Resistor:
         gold_x_list = []
         x_list = []
 
-        for band in range(len(self.bands)):
-            if self.bands[band].colour == 'GOLD':
-                gold_x_list.append(self.bands[band].bounding_rectangle.x)
+        for band in self.bands:
+            if band.colour == 'GOLD':
+                gold_x_list.append(band.bounding_rectangle.x)
 
             else:
-                x_list.append(self.bands[band].bounding_rectangle.x)
+                x_list.append(band.bounding_rectangle.x)
 
-        mean_difference, difference_list = self.differences(x_list)
+        mean_difference, difference_list = self.band_distances(x_list)
 
         gold_x_false_positives = []
 
@@ -177,14 +170,9 @@ class Resistor:
                 if (x + (mean_difference * 0.3)) < gold_x < (x - (mean_difference * 0.3)):
                     gold_x_false_positives.append(gold_x)
 
-        gold_bands_false_positives = []
-
-        for band in range(len(self.bands)):
-            if self.bands[band].bounding_rectangle.x in gold_x_false_positives:
-                gold_bands_false_positives.append(self.bands[band])
-
-        for band in gold_bands_false_positives:
-            self.bands.remove(band)
+        for band in self.bands[:]:
+            if band.bounding_rectangle.x in gold_x_false_positives:
+                self.bands.remove(band)
 
     def main(self):
 

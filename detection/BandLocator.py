@@ -50,9 +50,9 @@ class BandLocator:
 
     def threshold_bands(self):
 
-        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.5))
+        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.7))
 
-        monochrome_image = blurred_image.clone().monochrome(inverted=True, block_size=151, C=1)
+        monochrome_image = blurred_image.clone().monochrome(inverted=True, block_size=21, C=1)
 
         contours, _ = monochrome_image.contours()
 
@@ -84,10 +84,13 @@ class BandLocator:
 
                 band_contours = self.threshold_bands()
 
+                contours_image = self.image.clone().draw_contours(band_contours).show()
+
             else:
 
                 colour_mask = blurred_image.hsv_mask(colour_hsv_ranges)
 
+                print(colour)
                 #colour_mask.show()
 
                 non_zero_pixels = colour_mask.count_non_zero_pixels()
