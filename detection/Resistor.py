@@ -34,7 +34,6 @@ class Resistor:
 
     def colours(self):
 
-        colours = []
         type = self.type()
 
         if type == 3:
@@ -113,27 +112,26 @@ class Resistor:
         return mean_difference, differences
 
     def keep_biggest_dupe_band(self):
-
+        '''
         for band in self.bands:
             if band.colour == 'GOLD' and band.dupe is True:
                 band.dupe = False
                 print("GOLD DUPE")
+        '''
 
-        areas = []
-
-        for band in self.bands:
-            if band.dupe is True:
-                area = band.bounding_rectangle.width * band.bounding_rectangle.height
-                areas.append(area)
+        areas = [band.bounding_rectangle.width * band.bounding_rectangle.height for band in self.bands if band.dupe is
+                 True]
 
         if areas:
             # I am assuming that the best colour match is the best band
             biggest_area = max(areas)
             biggest_area_index = areas.index(biggest_area)
 
-            for band in self.bands[:]:
-                if self.bands.index(band) != biggest_area_index:
-                    self.bands.remove(band)
+            for band in self.bands:
+                if band.dupe is True:
+                    if self.bands.index(band) != biggest_area_index:
+
+                        self.bands.remove(band)
 
     def best_match(self):
         pass
