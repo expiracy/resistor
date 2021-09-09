@@ -173,9 +173,9 @@ class Image:
     def mouse(self, event, x, y, flags, parameters):
 
         if event == cv2.EVENT_LBUTTONDOWN:
-            # hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
+            hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
-            color = self.image[y][x]
+            color = hsv_image[y][x]
 
             print(color)
 

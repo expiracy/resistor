@@ -129,10 +129,7 @@ class Detector:
 
         resistor_bands = BandLocator(self.image).locate()
 
-
         resistor = Resistor(resistor_bands).main()
-
-        self.image.show()
 
         return resistor
 
