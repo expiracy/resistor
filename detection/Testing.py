@@ -11,10 +11,32 @@ class Testing:
 
         for filename in os.listdir():
 
-            print(filename)
+            print(f'\n{filename}')
 
-            if filename.endswith('JPG'):
-                resistor = Detector().detect(f'{os.curdir}\\{filename}')
-                # compare to list
+            colour = []
+
+            resistor = Detector().detect(f'{os.curdir}\\{filename}')
+            # compare to list
+
+            filename = filename.split()
+
+            filename.remove(filename[len(filename) - 1])
+
+            detected_colours = [colour for colour in resistor.colours() if colour != 'NONE']
+
+            correct_colours = []
+
+            for index in range(len(detected_colours)):
+                if detected_colours[index] == filename[index]:
+                    correct_colours.append(True)
+
+            print(f'DETECTED: {detected_colours}')
+            print(f'EXPECTED: {filename}')
+            print(f'CORRECT: {correct_colours}')
+
+
+
+if __name__ == '__main__':
+    Testing().test()
 
 

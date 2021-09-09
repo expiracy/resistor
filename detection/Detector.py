@@ -129,14 +129,8 @@ class Detector:
 
         resistor_bands = BandLocator(self.image).locate()
 
-        print(resistor_bands)
 
         resistor = Resistor(resistor_bands).main()
-
-        print(resistor.type())
-
-        for band in resistor.bands:
-            print('FINAL: ', band.colour, band.bounding_rectangle.x)
 
         self.image.show()
 

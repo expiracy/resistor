@@ -3,7 +3,6 @@ import os
 import numpy as np
 
 from detection.Colours import Colours
-from detection.BoundingRectangles import BoundingRectangles
 
 
 class Resistor:
