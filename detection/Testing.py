@@ -20,7 +20,8 @@ class Testing:
 
             filename = filename.split()
 
-            filename.remove(filename[len(filename) - 1])
+            if not filename[len(filename) - 1].isalpha():
+                filename.remove(filename[len(filename) - 1])
 
             detected_colours = [colour for colour in resistor.colours() if colour != 'NONE']
 

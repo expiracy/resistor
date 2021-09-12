@@ -32,6 +32,9 @@ class Resistor:
         if self.bands:
             return len(self.bands)
 
+        else:
+            return 6
+
     def colours(self):
 
         type = self.type()

@@ -15,11 +15,6 @@ var resistor_type = 6;
 var button_presses = [];
 var band_presses = [];
 
-var current_type_pressed = 6;
-
-// locked status
-var resistor_type_lock = false
-
 // simulate button click
 function clickButton(element_id) {
     document.getElementById(element_id).click();
@@ -34,39 +29,13 @@ function drawFileAndShowScanButton() {
 function uploadFile() {
     // getting uploaded file and its location
     let file = select_input.files[0];
-    uploadAndResponse(file, resistor_type_lock);
+    uploadAndResponse(file);
 }
 
-// https://stackoverflow.com/a/40831598
-function base64ToBlob(base_64_data, content_type) {
-    let slice_size = 1024;
-    let byte_characters = atob(base_64_data);
-    let bytes_length = byte_characters.length;
-    let slices_count = Math.ceil(bytes_length / slice_size);
-    let byte_arrays = new Array(slices_count);
-
-    for (let slice_index = 0; slice_index < slices_count; ++slice_index) {
-        let begin = slice_index * slice_size;
-        let end = Math.min(begin + slice_size, bytes_length);
-        let bytes = new Array(end - begin);
-
-        for (let offset = begin, i = 0 ; offset < end; ++i, ++offset) {
-            bytes[i] = byte_characters[offset].charCodeAt(0);
-        }
-        byte_arrays[slice_index] = new Uint8Array(bytes);
-    }
-    return new Blob(byte_arrays, { type: content_type });
-}
-
-function uploadAndResponse(file, resistor_type_lock) {
-
+function uploadAndResponse(file) {
     // creating variables for ajax
-    let form = new FormData();
+    let form = new FormData();	
     let xhr = new XMLHttpRequest();
-
-    if (resistor_type_lock === true) {
-        form.append('type', resistor_type);
-    }
 
     // posting the values to flask
     form.append('file', file);
@@ -82,19 +51,13 @@ function uploadAndResponse(file, resistor_type_lock) {
 
             let resistor_bands = resistor['colours'];
             let number_of_bands = resistor['type'];
-            let resistor_image_byte_stream = resistor['image'];
 
-            console.log('COLOURS: ' + resistor_bands)
-            console.log('BANDS: ' + number_of_bands)
+            console.log(resistor)
+            console.log(number_of_bands)
 
             // calculating values for resistor
             resistorType(number_of_bands)
             outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
-
-            // displaying resistor image
-            let resistor_image_blob = base64ToBlob(resistor_image_byte_stream, 'image/jpeg')
-
-            drawFile(resistor_image_blob)
 
             // selecting colours
             let index = 0;
@@ -135,24 +98,25 @@ function drawFile(file) {
   }
 
 
-function stopSelected(element_id) {
+function stopBandButtonSelected(element_id) {
     try {
         document.getElementById(element_id).classList.remove('add_selected');
     }
     catch {
-        console.log("Error deselecting button (maybe button doesn't exist).")
+        console.log("Deselected a button that doesn't exist.")
     }
 }
 
 
 function addSelected(element_id) {
     try {
-        document.getElementById(element_id).classList.add('add_selected');
+        document.getElementById(element_id).className += ' add_selected';
     }
     catch {
-        console.log("Specified element id does not exist.")
+        console.log("Button for this colour does not exist on this band.")
     }
 }
+
 
 function checkBandPressDupes(band) {
     if (band_presses.includes(band)) {
@@ -163,7 +127,7 @@ function checkBandPressDupes(band) {
         delete button_presses[index];
         delete band_presses[index];
 
-        stopSelected(dupe_flash_element);
+        stopBandButtonSelected(dupe_flash_element);
     }
 }
 
@@ -374,8 +338,6 @@ function addTableColumns(band_amount) {
 
 
 function resistorType(band_amount) {
-    resistorTypeButtonPress(band_amount)
-
     if (band_amount < resistor_type) {
         removeTableColumns(band_amount);
     }
@@ -434,36 +396,4 @@ function outputResistorValues(resistor_values) {
     }
 }
 
-function lockResistorType() {
-    let resistor_type_lock_element = document.getElementById('resistor_type_lock');
-
-    if (resistor_type_lock_element.value === '🔓') {
-        resistor_type_lock_element.value = '🔒';
-
-        resistor_type_lock = true;
-
-        resistor_type_lock_element.classList.add('add_selected')
-    }
-
-    else {
-        resistor_type_lock_element.value = '🔓';
-
-        resistor_type_lock = false;
-
-        resistor_type_lock_element.classList.remove('add_selected')
-    }
-
-}
-
-function resistorTypeButtonPress(type) {
-
-    let new_type_pressed_element_id = type + '_band'
-    let current_type_pressed_element_id = current_type_pressed.toString() + '_band'
-
-    stopSelected(current_type_pressed_element_id)
-    addSelected(new_type_pressed_element_id)
-
-    current_type_pressed = type;
-
-}
 

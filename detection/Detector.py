@@ -6,6 +6,7 @@ from detection.ResistorLocator import ResistorLocator
 from detection.BandLocator import BandLocator
 from detection.Image import Image
 from detection.Resistor import Resistor
+from PIL import Image as PILImage
 
 
 class Detector:
@@ -131,7 +132,7 @@ class Detector:
 
         resistor = Resistor(resistor_bands).main()
 
-        return resistor
+        return resistor, self.image
 
 if __name__ == "__main__":
 

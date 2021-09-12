@@ -16,8 +16,12 @@ def ui():
 
 @app.route("/api", methods=["POST"])
 def api():
+    resistor_type = None
 
     file = request.files["file"]
+
+    if request.values:
+        resistor_type = request.values["type"]
 
     location = f'{os.getcwd()}\\images\\{file.filename}'
 
@@ -26,10 +30,18 @@ def api():
     with open(location, "wb") as target:
         file.save(target)
 
-    resistor = Detector.create().detect(location)
+    resistor, resistor_image = Detector.create().detect(location)
 
-    return jsonify(colours=resistor.colours(), type=resistor.type())
+    resistor_colours = resistor.colours()
 
+    if resistor_type is None:
+        resistor_type = resistor.type()
+
+    resistor_image_byte_stream = resistor_image.byte_stream()
+
+    resistor_image_byte_stream = resistor_image_byte_stream.decode("utf-8")
+
+    return jsonify(colours=resistor_colours, type=resistor_type, image=resistor_image_byte_stream)
 
 
 if __name__ == "__main__":

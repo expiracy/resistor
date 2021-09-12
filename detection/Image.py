@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import uuid
+import base64
 
 from detection.Colours import Colours
 
@@ -282,9 +283,7 @@ class Image:
         id = uuid.uuid1()
         filename = str(id.int)
 
-        save_file = f'{os.path.abspath(os.curdir)}\\resistor\\detection\\resistorImages\\{filename}.jpg'
-
-        print(save_file)
+        save_file = f'{os.path.abspath(os.curdir)}\\detection\\resistorImages\\{filename}.jpg'
 
         if not cv2.imwrite(f'{save_file}', self.image):
             raise Exception("Could not write image.")
@@ -337,6 +336,11 @@ class Image:
 
         return non_zero_pixels
 
+    def byte_stream(self):
+        encoded_image, buffer = cv2.imencode('.jpg', self.image)
+        byte_stream_image = base64.b64encode(buffer)
+
+        return byte_stream_image
 
 
 

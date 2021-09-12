@@ -13,30 +13,19 @@ table {
     border: 0;
 }
 
-.input_button {
-    color: #ffffff;
-    background-color: #5865F2;
-    border: solid 0;
-    text-align: center;
-    font-family: 'Questrial', sans-serif;
-    font-size: 20px;
-    margin: 5px 5px;
-    cursor: pointer;
-    position: relative;
-}
 
 .band_button {
     color: #000000;
-    border: solid 0;
     text-decoration: NONE;
     margin: 10px 5px;
     cursor: pointer;
     display: block;
+    border: solid 0;
+    border-radius: 8px;
     width: 60px;
     height: 50px;
     position: relative;
 }
-
 
 .band_1 {
     top: -60px;
@@ -161,6 +150,18 @@ table {
     margin: 0 auto;
     font-family: 'Questrial', sans-serif;
     font-size: 20px;
+}
+
+
+.input_button {
+    background-color: #5865F2;
+    border: none;
+    color: white;
+    text-align: center;
+    margin: 5px 5px;
+    font-family: 'Questrial', sans-serif;
+    font-size: 20px;
+    cursor: pointer;
 }
 
 .band_amount_button {

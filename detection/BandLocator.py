@@ -83,8 +83,8 @@ class BandLocator:
 
                 colour_mask = blurred_image.hsv_mask(colour_hsv_ranges)
 
-                print(colour)
-                colour_mask.show()
+                #print(colour)
+                #colour_mask.show()
 
                 non_zero_pixels = colour_mask.count_non_zero_pixels()
 
@@ -100,7 +100,7 @@ class BandLocator:
 
                     resistor_bands.append(resistor_band)
 
-            self.image.blur().show()
+            #self.image.blur().show()
 
         return resistor_bands
 
