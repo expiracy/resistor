@@ -17,15 +17,21 @@ class Resistor:
 
     def remove_non_bands(self):
 
-        heights = [band.bounding_rectangle.height for band in self.bands]
-        widths = [band.bounding_rectangle.width for band in self.bands]
+        try:
 
-        resistor_height = max(heights)
-        mean_band_width = np.mean(widths)
+            heights = [band.bounding_rectangle.height for band in self.bands]
+            widths = [band.bounding_rectangle.width for band in self.bands]
 
-        for band in self.bands[:]:
-            if band.bounding_rectangle.height < (resistor_height * 0.3) or band.bounding_rectangle.width < (mean_band_width * 0.3):
-                self.bands.remove(band)
+            resistor_height = max(heights)
+            mean_band_width = np.mean(widths)
+
+            for band in self.bands[:]:
+                if band.bounding_rectangle.height < (resistor_height * 0.3) or band.bounding_rectangle.width < (
+                        mean_band_width * 0.3):
+                    self.bands.remove(band)
+
+        except:
+            print("Error with getting resistor band bounding box attributes.")
 
     def type(self):
 
@@ -133,7 +139,6 @@ class Resistor:
             for band in self.bands:
                 if band.dupe is True:
                     if self.bands.index(band) != biggest_area_index:
-
                         self.bands.remove(band)
 
     def best_match(self):
@@ -160,7 +165,7 @@ class Resistor:
     def main(self):
 
         self.remove_non_bands()
-        #self.find_gold()
+        # self.find_gold()
         self.order_bands()
 
         self.identify_dupe_bands()
@@ -169,7 +174,6 @@ class Resistor:
             if band.dupe is True:
                 self.keep_biggest_dupe_band()
                 break
-
 
         valid = self.check_digit_band_colour_validity()
 

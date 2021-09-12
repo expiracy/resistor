@@ -457,11 +457,11 @@ function lockResistorType() {
 
 function resistorTypeButtonPress(type) {
 
-    let new_type_pressed_element_id = type + '_band'
-    let current_type_pressed_element_id = current_type_pressed.toString() + '_band'
+    let new_type_pressed_element_id = type + '_band';
+    let current_type_pressed_element_id = current_type_pressed.toString() + '_band';
 
-    stopSelected(current_type_pressed_element_id)
-    addSelected(new_type_pressed_element_id)
+    stopSelected(current_type_pressed_element_id);
+    addSelected(new_type_pressed_element_id);
 
     current_type_pressed = type;
 
