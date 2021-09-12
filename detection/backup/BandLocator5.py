@@ -138,7 +138,7 @@ class BandLocator:
 
         #inverted_image.show()
 
-        monochrome_image = inverted_image.monochrome(inverted=True, adaptive_method=2, block_size=121, C=1)
+        monochrome_image = inverted_image.monochrome()
 
         #closing = cv2.morphologyEx(monochrome_image.image, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (round(monochrome_image.width()*0.03), round(monochrome_image.height()*0.03))))
         #closing = cv2.erode(monochrome_image.image, np.ones((4, 4), np.uint8), 5)

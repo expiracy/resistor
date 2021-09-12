@@ -26,7 +26,8 @@ class ResistorLocator:
 
         cropped_image = self.focus_image(contours, image)
 
-        monochrome_image = cropped_image.blur(round(cropped_image.width() * 0.07), round(cropped_image.height() * 0.07)).greyscale().monochrome()
+        monochrome_image = cropped_image.blur(round(cropped_image.width() * 0.07),
+                                              round(cropped_image.height() * 0.07)).greyscale().monochrome()
         monochrome_image.show()
         
         contours, _ = monochrome_image.contours()

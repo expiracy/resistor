@@ -46,7 +46,7 @@ class ResistorLocator:
 
     def extract_resistor(self):
 
-        monochrome_image = self.image.monochrome(inverted=True)
+        monochrome_image = self.image.monochrome()
 
         contours, _ = monochrome_image.contours()
 

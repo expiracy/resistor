@@ -48,7 +48,7 @@ class BandLocator:
 
         blurred_image.show()
 
-        monochrome_image = blurred_image.clone().monochrome(inverted=True, block_size=151, C=5)
+        monochrome_image = blurred_image.clone().monochrome()
 
         contours, _ = monochrome_image.contours()
 
