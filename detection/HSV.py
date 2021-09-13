@@ -17,11 +17,4 @@ class HSV(Image):
         hs_mask = np.bitwise_and(h_range, s_range)
         hsv_mask = np.bitwise_and(hs_mask, v_range)
 
-        #cv2.imshow("original", self.image)
-        #cv2.imshow("image", colour_mask)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-
-        bgr_image = cv2.cvtColor(hsv_mask, cv2.COLOR_GRAY2BGR)
-
-        return Image(bgr_image)
+        return hsv_mask

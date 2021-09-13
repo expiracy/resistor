@@ -4,12 +4,14 @@ import numpy as np
 
 
 class Annotation(Image):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, image):
+        super().__init__(image)
 
-    def circle(self, x, y, thickness):
+    def circle(self, x, y, thickness=2):
 
         cv2.circle(self.image, (x, y), radius=0, color=(0, 0, 255), thickness=thickness)
+
+        return self
 
     def rectangle(self, x, y, width, height):
 
@@ -23,7 +25,7 @@ class Annotation(Image):
 
             return self
 
-        except:
+        except ValueError:
 
             print("No contours.")
 
@@ -38,7 +40,7 @@ class Annotation(Image):
 
             return self
 
-        except:
+        except ValueError:
 
             print("No hough lines.")
 

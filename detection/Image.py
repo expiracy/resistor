@@ -6,6 +6,7 @@ import base64
 
 from detection.Colours import Colours
 
+
 class Image:
 
     @classmethod
@@ -99,6 +100,7 @@ class Image:
         cv2.imshow("bgr", bgr_image)
 
         return Image(bgr_image)
+
     '''
     def colour(self):
 
@@ -113,7 +115,7 @@ class Image:
         height = self.height() if height < 0 else height
 
         blurred_image = cv2.blur(self.image, (width, height))
-        #blurred_image = cv2.bilateralFilter(blurred_image, 2, 100, 100)
+        # blurred_image = cv2.bilateralFilter(blurred_image, 2, 100, 100)
 
         return Image(blurred_image)
 
@@ -122,13 +124,13 @@ class Image:
 
         return Image(blurred_image)
 
-
     def monochrome(self, inverted=False, block_size=51, C=21):
 
         greyscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         thresholding = cv2.THRESH_BINARY if not inverted else cv2.THRESH_BINARY_INV
 
-        monochrome_image = cv2.adaptiveThreshold(greyscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, thresholding, block_size, C)
+        monochrome_image = cv2.adaptiveThreshold(greyscale_image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, thresholding,
+                                                 block_size, C)
 
         bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
 
@@ -149,7 +151,7 @@ class Image:
     def brighten(self, gamma=1.0):
 
         table = np.array([((i / 255.0) ** (1 / gamma)) * 255
-                             for i in np.arange(0, 256)]).astype('uint8')
+                          for i in np.arange(0, 256)]).astype('uint8')
 
         bgr_image = cv2.LUT(self.image, table)
 
@@ -208,13 +210,13 @@ class Image:
 
         edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
 
-        lines = cv2.HoughLinesP(edges, 100, np.pi/180, threshold, min_line_length, max_line_gap)
+        lines = cv2.HoughLinesP(edges, 100, np.pi / 180, threshold, min_line_length, max_line_gap)
 
         for line in lines:
             for x1, y1, x2, y2 in line:
                 cv2.line(self.image, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                #cv2.circle(self.image, (x1, y1), radius=0, color=(0, 0, 255), thickness=10)
-                #cv2.circle(self.image, (x2, y2), radius=0, color=(0, 0, 255), thickness=10)
+                # cv2.circle(self.image, (x1, y1), radius=0, color=(0, 0, 255), thickness=10)
+                # cv2.circle(self.image, (x2, y2), radius=0, color=(0, 0, 255), thickness=10)
 
         return self, lines
 
@@ -299,12 +301,11 @@ class Image:
 
     def monochrome_mask(self):
         pass
-        #self.show()
-        #monochrome_image = self.monochrome(inverted=True, block_size=151, C=1)
-        #monochrome_image.show()
+        # self.show()
+        # monochrome_image = self.monochrome(inverted=True, block_size=151, C=1)
+        # monochrome_image.show()
 
-        #get contours for monochrome mask then compare to hsv mask
-
+        # get contours for monochrome mask then compare to hsv mask
 
     def hsv_mask(self, hsv_ranges):
 
@@ -320,10 +321,10 @@ class Image:
         mask = np.bitwise_and(h_range, s_range)
         colour_mask = np.bitwise_and(mask, v_range)
 
-        #cv2.imshow("original", self.image)
-        #cv2.imshow("image", colour_mask)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
+        # cv2.imshow("original", self.image)
+        # cv2.imshow("image", colour_mask)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
         bgr_image = cv2.cvtColor(colour_mask, cv2.COLOR_GRAY2BGR)
 
@@ -341,14 +342,3 @@ class Image:
         byte_stream_image = base64.b64encode(buffer)
 
         return byte_stream_image
-
-
-
-
-
-
-
-
-
-
-

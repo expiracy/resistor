@@ -1,8 +1,9 @@
 import cv2
 import uuid
 import os
+import numpy as np
 
-from detection.Greyscale import Greyscale
+from detection.Annotation import Annotation
 
 class Image2:
     def __init__(self, image=None):
@@ -19,21 +20,11 @@ class Image2:
 
     def width(self):
 
-        height, width, channels = self.image.shape
-
-        return width
+        return np.size(self.image, 1)
 
     def height(self):
 
-        height, width, channels = self.image.shape
-
-        return height
-
-    def channels(self):
-
-        height, width, channels = self.image.shape
-
-        return channels
+        return np.size(self.image, 0)
 
     def resize(self, width, height):
 
@@ -61,17 +52,15 @@ class Image2:
 
     def save(self):
 
-        id = uuid.uuid1()
-        filename = str(id.int)
+        filename = str(uuid.uuid1().int)
 
-        save_file = f'{os.path.abspath(os.curdir)}\\detection\\resistorImages\\{filename}.jpg'
+        absolute_file_path = f'{os.path.abspath(os.curdir)}\\resistorImages\\{filename}.jpg'
 
-        if not cv2.imwrite(f'{save_file}', self.image):
+        if not cv2.imwrite(f'{absolute_file_path}', self.image):
             raise Exception("Could not write image.")
 
-        return save_file
+        return absolute_file_path
 
-if __name__ == '__main__':
-    image = Image2().load('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD.JPG')
 
-    greyscale_image = Greyscale().show()
+
+
