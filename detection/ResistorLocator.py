@@ -51,7 +51,7 @@ class ResistorLocator:
         contours, _ = monochrome_image.contours()
 
         # Fill in the holes in the resistor area so we can safely erode the image later
-        contour_image = monochrome_image.draw_contours(contours)
+        contour_image = monochrome_image.contours(contours)
 
         # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
         eroded_image = contour_image.erode()

@@ -52,7 +52,7 @@ class BandLocator:
 
         contours, _ = monochrome_image.contours()
 
-        contours_image = blurred_image.clone().draw_contours(contours).show()
+        contours_image = blurred_image.clone().contours(contours).show()
 
         return contours
 

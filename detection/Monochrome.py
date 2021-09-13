@@ -19,3 +19,4 @@ class Monochrome(Image):
                                                  block_size, C)
 
         bgr_image = cv2.cvtColor(monochrome_image, cv2.COLOR_GRAY2BGR)
+

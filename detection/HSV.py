@@ -3,9 +3,9 @@ import cv2
 import numpy as np
 
 class HSV(Image):
-    def __init__(self):
-        super().__init__()
-        self.h, self.s, self.v = cv2.split(cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV))
+    def __init__(self, image):
+        super().__init__(image)
+        self.h, self.s, self.v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
 
     def mask(self, hsv_ranges):
 
