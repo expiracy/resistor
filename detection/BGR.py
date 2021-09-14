@@ -1,10 +1,10 @@
-from detection.Image2 import Image2
+from detection.Image import Image
 import cv2
 
-class BGR(Image2):
-    def __init__(self, image):
-        bgr = bgr(image)
-        super().__init__(image)
+class BGR(Image):
+    def __init__(self, image, type='BGR'):
+        bgr = self.bgr_conversion(image, type)
+        super().__init__(bgr)
 
     def blur(self, width=1, height=-1):
         height = self.height() if height < 0 else height
@@ -23,4 +23,12 @@ class BGR(Image2):
         height, width, channels = self.image.shape
 
         return channels
+
+    def bgr_conversion(self, image, type):
+        if type == 'BGR':
+            return image
+
+        if type == 'GREYSCALE':
+            return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
 

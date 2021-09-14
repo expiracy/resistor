@@ -1,13 +1,13 @@
 import cv2
 import numpy as np
 
-from detection.Image2 import Image2
+from detection.Image import Image
 from detection.BGR import BGR
 
-class Greyscale(Image2):
-    def __init__(self, image, type='GREYSCALE'):
-        greyscale = self.greyscale_conversion(image, type)
+class Greyscale(Image):
 
+    def __init__(self, image=None, type='GREYSCALE'):
+        greyscale = self.greyscale_conversion(image, type)
         super().__init__(greyscale)
 
     def canny(self, threshold_1=50, threshold_2=50, aperture_size=3):
@@ -20,7 +20,8 @@ class Greyscale(Image2):
 
         return lines
 
-    def contours(self):
+    def find_contours(self):
+
         contours, hierarchy = cv2.findContours(self.image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         return contours, hierarchy
@@ -44,11 +45,15 @@ class Greyscale(Image2):
         if type == 'BGR':
             return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        if type == 'GREYSCALE':
+        if type == 'HSV':
             return image
 
+        if type == 'GREYSCALE':
+            bgr_image = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
+            return cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
+
 if __name__ == '__main__':
-    image = Image2().load('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD.JPG')
+    image = Image().load('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD.JPG')
 
     image.height()
 

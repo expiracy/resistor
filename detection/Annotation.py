@@ -1,9 +1,9 @@
-from detection.Image2 import Image2
+from detection.Image import Image
 import cv2
 import numpy as np
 
 
-class Annotation(Image2):
+class Annotation(Image):
     def __init__(self, image):
         super().__init__(image)
 

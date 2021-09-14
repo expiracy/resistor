@@ -7,7 +7,7 @@ import glob
 
 
 from detection.Colours import Colours
-from detection.Image import Image
+from detection.Image2 import Image2
 from detection.ResistorBand import ResistorBand
 from detection.Resistor import Resistor
 
@@ -96,7 +96,7 @@ class BandLocator:
 
             cv2.rectangle(bgr_image, (x, y), (x + w, y + h), bgr, -1)
 
-        return Image(bgr_image)
+        return Image2(bgr_image)
 
     def remove_outlier_rectangles(self, rectangles):
 
@@ -227,7 +227,7 @@ if __name__ == "__main__":
             
     '''
     resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\269661054352669044576758484705730405017.jpg')
-    resistor_image = Image(resistor_image)
+    resistor_image = Image2(resistor_image)
 
     BandLocator(resistor_image).locate()
 

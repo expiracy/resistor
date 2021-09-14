@@ -5,11 +5,15 @@ import numpy as np
 import os
 import glob
 
+from detection.HSV import HSV
+
 from detection.Colours import Colours
 from detection.Image import Image
 from detection.ResistorBand import ResistorBand
 from detection.Resistor import Resistor
 from detection.BoundingRectangle import BoundingRectangle
+from detection.Greyscale import Greyscale
+from detection.BGR import BGR
 
 
 class BandLocator:
@@ -56,12 +60,26 @@ class BandLocator:
 
         return contours
 
+    def slice_resistor(self):
+
+        slices = []
+
+        for slice in range(self.image.height()):
+            x = 0
+
+            slice = self.image.clone().region(x, slice, self.image.width(), 1)
+
+            slice.show()
+
+            slices.append(slice)
+
+        return slices
+
     def locate(self):
 
-        self.image = self.image.region(round(self.image.width() * 0.04), 0, round(self.image.width() * 0.92),
-                                       self.image.height() * 2).resize(self.image.width(), self.image.height() * 5)
+        self.image = self.image.resize(self.image.width(), self.image.height() * 5)
 
-        blurred_image = self.image.blur()
+        blurred_image = BGR(self.image.image).blur()
 
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
                    'SILVER']
@@ -70,7 +88,7 @@ class BandLocator:
 
         for colour in colours:
 
-            colour_hsv_ranges = Colours().lookup_hsv_range(colour)
+            hsv_ranges = Colours().lookup_hsv_range(colour)
 
             band_contours = None
 
@@ -81,15 +99,27 @@ class BandLocator:
 
             else:
 
-                colour_mask = blurred_image.hsv_mask(colour_hsv_ranges)
+                slices = self.slice_resistor()
+
+                for slice in slices:
+                    slice.show()
+
+
+
+                hsv_image = HSV(blurred_image.image, 'BGR')
+                colour_mask = hsv_image.mask(hsv_ranges)
 
                 #print(colour)
                 #colour_mask.show()
 
-                non_zero_pixels = colour_mask.count_non_zero_pixels()
+                greyscale_mask_image = Greyscale(colour_mask, 'HSV')
+
+                print(colour)
+
+                non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
 
                 if non_zero_pixels != 0:
-                    band_contours, _ = colour_mask.contours()
+                    band_contours, _ = greyscale_mask_image.find_contours()
 
             if band_contours is not None:
 

@@ -4,7 +4,7 @@ import os
 
 from detection.ResistorLocator import ResistorLocator
 from detection.BandLocator import BandLocator
-from detection.Image import Image
+from detection.Image2 import Image2
 from detection.Resistor import Resistor
 from PIL import Image as PILImage
 
@@ -16,7 +16,7 @@ class Detector:
         return Detector()
 
     def __init__(self):
-        self.image = Image.create()
+        self.image = Image2.create()
         self.colors = None
     '''
     def scan(self, x, y):
@@ -124,7 +124,7 @@ class Detector:
         return self.resistor
     '''
     def detect(self, location):
-        self.image = Image.create().load(location)
+        self.image = Image2.create().load(location)
 
         self.image = ResistorLocator(self.image).locate()
 

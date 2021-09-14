@@ -7,7 +7,7 @@ import glob
 
 
 from detection.Colors import Colors
-from detection.Image import Image
+from detection.Image2 import Image2
 
 class BoundingBox:
     def __init__(self, x, y, w, h):
@@ -104,7 +104,7 @@ class BandLocator:
 
             cv2.rectangle(bgr_image, (x, y), (x + w, y + h), bgr, -1)
 
-        return Image(bgr_image)
+        return Image2(bgr_image)
 
     def remove_bounding_box_outliers(self, bounding_boxes):
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         if filename.endswith('jpg'):
             resistor_image = cv2.imread(f'{folder}\\{filename}')
 
-            band_locator.locate(Image(resistor_image))
+            band_locator.locate(Image2(resistor_image))
 
 
 
