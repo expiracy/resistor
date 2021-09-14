@@ -1,8 +1,9 @@
-from detection.Image import Image
+from detection.Image2 import Image2
 import cv2
 
-class BGR(Image):
+class BGR(Image2):
     def __init__(self, image):
+        bgr = bgr(image)
         super().__init__(image)
 
     def blur(self, width=1, height=-1):
@@ -22,3 +23,4 @@ class BGR(Image):
         height, width, channels = self.image.shape
 
         return channels
+

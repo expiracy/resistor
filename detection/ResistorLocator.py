@@ -6,8 +6,11 @@ import cv2
 
 import numpy as np
 
-from detection.Image import Image
+from detection.Image2 import Image2
 from detection.BandLocator import BandLocator
+from detection.Greyscale import Greyscale
+from detection.Annotation import Annotation
+from detection.BGR import BGR
 
 
 class ResistorLocator:
@@ -37,27 +40,31 @@ class ResistorLocator:
         matrix = cv2.getPerspectiveTransform(src_pts, dst_pts)
 
         # directly warp the rotated rectangle to get the straightened rectangle
-        warped_image = cv2.warpPerspective(self.image.image, matrix, (width, height))
+        image = self.image.warp_perspective(matrix, width, height)
 
-        if warped_image.shape[0] > warped_image.shape[1]:
-            warped_image = cv2.rotate(warped_image, cv2.ROTATE_90_CLOCKWISE)
+        #if self.image.width() > self.image.height():
+            #self.image = self.image.rotate(90)
 
-        return Image(warped_image)
+        return image
 
     def extract_resistor(self):
 
-        monochrome_image = self.image.monochrome()
+        image_copy = self.image.clone()
+
+        greyscale_image = Greyscale(image_copy.image, "BGR")
+
+        monochrome_image = greyscale_image.monochrome(inverted=True)
 
         contours, _ = monochrome_image.contours()
 
         # Fill in the holes in the resistor area so we can safely erode the image later
-        contour_image = monochrome_image.contours(contours)
+        contour_image = Annotation(monochrome_image.image).draw_contours(contours)
 
         # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
         eroded_image = contour_image.erode()
 
         # Now the biggest contour should only be the resistor body
-        contours, _ = eroded_image.contours()
+        contours, _ = Greyscale(eroded_image.image).contours()
 
         # Sort the contours so  the biggest contour is first
         sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
@@ -71,6 +78,7 @@ class ResistorLocator:
         resistor_image = self.extract_rotated_rectangle(minimum_rectangle)
 
         return resistor_image
+
 
     def locate(self):
         resistor_image = self.extract_resistor()
@@ -86,14 +94,10 @@ if __name__ == '__main__':
 
     folder = f'{directory}\\resistor\\images'
 
-    for filename in os.listdir(folder):
-        print(filename)
+    image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD (2).JPG')
 
-        image = cv2.imread(f'{folder}\\{filename}')
-
-        if filename.endswith('JPG'):
-            image = Image(image)
-            resistor_image = ResistorLocator(image).locate()
-            #BandLocator(resistor_image)
-            resistor_image.show()
+    image = Image2(image)
+    resistor_image = ResistorLocator(image).locate()
+    #BandLocator(resistor_image)
+    resistor_image.show()
 

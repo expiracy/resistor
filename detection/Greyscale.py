@@ -5,8 +5,9 @@ from detection.Image2 import Image2
 from detection.BGR import BGR
 
 class Greyscale(Image2):
-    def __init__(self, image):
-        greyscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    def __init__(self, image, type='GREYSCALE'):
+        greyscale = self.greyscale_conversion(image, type)
+
         super().__init__(greyscale)
 
     def canny(self, threshold_1=50, threshold_2=50, aperture_size=3):
@@ -34,12 +35,25 @@ class Greyscale(Image2):
 
         return self
 
+    def to_bgr(self):
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_GRAY2BGR)
+
+        return self
+
+    def greyscale_conversion(self, image, type):
+        if type == 'BGR':
+            return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        if type == 'GREYSCALE':
+            return image
+
 if __name__ == '__main__':
     image = Image2().load('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD.JPG')
 
     image.height()
 
     test = Greyscale(image.image)
-    test.save()
+
+    print(test.height())
 
     blurred = BGR(test.image).greyscale_to_bgr().blur().show()

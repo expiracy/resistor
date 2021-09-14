@@ -1,8 +1,8 @@
-from detection.Image import Image
+from detection.Image2 import Image2
 import cv2
 import numpy as np
 
-class HSV(Image):
+class HSV(Image2):
     def __init__(self, image):
         super().__init__(image)
         self.h, self.s, self.v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))

@@ -45,7 +45,8 @@ class Image:
         return channels
 
     def rotate(self, angle, center=None, scale=1.0):
-        (height, width) = self.image.shape[:2]
+        height = self.height()
+        width = self.width()
 
         if center is None:
             center = (width / 2, height / 2)
@@ -342,3 +343,6 @@ class Image:
         byte_stream_image = base64.b64encode(buffer)
 
         return byte_stream_image
+
+
+
