@@ -4,13 +4,3 @@ class ResistorBand:
         self.colour = colour
         self.bounding_rectangle = bounding_rectangle
         self.dupe = False
-
-
-
-
-
-
-
-
-
-

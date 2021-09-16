@@ -14,6 +14,7 @@ from detection.Resistor import Resistor
 from detection.BoundingRectangle import BoundingRectangle
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
+from detection.SliceBands import SliceBands
 
 
 class BandLocator:
@@ -62,77 +63,86 @@ class BandLocator:
 
     def slice_resistor(self):
 
-        slices = []
+        height = self.image.height()
 
-        for slice in range(self.image.height()):
+        slice_height = round(height * 0.1)
+
+        slice_amount = height // slice_height
+
+        image_slices = []
+
+        for slice_number in range(slice_amount):
             x = 0
+            y = slice_number * slice_height
 
-            slice = self.image.clone().region(x, slice, self.image.width(), 1)
+            # KMEANS
 
-            slice.show()
+            image_slice = self.image.clone().region(x, y, self.image.width(), slice_height)
 
-            slices.append(slice)
 
-        return slices
+            image_slices.append(image_slice)
 
-    def locate(self):
+        return image_slices
 
-        self.image = self.image.resize(self.image.width(), self.image.height() * 5)
-
-        blurred_image = BGR(self.image.image).blur()
+    def bands(self, image_slice):
 
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
                    'SILVER']
 
-        resistor_bands = []
+        bands = []
 
         for colour in colours:
 
             hsv_ranges = Colours().lookup_hsv_range(colour)
 
+            hsv_image = HSV(image_slice.image, 'BGR')
+            colour_mask = hsv_image.mask(hsv_ranges)
+
+            #print(colour)
+            #colour_mask.show()
+
+            greyscale_mask_image = Greyscale(colour_mask, 'HSV')
+
+            non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
+
             band_contours = None
 
-            if colour == 'GOLD':
-
-                #band_contours = self.threshold()
-                pass
-
-            else:
-
-                slices = self.slice_resistor()
-
-                for slice in slices:
-                    slice.show()
-
-
-
-                hsv_image = HSV(blurred_image.image, 'BGR')
-                colour_mask = hsv_image.mask(hsv_ranges)
-
-                #print(colour)
-                #colour_mask.show()
-
-                greyscale_mask_image = Greyscale(colour_mask, 'HSV')
-
-                print(colour)
-
-                non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
-
-                if non_zero_pixels != 0:
-                    band_contours, _ = greyscale_mask_image.find_contours()
+            if non_zero_pixels != 0:
+                band_contours, _ = greyscale_mask_image.find_contours()
 
             if band_contours is not None:
 
                 for contour in band_contours:
                     bounding_rectangles = BoundingRectangle(contour)
 
-                    resistor_band = ResistorBand(colour, bounding_rectangles)
+                    band = ResistorBand(colour, bounding_rectangles)
 
-                    resistor_bands.append(resistor_band)
+                    bands.append(band)
 
-            #self.image.blur().show()
+        return bands
 
-        return resistor_bands
+    def locate(self):
+
+        self.image = self.image.resize(self.image.width(), self.image.height() * 20)
+
+        self.image.show()
+
+        image_slices = self.slice_resistor()
+
+        slice_bands = SliceBands()
+
+        for image_slice in image_slices:
+            bands_for_slice = self.bands(image_slice)
+
+            slice_bands.list.append(bands_for_slice)
+
+
+            slice_bands.find_resistor_bands()
+
+            #resistor = Resistor(bands_for_slice).main()
+
+
+            #print(resistor.colours())
 
 
 if __name__ == "__main__":
