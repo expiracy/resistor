@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.cluster import KMeans
 
+from detection.Resistor import Resistor
+
 
 class SliceBands:
     def __init__(self, slice_bands=None):
@@ -72,6 +74,15 @@ class SliceBands:
 
                 previous_band = slice_band
 
+    def valid_values(self):
+        for slice_number in self.slice_bands:
+            values = Resistor(slice_number).standard_values(2)
+
+            print(values)
+
+
+    def find_correct_dupe(self):
+
         for slice_number in self.slice_bands[:]:
             for slice_band in slice_number[:]:
                 if slice_band.dupe is True:
@@ -96,6 +107,7 @@ class SliceBands:
     def find_resistor_bands(self):
         self.remove_outliers()
         self.order_bands()
+        self.valid_values()
         self.remove_dupes()
 
         print("dsjhidhakd")

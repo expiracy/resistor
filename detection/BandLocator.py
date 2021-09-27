@@ -122,6 +122,9 @@ class BandLocator:
 
         self.image = self.image.resize(self.image.width() * 2, self.image.height() * 50)
 
+        self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
+
+        cv2.imshow("image", self.image.image)
         self.image.show()
 
         image_slices = self.slice_resistor()
@@ -152,6 +155,7 @@ if __name__ == "__main__":
             
     '''
     resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\269661054352669044576758484705730405017.jpg')
+    #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\52114446105322085404135713747236856473.jpg')
     resistor_image = Image(resistor_image)
 
     BandLocator(resistor_image).locate()

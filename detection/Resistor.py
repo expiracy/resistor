@@ -76,15 +76,7 @@ class Resistor:
 
             return digit_band_colours
 
-    def check_digit_band_colour_validity(self):
-
-        digit_band_colours = self.get_digit_band_colours()
-
-        if len(digit_band_colours) == 2:
-            number_of_digit_bands = 2
-
-        else:
-            number_of_digit_bands = 3
+    def standard_values(self, number_of_digit_bands):
 
         data_file = f'standardResistorValues{number_of_digit_bands}sf.json'
 
@@ -92,13 +84,8 @@ class Resistor:
 
             valid_band_colours_list = json.load(valid_band_colours_list)
 
-            for valid_band_colours in valid_band_colours_list:
+            return [valid_band_colours for valid_band_colours in valid_band_colours_list]
 
-                if valid_band_colours == digit_band_colours:
-                    return True
-
-            else:
-                return False
 
     def identify_dupe_bands(self):
         # getting x coordinate of each band and appending them to a list
