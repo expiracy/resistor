@@ -15,6 +15,7 @@ from detection.BoundingRectangle import BoundingRectangle
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
 from detection.SliceBands import SliceBands
+from detection.SliceBand import SliceBand
 
 
 class BandLocator:
@@ -65,7 +66,7 @@ class BandLocator:
 
         height = self.image.height()
 
-        slice_height = round(height * 0.1)
+        slice_height = round(height * 0.05)
 
         slice_amount = height // slice_height
 
@@ -75,10 +76,7 @@ class BandLocator:
             x = 0
             y = slice_number * slice_height
 
-            # KMEANS
-
             image_slice = self.image.clone().region(x, y, self.image.width(), slice_height)
-
 
             image_slices.append(image_slice)
 
@@ -98,9 +96,6 @@ class BandLocator:
             hsv_image = HSV(image_slice.image, 'BGR')
             colour_mask = hsv_image.mask(hsv_ranges)
 
-            #print(colour)
-            #colour_mask.show()
-
             greyscale_mask_image = Greyscale(colour_mask, 'HSV')
 
             non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
@@ -111,11 +106,13 @@ class BandLocator:
                 band_contours, _ = greyscale_mask_image.find_contours()
 
             if band_contours is not None:
+                print(colour)
+                greyscale_mask_image.show()
 
                 for contour in band_contours:
                     bounding_rectangles = BoundingRectangle(contour)
 
-                    band = ResistorBand(colour, bounding_rectangles)
+                    band = SliceBand(colour, bounding_rectangles)
 
                     bands.append(band)
 
@@ -123,21 +120,20 @@ class BandLocator:
 
     def locate(self):
 
-        self.image = self.image.resize(self.image.width(), self.image.height() * 20)
+        self.image = self.image.resize(self.image.width() * 2, self.image.height() * 50)
 
         self.image.show()
 
         image_slices = self.slice_resistor()
 
-        slice_bands = SliceBands()
+        slice_bands = []
 
         for image_slice in image_slices:
             bands_for_slice = self.bands(image_slice)
 
-            slice_bands.list.append(bands_for_slice)
+            slice_bands.append(bands_for_slice)
 
-
-            slice_bands.find_resistor_bands()
+        SliceBands(slice_bands).find_resistor_bands()
 
             #resistor = Resistor(bands_for_slice).main()
 
