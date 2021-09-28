@@ -16,6 +16,8 @@ from detection.Greyscale import Greyscale
 from detection.BGR import BGR
 from detection.SliceBands import SliceBands
 from detection.SliceBand import SliceBand
+from detection.Glare import Glare
+from detection.ImageSlice import ImageSlice
 
 
 class BandLocator:
@@ -48,40 +50,6 @@ class BandLocator:
 
         return contours
 
-    def threshold(self):
-
-        blurred_image = self.image.clone().blur(1, round(self.image.height() * 0.2))
-
-        blurred_image.show()
-
-        monochrome_image = blurred_image.clone().monochrome()
-
-        contours, _ = monochrome_image.contours()
-
-        contours_image = blurred_image.clone().contours(contours).show()
-
-        return contours
-
-    def slice_resistor(self):
-
-        height = self.image.height()
-
-        slice_height = round(height * 0.05)
-
-        slice_amount = height // slice_height
-
-        image_slices = []
-
-        for slice_number in range(slice_amount):
-            x = 0
-            y = slice_number * slice_height
-
-            image_slice = self.image.clone().region(x, y, self.image.width(), slice_height)
-
-            image_slices.append(image_slice)
-
-        return image_slices
-
     def bands(self, image_slice):
 
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
@@ -106,7 +74,9 @@ class BandLocator:
                 band_contours, _ = greyscale_mask_image.find_contours()
 
             if band_contours is not None:
+
                 print(colour)
+
                 greyscale_mask_image.show()
 
                 for contour in band_contours:
@@ -120,14 +90,18 @@ class BandLocator:
 
     def locate(self):
 
+        glare = Glare(self.image).locate()
+
         self.image = self.image.resize(self.image.width(), self.image.height() * 50)
+
         self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
         #self.image = BGR(self.image.image).bilateral_filter()
 
         cv2.imshow("image", self.image.image)
+
         self.image.show()
 
-        image_slices = self.slice_resistor()
+        image_slices = ImageSlice(self.image).slice()
 
         slice_bands = []
 
