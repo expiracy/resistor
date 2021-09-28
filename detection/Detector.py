@@ -6,7 +6,6 @@ from detection.ResistorLocator import ResistorLocator
 from detection.BandLocator import BandLocator
 from detection.Image2 import Image2
 from detection.Resistor import Resistor
-from PIL import Image as PILImage
 
 
 class Detector:

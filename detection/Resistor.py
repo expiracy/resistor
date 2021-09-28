@@ -76,7 +76,15 @@ class Resistor:
 
             return digit_band_colours
 
-    def standard_values(self, number_of_digit_bands):
+    def standard_values(self):
+
+        type = self.type()
+
+        if type < 5:
+            number_of_digit_bands = 2
+
+        else:
+            number_of_digit_bands = 3
 
         data_file = f'standardResistorValues{number_of_digit_bands}sf.json'
 
@@ -84,70 +92,12 @@ class Resistor:
 
             valid_band_colours_list = json.load(valid_band_colours_list)
 
-            return [valid_band_colours for valid_band_colours in valid_band_colours_list]
-
-
-    def identify_dupe_bands(self):
-        # getting x coordinate of each band and appending them to a list
-        x_list = [band.bounding_rectangle.x for band in self.bands]
-
-        # calculating the mean difference of the x coordinates
-        mean_difference, differences = self.band_distance_differences(x_list)
-
-        # if 2 x coordinates are less than 0.4 x the mean difference away from each other, assume it is a duplicate band
-        for index in range(len(differences)):
-            if differences[index] < mean_difference * 0.4:
-                self.bands[index].dupe = True
-                self.bands[index + 1].dupe = True
-
-    def band_distance_differences(self, list):
-        np_list = np.array(list)
-        differences = np.diff(np_list)
-        mean_difference = np.mean(differences)
-
-        return mean_difference, differences
-
-    def keep_biggest_dupe_band(self):
-        '''
-        for band in self.bands:
-            if band.colour == 'GOLD' and band.dupe is True:
-                band.dupe = False
-                print("GOLD DUPE")
-        '''
-
-        areas = [band.bounding_rectangle.width * band.bounding_rectangle.height for band in self.bands if band.dupe is
-                 True]
-
-        if areas:
-            # I am assuming that the best colour match is the best band
-            biggest_area = max(areas)
-            biggest_area_index = areas.index(biggest_area)
-
-            for band in self.bands:
-                if band.dupe is True:
-                    if self.bands.index(band) != biggest_area_index:
-                        self.bands.remove(band)
-
-    def best_match(self):
-        pass
-
-    def find_gold(self):
-
-        gold_x_list = [band.bounding_rectangle.x for band in self.bands if band.colour == 'GOLD']
-        x_list = [band.bounding_rectangle.x for band in self.bands if band.colour != 'GOLD']
-
-        mean_difference, difference_list = self.band_distance_differences(x_list)
-
-        gold_x_false_positives = []
-
-        for x in x_list:
-            for gold_x in gold_x_list:
-                if (x + (mean_difference * 0.7)) < gold_x < (x - (mean_difference * 0.7)):
-                    gold_x_false_positives.append(gold_x)
-
-        for band in self.bands[:]:
-            if band.bounding_rectangle.x in gold_x_false_positives:
-                self.bands.remove(band)
+            for valid_band_colours in valid_band_colours_list:
+                print(valid_band_colours)
+                print(self.get_digit_band_colours())
+                if self.get_digit_band_colours() == valid_band_colours:
+                    print('valid')
+                    return True
 
     def main(self):
 

@@ -18,7 +18,7 @@ class Colours:
 
     def lookup_hsv_range(self, colour):
         h_ranges = {
-            'BLACK': [0, 180],
+            'BLACK': [80, 180],
             'BROWN': [0, 15],
             'RED': [150, 180],
             'ORANGE': [5, 15],
@@ -33,8 +33,8 @@ class Colours:
         }
 
         s_ranges = {
-            'BLACK': [0, 255],
-            'BROWN': [40, 120],
+            'BLACK': [0, 50],
+            'BROWN': [110, 140],
             'RED': [60, 200],
             'ORANGE': [100, 180],
             'YELLOW': [100, 255],
@@ -43,7 +43,7 @@ class Colours:
             'VIOLET': [30, 140],
             'GREY': [0, 0],
             'WHITE': [0, 30],
-            'GOLD': [70, 100],
+            'GOLD': [70, 110],
             'SILVER': [0, 1],
         }
 
@@ -58,10 +58,8 @@ class Colours:
             'VIOLET': [40, 120],
             'GREY': [40, 130],
             'WHITE': [127, 255],
-            'GOLD': [20, 70],
+            'GOLD': [20, 80],
             'SILVER': [80, 130],
         }
 
         return HSVRange(h_ranges[colour], s_ranges[colour], v_ranges[colour])
-
-

@@ -50,16 +50,17 @@ class SliceBands:
         print(var)
         print(labels)
 
-    def remove_dupes(self):
+    def identify_dupes(self):
 
         # if 2 x coordinates are less than 0.4 x the mean difference away from each other, assume it is a duplicate band
         for slice_number in self.slice_bands[:]:
 
-            slice_number_index = self.slice_bands.index(slice_number)
-
             x_list = [slice_band.bounding_rectangle.x for slice_band in slice_number]
+
             differences = np.diff(x_list)
             mean_difference = np.mean(differences)
+
+            print(differences)
 
             previous_band = None
 
@@ -68,46 +69,60 @@ class SliceBands:
                 if previous_band:
                     difference = slice_band.bounding_rectangle.x - previous_band.bounding_rectangle.x
 
-                    if difference < mean_difference * 0.4:
+                    if difference < mean_difference * 0.2:
                         slice_band.dupe = True
                         previous_band.dupe = True
 
                 previous_band = slice_band
 
-    def valid_values(self):
+    def check_valid_slices(self):
         for slice_number in self.slice_bands:
-            values = Resistor(slice_number).standard_values(2)
+
+            values = Resistor(slice_number).standard_values()
 
             print(values)
 
+    def keep_biggest_dupe_band(self):
 
-    def find_correct_dupe(self):
+        for slice_number in self.slice_bands:
 
-        for slice_number in self.slice_bands[:]:
-            for slice_band in slice_number[:]:
-                if slice_band.dupe is True:
-                    slice_number.remove(slice_band)
+            areas = [slice_band.bounding_rectangle.width * slice_band.bounding_rectangle.height
+                     for slice_band in slice_number if slice_band.dupe is True]
+
+            if areas:
+                # I am assuming that the best colour match is the best band
+                biggest_area = max(areas)
+                biggest_area_index = areas.index(biggest_area)
+
+                for slice_band in slice_number:
+                    if slice_band.dupe is True:
+                        if slice_number.index(slice_band) != biggest_area_index:
+                            slice_number.remove(slice_band)
 
     def remove_outliers(self):
 
-        widths = self.bands_attributes()[2]
-        heights = self.bands_attributes()[3]
-
-        resistor_height = max(heights)
-        mean_band_width = np.mean(widths)
-
         for slice_number in self.slice_bands:
+            widths = [slice_band.bounding_rectangle.width for slice_band in slice_number]
+            heights = [slice_band.bounding_rectangle.height for slice_band in slice_number]
+
+            resistor_height = max(heights)
+            mean_band_width = np.mean(widths)
+
             for slice_band in slice_number[:]:
 
                 if slice_band.bounding_rectangle.height < (
                         resistor_height * 0.7) or slice_band.bounding_rectangle.width < (mean_band_width * 1):
+
                     slice_number_index = self.slice_bands.index(slice_number)
                     self.slice_bands[slice_number_index].remove(slice_band)
 
     def find_resistor_bands(self):
         self.remove_outliers()
         self.order_bands()
-        self.valid_values()
-        self.remove_dupes()
+        self.identify_dupes()
+        self.keep_biggest_dupe_band()
+        self.order_bands()
+
+        self.check_valid_slices()
 
         print("dsjhidhakd")

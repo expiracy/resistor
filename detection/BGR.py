@@ -13,6 +13,11 @@ class BGR(Image):
 
         return self
 
+    def bilateral_filter(self):
+        self.image = cv2.bilateralFilter(self.image, 5, 100, 75)
+
+        return self
+
     def greyscale_to_bgr(self):
         self.image = cv2.cvtColor(self.image, cv2.COLOR_GRAY2BGR)
 
