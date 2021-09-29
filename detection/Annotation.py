@@ -9,13 +9,15 @@ class Annotation(Image):
 
     def draw_circle(self, x, y, thickness=2):
 
-        cv2.circle(self.image, (x, y), radius=0, color=(255, 255, 255), thickness=thickness)
+        self.image = cv2.circle(self.image, (x, y), radius=0, color=(255, 255, 255), thickness=thickness)
 
         return self
 
     def draw_rectangle(self, x, y, width, height):
 
-        cv2.rectangle(self.image, (x, y), (x + width, y + height), (0, 255, 0), 2)
+        self.image = cv2.rectangle(self.image, (x, y), (x + width, y + height), (0, 255, 0), 2)
+
+        return self
 
     def draw_contours(self, contours=None):
 

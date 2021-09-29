@@ -96,6 +96,31 @@ class Image:
 
         return self
 
+    def slices(self, slice_height):
+
+        height = self.height()
+
+        slice_amount = height // slice_height
+
+        image_slices = []
+
+        for slice_number in range(slice_amount):
+            x = 0
+            y = slice_number * slice_height
+
+            image_slice = self.clone().region(x, y, self.width(), slice_height)
+
+            image_slices.append(image_slice)
+
+        return image_slices
+
+    def mask(self, mask):
+        self.image = cv2.bitwise_and(self.image, self.image, mask=mask)
+
+        return self
+
+
+
 
 
 

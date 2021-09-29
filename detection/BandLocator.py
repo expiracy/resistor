@@ -17,8 +17,7 @@ from detection.BGR import BGR
 from detection.SliceBands import SliceBands
 from detection.SliceBand import SliceBand
 from detection.Glare import Glare
-from detection.ImageSlice import ImageSlice
-
+from detection.Annotation import Annotation
 
 class BandLocator:
 
@@ -41,8 +40,6 @@ class BandLocator:
         lower_bound = mean - (mean * 0.6)
 
         # write about different outlier algorithms tried
-
-        outlier_indexes = []
 
         for index in range(len(areas))[:]:
             if areas[index] < lower_bound:
@@ -77,7 +74,7 @@ class BandLocator:
 
                 print(colour)
 
-                greyscale_mask_image.show()
+                #greyscale_mask_image.show()
 
                 for contour in band_contours:
                     bounding_rectangles = BoundingRectangle(contour)
@@ -88,25 +85,44 @@ class BandLocator:
 
         return bands
 
+    def remove_glare_from_image(self, glare_mask):
+        self.image.mask(glare_mask.image)
+
+        contours, _ = Greyscale(self.image.image).find_contours()
+
+        largest_contour = max(contours, key=cv2.contourArea)
+
+        bounding_rectangle = BoundingRectangle(largest_contour)
+
+        #annotated_image = Annotation(self.image.image).draw_rectangle(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
+        #annotated_image.show()
+
+        self.image = self.image.region(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
+
+        return self
+
     def locate(self):
 
-        glare = Glare(self.image).locate()
+        self.image = self.image.resize(self.image.width(), self.image.height() * 10)
 
-        self.image = self.image.resize(self.image.width(), self.image.height() * 50)
+        glare_mask = Glare(self.image).locate()
+
+        self.remove_glare_from_image(glare_mask)
+
+        self.image = self.image.resize(self.image.width(), self.image.height() * 5)
 
         self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
-        #self.image = BGR(self.image.image).bilateral_filter()
-
-        cv2.imshow("image", self.image.image)
 
         self.image.show()
 
-        image_slices = ImageSlice(self.image).slice()
+        image_slices = self.image.slices(round(self.image.height() * 0.05))
 
         slice_bands = []
 
         for image_slice in image_slices:
             bands_for_slice = self.bands(image_slice)
+
+            image_slice.show()
 
             slice_bands.append(bands_for_slice)
 
@@ -119,17 +135,17 @@ class BandLocator:
 
 if __name__ == "__main__":
     directory = os.path.abspath(os.curdir)
-    ''''
+
     folder = f'{directory}\\resistorImages'
 
     for filename in os.listdir(folder):
         if filename.endswith('jpg'):
             resistor_image = cv2.imread(f'{folder}\\{filename}')
+            resistor_image = Image(resistor_image)
 
-    '''
-    resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\269661054352669044576758484705730405017.jpg')
-    resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\272317250836272132017112746513351615129.jpg')
+            BandLocator(resistor_image).locate()
+
+
+    #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\269661054352669044576758484705730405017.jpg')
+    #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\272317250836272132017112746513351615129.jpg')
     #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\52114446105322085404135713747236856473.jpg')
-    resistor_image = Image(resistor_image)
-
-    BandLocator(resistor_image).locate()

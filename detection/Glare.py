@@ -3,43 +3,122 @@ from detection.BoundingRectangle import BoundingRectangle
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
 from detection.HSV import HSV
+from detection.RGB import RGB
 from detection.HSVRange import HSVRange
 from detection.BoundingRectangle import BoundingRectangle
+from sklearn.cluster import KMeans
+from detection.Colour import Colour
+from detection.HSVRange import HSVRange
+
 
 import numpy as np
+
 
 class Glare:
     def __init__(self, image):
         self.image = image
 
-    def locate(self):
-        self.image = self.image.resize(self.image.width(), self.image.height() * 10)
+    def show_colour_clusters(self, colours):
 
-        self.image = BGR(self.image.image).blur(round(self.image.width() * 5), 1)
+        # Create frequency rect and iterate through each cluster's color and percentage
+        rectangle = np.zeros((50, 300, 3), dtype=np.uint8)
 
-        h_range = [10, 20]
-        s_range = [10, 60]
-        v_range = [110, 130]
+        rectangle = BGR(rectangle)
 
-        glare_mask = HSV(self.image.image, 'BGR').mask(HSVRange(h_range, s_range, v_range))
-        greyscale_glare_mask = Greyscale(glare_mask, 'HSV')
+        start = 0
 
-        glare_contours, _ = greyscale_glare_mask.find_contours()
+        for percent, colour in colours:
+            #print(colour, f'{round((percent * 100), 5)} %')
 
-        for glare_contour in glare_contours:
-            glare_bounding_rectangle = BoundingRectangle(glare_contour)
+            end = start + (percent * 300)
 
-            max_glare_y = glare_bounding_rectangle.y + glare_bounding_rectangle.height
+            cv2.rectangle(rectangle.image, (int(start), 0), (int(end), 50), colour.astype("uint8").tolist(), -1)
 
-            self.image.image = self.image.image[glare_bounding_rectangle.y, max_glare_y]
+            start = end
 
-            self.image.show()
+        rectangle.show()
 
+    def identify_glare_clusters(self, cluster):
 
+        hsv_colours = []
 
+        for colour in cluster.cluster_centers_:
+
+            hsv_colour = Colour().rgb_to_hsv(colour[2], colour[1], colour[0])
+
+            hsv_colours.append(hsv_colour)
+
+        v_values = [hsv_colour[2] for hsv_colour in hsv_colours]
+
+        mean_v_value = np.mean(v_values)
+
+        glare_clusters = []
+
+        for v_value in v_values:
+            if v_value > mean_v_value:
+                glare_index = v_values.index(v_value)
+                glare_clusters.append(glare_index)
+
+        return glare_clusters
+
+    def remove_clusters(self, cluster, glare_clusters):
+        cluster_labels = cluster.labels_
+
+        cluster_labels = cluster_labels.reshape(self.image.height(), self.image.width())
+
+        for row in range(cluster_labels.shape[0]):
+            for column in range(cluster_labels.shape[1]):
+                if cluster_labels[row][column] in glare_clusters:
+                    self.image.image[row][column] = 0
 
         self.image.show()
 
-        greyscale_glare_mask.show()
+        return self
 
-        return True
+
+    def find_colour_clusters(self):
+
+        # Load image and convert to a list of pixels
+
+        image_data = self.image.image.reshape(self.image.height() * self.image.width(), 3)
+
+        # Find and display most dominant colors
+        clusters = KMeans(n_clusters=10).fit(image_data)
+
+        centroids = clusters.cluster_centers_
+
+        labels = np.arange(0, len(np.unique(clusters.labels_)) + 1)
+
+        hist, _ = np.histogram(clusters.labels_, bins=labels)
+        hist = hist.astype("float")
+        hist /= hist.sum()
+
+        colours = sorted([(percent, colour) for percent, colour in zip(hist, centroids)])
+
+        self.show_colour_clusters(colours)
+
+        return clusters
+
+    def mask(self):
+
+        hsv_image = HSV(self.image.image, 'BGR')
+
+        colour_mask = hsv_image.mask(HSVRange([0, 255], [0, 255], [1, 255]))
+
+        greyscale_mask_image = Greyscale(colour_mask, 'HSV')
+
+        return greyscale_mask_image
+
+    def locate(self):
+
+        self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
+
+        self.image.show()
+
+        clusters = self.find_colour_clusters()
+
+        glare_clusters = self.identify_glare_clusters(clusters)
+
+        self.remove_clusters(clusters, glare_clusters)
+
+        return self.mask()

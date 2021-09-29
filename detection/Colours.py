@@ -34,7 +34,7 @@ class Colours:
 
         s_ranges = {
             'BLACK': [0, 50],
-            'BROWN': [110, 140],
+            'BROWN': [80, 140],
             'RED': [60, 200],
             'ORANGE': [100, 180],
             'YELLOW': [100, 255],
