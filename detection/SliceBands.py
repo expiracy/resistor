@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.cluster import KMeans
+import math
 
 from detection.Resistor import Resistor
 
@@ -17,38 +18,34 @@ class SliceBands:
 
     def bands_attributes(self):
 
+        slices_x_list = []
+        slices_y_list = []
+        slices_widths = []
+        slices_heights = []
+        slices_colours = []
+
         x_list = []
-        y_list = []
-        widths = []
-        heights = []
-        colours = []
 
         for bands_for_slice in self.slice_bands:
-            for bands in bands_for_slice:
-                x_list.append(bands.bounding_rectangle.x)
-                y_list.append(bands.bounding_rectangle.y)
-                widths.append(bands.bounding_rectangle.width)
-                heights.append(bands.bounding_rectangle.height)
-                colours.append(bands.colour)
+            slices_x_list.append([bands.bounding_rectangle.x for bands in bands_for_slice])
+            slices_y_list.append([bands.bounding_rectangle.y for bands in bands_for_slice])
+            slices_widths.append([bands.bounding_rectangle.width for bands in bands_for_slice])
+            slices_heights.append([bands.bounding_rectangle.height for bands in bands_for_slice])
+            slices_colours.append([bands.colour for bands in bands_for_slice])
 
-        return x_list, y_list, widths, heights, colours
+            for band in bands_for_slice:
+                x_list.append(band.bounding_rectangle.x)
 
-    def k_means(self, array):
+        return slices_x_list, x_list, slices_x_list, slices_x_list, slices_x_list, slices_x_list
 
-        array = np.reshape(array, (1, -1)).T
+    def find_cluster(self, data):
+        np_data = np.array(data)
 
-        mean = np.mean(array)
+        reshaped_data = np_data.reshape(len(np_data), 1)
 
-        print(mean)
+        clusters = KMeans(n_clusters=6).fit(reshaped_data)
 
-        k_mean = KMeans(n_clusters=4)
-
-        k_mean.fit(array)
-        labels = k_mean.labels_
-        var = k_mean.cluster_centers_
-
-        print(var)
-        print(labels)
+        return clusters
 
     def identify_dupes(self):
 
@@ -99,6 +96,11 @@ class SliceBands:
                         if slice_number.index(slice_band) != biggest_area_index:
                             slice_number.remove(slice_band)
 
+    def find_bands(self, clusters):
+        for center in clusters.cluster_centers_:
+            print(center)
+
+
     def remove_outliers(self):
 
         for slice_number in self.slice_bands:
@@ -122,6 +124,10 @@ class SliceBands:
         self.identify_dupes()
         self.keep_biggest_dupe_band()
         self.order_bands()
+
+        clusters = self.find_cluster(self.bands_attributes()[1])
+
+        self.find_bands(clusters)
 
         self.check_valid_slices()
 

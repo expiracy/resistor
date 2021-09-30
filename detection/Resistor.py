@@ -93,10 +93,7 @@ class Resistor:
             valid_band_colours_list = json.load(valid_band_colours_list)
 
             for valid_band_colours in valid_band_colours_list:
-                print(valid_band_colours)
-                print(self.get_digit_band_colours())
                 if self.get_digit_band_colours() == valid_band_colours:
-                    print('valid')
                     return True
 
     def main(self):

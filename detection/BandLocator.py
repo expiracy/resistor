@@ -144,8 +144,3 @@ if __name__ == "__main__":
             resistor_image = Image(resistor_image)
 
             BandLocator(resistor_image).locate()
-
-
-    #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\269661054352669044576758484705730405017.jpg')
-    #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\272317250836272132017112746513351615129.jpg')
-    #resistor_image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\detection\\resistorImages\\52114446105322085404135713747236856473.jpg')
