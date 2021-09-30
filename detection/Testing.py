@@ -16,7 +16,7 @@ class Testing:
             colour = []
 
             resistor = Detector().detect(f'{os.curdir}\\{filename}')
-            # compare to list
+            # compare to data
 
             filename = filename.split()
 

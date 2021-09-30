@@ -17,24 +17,27 @@ class Resistor:
 
     def remove_non_bands(self):
 
-        try:
+        heights = [band.bounding_rectangle.height for band in self.bands]
+        widths = [band.bounding_rectangle.width for band in self.bands]
 
-            heights = [band.bounding_rectangle.height for band in self.bands]
-            widths = [band.bounding_rectangle.width for band in self.bands]
-
+        if heights:
             resistor_height = max(heights)
+        else:
+            resistor_height = 0
+
+        if widths:
             mean_band_width = np.mean(widths)
+        else:
+            mean_band_width = 0
 
-            for band in self.bands[:]:
-                if band.bounding_rectangle.height < (resistor_height * 0.3) or band.bounding_rectangle.width < (
-                        mean_band_width * 0.3):
-                    self.bands.remove(band)
+        for band in self.bands[:]:
+            if band.bounding_rectangle.height < (resistor_height * 0.3) or band.bounding_rectangle.width < (
+                    mean_band_width * 0.3):
+                self.bands.remove(band)
 
-        except:
-            print("Error with getting resistor band bounding box attributes.")
+
 
     def type(self):
-
         if self.bands:
             return len(self.bands)
 

@@ -36,7 +36,7 @@ class Glare:
 
             start = end
 
-        rectangle.show()
+        #rectangle.show()
 
     def identify_glare_clusters(self, cluster):
 
@@ -50,7 +50,10 @@ class Glare:
 
         v_values = [hsv_colour[2] for hsv_colour in hsv_colours]
 
-        mean_v_value = np.mean(v_values)
+        if v_values:
+            mean_v_value = np.mean(v_values)
+        else:
+            mean_v_value = None
 
         glare_clusters = []
 
@@ -71,14 +74,14 @@ class Glare:
                 if cluster_labels[row][column] in glare_clusters:
                     self.image.image[row][column] = 0
 
-        self.image.show()
+        #self.image.show()
 
         return self
 
 
     def find_colour_clusters(self):
 
-        # Load image and convert to a list of pixels
+        # Load image and convert to a data of pixels
 
         image_data = self.image.image.reshape(self.image.height() * self.image.width(), 3)
 
@@ -113,7 +116,7 @@ class Glare:
 
         self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
 
-        self.image.show()
+        #self.image.show()
 
         clusters = self.find_colour_clusters()
 

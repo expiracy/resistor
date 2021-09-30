@@ -43,6 +43,11 @@ class SliceBands:
 
         reshaped_data = np_data.reshape(len(np_data), 1)
 
+        #FIX LATER
+
+        max_list_length = len(max(self.bands_attributes()[0], key=len))
+
+
         clusters = KMeans(n_clusters=6).fit(reshaped_data)
 
         return clusters
@@ -54,10 +59,13 @@ class SliceBands:
 
             x_list = [slice_band.bounding_rectangle.x for slice_band in slice_number]
 
-            differences = np.diff(x_list)
-            mean_difference = np.mean(differences)
+            if len(x_list) > 1:
 
-            print(differences)
+                differences = np.diff(x_list)
+                mean_difference = np.mean(differences)
+
+            else:
+                mean_difference = 0
 
             previous_band = None
 
@@ -77,7 +85,6 @@ class SliceBands:
 
             values = Resistor(slice_number).standard_values()
 
-            print(values)
 
     def keep_biggest_dupe_band(self):
 
@@ -96,30 +103,59 @@ class SliceBands:
                         if slice_number.index(slice_band) != biggest_area_index:
                             slice_number.remove(slice_band)
 
+    def most_frequent_bands(self, possible_bands):
+        try:
+            resistor_bands = []
+
+            for index in range(len(possible_bands[0])):
+                band_colours = [bands[index] for bands in possible_bands]
+
+                band_colour = max(set(band_colours), key=band_colours.count)
+
+                resistor_bands.append(band_colour)
+
+            print(resistor_bands)
+
+        except:
+            print("Error with input list.")
+
+        return resistor_bands
+
     def find_bands(self, clusters):
-        centers = [center for center in clusters.cluster_centers_]
+        centers = [round(center[0], 10) for center in clusters.cluster_centers_]
 
         sorted_centers = sorted(centers)
 
-        differences = np.diff(np.array(sorted_centers))
-        print('dhasjkdhakja', differences)
+        differences = np.diff(sorted_centers)
 
         mean_difference = np.mean(differences)
 
         previous_center = 0
 
         for center in sorted_centers:
-            if center - previous_center < (mean_difference * 0.3):
+            if (center - previous_center) < mean_difference:
                 sorted_centers.remove(center)
 
             previous_center = center
 
-        print(sorted_centers)
+        possible_bands = []
 
+        for slice_number in self.slice_bands:
 
+            slice_colours = []
+
+            for slice_band in slice_number:
+                if len(slice_number) == len(sorted_centers):
+
+                    for center in sorted_centers:
+                        if (center - (center * 0.2)) < slice_band.bounding_rectangle.x < (center + (center * 0.2)):
+                            slice_colours.append(slice_band.colour)
+
+                    possible_bands.append(slice_colours)
+
+        return self.most_frequent_bands(possible_bands)
 
     def remove_outliers(self):
-
         for slice_number in self.slice_bands:
             widths = [slice_band.bounding_rectangle.width for slice_band in slice_number]
             heights = [slice_band.bounding_rectangle.height for slice_band in slice_number]
@@ -137,15 +173,17 @@ class SliceBands:
 
     def find_resistor_bands(self):
         self.remove_outliers()
+
         self.order_bands()
+
         self.identify_dupes()
         self.keep_biggest_dupe_band()
+
         self.order_bands()
 
         clusters = self.find_cluster(self.bands_attributes()[1])
-
-        self.find_bands(clusters)
+        resistor_bands = self.find_bands(clusters)
 
         self.check_valid_slices()
 
-        print("dsjhidhakd")
+        print("DONE\n\n\n")

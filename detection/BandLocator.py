@@ -35,7 +35,10 @@ class BandLocator:
 
         areas = [bounding_rectangle.width * bounding_rectangle.height for bounding_rectangle in bounding_rectangles]
 
-        mean = np.mean(areas)
+        if areas:
+            mean = np.mean(areas)
+        else:
+            mean = 0
 
         lower_bound = mean - (mean * 0.6)
 
@@ -71,8 +74,6 @@ class BandLocator:
                 band_contours, _ = greyscale_mask_image.find_contours()
 
             if band_contours is not None:
-
-                print(colour)
 
                 #greyscale_mask_image.show()
 
@@ -122,7 +123,7 @@ class BandLocator:
         for image_slice in image_slices:
             bands_for_slice = self.bands(image_slice)
 
-            image_slice.show()
+            #image_slice.show()
 
             slice_bands.append(bands_for_slice)
 
@@ -140,6 +141,7 @@ if __name__ == "__main__":
 
     for filename in os.listdir(folder):
         if filename.endswith('jpg'):
+            print(filename)
             resistor_image = cv2.imread(f'{folder}\\{filename}')
             resistor_image = Image(resistor_image)
 
