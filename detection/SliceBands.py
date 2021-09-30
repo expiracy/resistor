@@ -97,8 +97,25 @@ class SliceBands:
                             slice_number.remove(slice_band)
 
     def find_bands(self, clusters):
-        for center in clusters.cluster_centers_:
-            print(center)
+        centers = [center for center in clusters.cluster_centers_]
+
+        sorted_centers = sorted(centers)
+
+        differences = np.diff(np.array(sorted_centers))
+        print('dhasjkdhakja', differences)
+
+        mean_difference = np.mean(differences)
+
+        previous_center = 0
+
+        for center in sorted_centers:
+            if center - previous_center < (mean_difference * 0.3):
+                sorted_centers.remove(center)
+
+            previous_center = center
+
+        print(sorted_centers)
+
 
 
     def remove_outliers(self):
