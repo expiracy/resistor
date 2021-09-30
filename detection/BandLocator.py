@@ -134,15 +134,3 @@ class BandLocator:
         # print(resistor.colours())
 
 
-if __name__ == "__main__":
-    directory = os.path.abspath(os.curdir)
-
-    folder = f'{directory}\\resistorImages'
-
-    for filename in os.listdir(folder):
-        if filename.endswith('jpg'):
-            print(filename)
-            resistor_image = cv2.imread(f'{folder}\\{filename}')
-            resistor_image = Image(resistor_image)
-
-            BandLocator(resistor_image).locate()
