@@ -11,32 +11,6 @@ class Resistor:
 
         self.bands = bands
 
-    def order_bands(self, reverse=False):
-
-        self.bands = sorted(self.bands, key=lambda resistor_band: resistor_band.bounding_rectangle.x, reverse=reverse)
-
-    def remove_non_bands(self):
-
-        heights = [band.bounding_rectangle.height for band in self.bands]
-        widths = [band.bounding_rectangle.width for band in self.bands]
-
-        if heights:
-            resistor_height = max(heights)
-        else:
-            resistor_height = 0
-
-        if widths:
-            mean_band_width = np.mean(widths)
-        else:
-            mean_band_width = 0
-
-        for band in self.bands[:]:
-            if band.bounding_rectangle.height < (resistor_height * 0.3) or band.bounding_rectangle.width < (
-                    mean_band_width * 0.3):
-                self.bands.remove(band)
-
-
-
     def type(self):
         if self.bands:
             return len(self.bands)
@@ -49,19 +23,19 @@ class Resistor:
         type = self.type()
 
         if type == 3:
-            colours = [self.bands[0].colour, self.bands[1].colour, 'NONE', self.bands[2].colour, 'NONE', 'NONE']
+            colours = [self.bands[0], self.bands[1], 'NONE', self.bands[2], 'NONE', 'NONE']
 
         elif type == 4:
-            colours = [self.bands[0].colour, self.bands[1].colour, 'NONE', self.bands[2].colour,
-                       self.bands[3].colour, 'NONE']
+            colours = [self.bands[0], self.bands[1], 'NONE', self.bands[2],
+                       self.bands[3], 'NONE']
 
         elif type == 5:
-            colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
-                       self.bands[4].colour, 'NONE']
+            colours = [self.bands[0], self.bands[1], self.bands[2], self.bands[3],
+                       self.bands[4], 'NONE']
 
         elif type == 6:
-            colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
-                       self.bands[4].colour, self.bands[5].colour]
+            colours = [self.bands[0], self.bands[1], self.bands[2], self.bands[3],
+                       self.bands[4], self.bands[5]]
         else:
             colours = ['NONE', 'NONE', 'NONE', 'NONE', 'NONE', 'NONE']
 
@@ -79,7 +53,10 @@ class Resistor:
 
             return digit_band_colours
 
-    def standard_values(self):
+    def check_valid(self, flip=False):
+
+        if flip is True:
+            self.bands = self.bands[::-1]
 
         type = self.type()
 
@@ -99,32 +76,30 @@ class Resistor:
                 if self.get_digit_band_colours() == valid_band_colours:
                     return True
 
+            else:
+                return False
+
     def main(self):
 
-        self.remove_non_bands()
-        # self.find_gold()
-        self.order_bands()
+        non_flip_valid = self.check_valid(flip=False)
 
-        self.identify_dupe_bands()
+        if non_flip_valid is True:
+            return self
 
-        for band in self.bands:
-            if band.dupe is True:
-                self.keep_biggest_dupe_band()
-                break
+        else:
+            flip_valid = self.check_valid(flip=True)
 
-        valid = self.check_digit_band_colour_validity()
+            epic = self
 
-        if not valid:
-            self.order_bands(True)
-            valid = self.check_digit_band_colour_validity()
-
-            if not valid:
-                self.best_match()
-
+            if flip_valid is True:
                 return self
 
             else:
+                self.bands = self.bands[::-1]
                 return self
 
-        else:
-            return self
+
+
+
+
+

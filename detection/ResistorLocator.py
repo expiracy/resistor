@@ -42,24 +42,28 @@ class ResistorLocator:
         # directly warp the rotated rectangle to get the straightened rectangle
         self.image = self.image.warp_perspective(matrix, width, height)
 
-        if self.image.width() > self.image.height():
-            self.image = self.image.rotate(90)
+        if self.image.width() < self.image.height():
+            self.image = self.image.rotate_90_clockwise()
 
         return self.image
 
     def find_resistor_contour(self):
-        greyscale_image = Greyscale(self.image.image, "BGR")
+        greyscale_image = Greyscale(self.image.image, 'BGR')
 
         monochrome_image = greyscale_image.monochrome(inverted=True)
 
         contours, _ = monochrome_image.find_contours()
 
         # Fill in the holes in the resistor area so we can safely erode the image later
+        contour_image = Annotation(monochrome_image.image).draw_contours(contours)
+
         # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
-        eroded_image = Annotation(monochrome_image.image).draw_contours(contours).erode()
+        eroded_image = contour_image.erode(iterations=2)
 
         # Now the biggest contour should only be the resistor body
-        contours, _ = Greyscale(eroded_image.image).find_contours()
+        monochrome_image = Greyscale(eroded_image.image)
+
+        contours, _ = monochrome_image.find_contours()
 
         # Sort the contours so  the biggest contour is first
         sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
@@ -79,17 +83,3 @@ class ResistorLocator:
 
         return resistor_image
 
-
-if __name__ == '__main__':
-    os.chdir("../..")
-
-    directory = os.path.abspath(os.curdir)
-
-    folder = f'{directory}\\resistor\\images'
-
-    image = cv2.imread('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD (2).JPG')
-
-    image = Image(image)
-    resistor_image = ResistorLocator(image).locate()
-    # BandLocator(resistor_image)
-    resistor_image.show()

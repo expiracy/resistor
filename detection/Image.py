@@ -90,9 +90,9 @@ class Image:
 
         return self
 
-    def erode(self):
+    def erode(self, iterations):
         element = cv2.getStructuringElement(cv2.MORPH_ERODE, (9, 9), (3, 3))
-        self.image = cv2.erode(self.image, element, iterations=2)
+        self.image = cv2.erode(self.image, element, iterations=iterations)
 
         return self
 
@@ -116,6 +116,11 @@ class Image:
 
     def mask(self, mask):
         self.image = cv2.bitwise_and(self.image, self.image, mask=mask)
+
+        return self
+
+    def rotate_90_clockwise(self):
+        self.image = cv2.rotate(self.image, cv2.ROTATE_90_CLOCKWISE)
 
         return self
 

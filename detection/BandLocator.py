@@ -20,7 +20,6 @@ from detection.Glare import Glare
 from detection.Annotation import Annotation
 
 class BandLocator:
-
     def __init__(self, image):
         self.image = image
 
@@ -50,6 +49,15 @@ class BandLocator:
 
         return contours
 
+    def check_if_edge_band(self, bounding_rectangle):
+        image_width = self.image.width()
+
+        if bounding_rectangle.x < (0 + (image_width * 0.01)) or bounding_rectangle.x > (image_width - (image_width * 0.01)):
+            return True
+
+        else:
+            return False
+
     def bands(self, image_slice):
 
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
@@ -78,18 +86,22 @@ class BandLocator:
                 #greyscale_mask_image.show()
 
                 for contour in band_contours:
-                    bounding_rectangles = BoundingRectangle(contour)
+                    bounding_rectangle = BoundingRectangle(contour)
 
-                    band = SliceBand(colour, bounding_rectangles)
+                    edge_band = self.check_if_edge_band(bounding_rectangle)
 
-                    bands.append(band)
+                    if not edge_band:
+
+                        band = SliceBand(colour, bounding_rectangle)
+
+                        bands.append(band)
 
         return bands
 
     def remove_glare_from_image(self, glare_mask):
         self.image.mask(glare_mask.image)
 
-        contours, _ = Greyscale(self.image.image).find_contours()
+        contours, _ = Greyscale(self.image.image, 'BGR').find_contours()
 
         largest_contour = max(contours, key=cv2.contourArea)
 
@@ -114,8 +126,6 @@ class BandLocator:
 
         self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
 
-        self.image.show()
-
         image_slices = self.image.slices(round(self.image.height() * 0.05))
 
         slice_bands = []
@@ -127,10 +137,9 @@ class BandLocator:
 
             slice_bands.append(bands_for_slice)
 
-        SliceBands(slice_bands).find_resistor_bands()
+        resistor_bands = SliceBands(slice_bands).find_resistor_bands()
 
-        # resistor = Resistor(bands_for_slice).main()
+        return resistor_bands
 
-        # print(resistor.colours())
 
 

@@ -19,7 +19,8 @@ class Testing:
 
             colour = []
 
-            resistor = Detector().detect(f'{os.curdir}\\{filename}')
+            resistor, image = Detector().detect(f'{os.curdir}\\{filename}')
+
             # compare to data
 
             filename = filename.split()
@@ -29,15 +30,6 @@ class Testing:
 
             detected_colours = [colour for colour in resistor.colours() if colour != 'NONE']
 
-            correct_colours = []
-
-            for index in range(len(detected_colours)):
-                if detected_colours[index] == filename[index]:
-                    correct_colours.append(True)
-
-            print(f'DETECTED: {detected_colours}')
-            print(f'EXPECTED: {filename}')
-            print(f'CORRECT: {correct_colours}')
 
     def test_band_locator(self):
 
@@ -67,6 +59,7 @@ class Testing:
 
 
 if __name__ == '__main__':
-    Testing().test_band_locator()
+    #Testing().test_band_locator()
+    Testing().full_test()
 
 

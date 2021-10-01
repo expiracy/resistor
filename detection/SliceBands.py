@@ -77,12 +77,6 @@ class SliceBands:
 
                 previous_band = slice_band
 
-    def check_valid_slices(self):
-        for slice_number in self.slice_bands:
-
-            values = Resistor(slice_number).standard_values()
-
-
     def keep_biggest_dupe_band(self):
         for slice_number in self.slice_bands:
 
@@ -110,8 +104,6 @@ class SliceBands:
 
                 resistor_bands.append(band_colour)
 
-            print(resistor_bands)
-
         except:
             print("Error with input list.")
 
@@ -119,7 +111,47 @@ class SliceBands:
 
         return resistor_bands
 
+    def identify_possible_bands(self, sorted_centers, deviation):
+
+        possible_bands = []
+
+        debug = []
+
+        for slice_number in self.slice_bands:
+
+            slice_colours = []
+
+            if len(slice_number) == len(sorted_centers):
+
+                for slice_band in slice_number:
+
+                    slice_band_x_list = [slice_band.bounding_rectangle.x] * len(sorted_centers)
+
+                    differences = np.subtract(sorted_centers, slice_band_x_list)
+
+                    abs_differences = [abs(difference) for difference in differences]
+
+                    smallest_difference_index = abs_differences.index(min(abs_differences))
+
+                    nearest_center = sorted_centers[smallest_difference_index]
+
+                    #print(f'COLOUR: {slice_band.colour}')
+                    #print(f'X: {slice_band.bounding_rectangle.x}')
+                    #print(f'UPPER: {nearest_center - (nearest_center * 0.25)} LOWER: {nearest_center + (nearest_center * 0.25)}')
+
+                    if (nearest_center - (nearest_center * deviation)) < slice_band.bounding_rectangle.x < (
+                            nearest_center + (nearest_center * deviation)):
+                        slice_colours.append(slice_band.colour)
+
+                if len(slice_colours) == len(sorted_centers):
+                    possible_bands.append(slice_colours)
+
+                    debug.append(slice_number)
+
+        return possible_bands
+
     def find_bands(self, clusters):
+
         centers = [round(center[0], 10) for center in clusters.cluster_centers_]
 
         sorted_centers = sorted(centers)
@@ -137,42 +169,23 @@ class SliceBands:
 
             previous_center = center
 
-        possible_bands = []
+        possible_bands = self.identify_possible_bands(sorted_centers, 0.1)
 
-        debug = []
+        if len(possible_bands) < 10:
 
-        for slice_number in self.slice_bands:
+            deviation = 0.11
 
-            if len(slice_number) == len(sorted_centers):
+            while len(possible_bands) < 3 and deviation < 0.3:
 
-                slice_colours = []
+                possible_bands = self.identify_possible_bands(sorted_centers, deviation)
 
-                for slice_band in slice_number:
-                    slice_colours.append(slice_band.colour)
+                deviation += 0.01
 
-                possible_bands.append(slice_colours)
+        if possible_bands:
+            return self.most_frequent_bands(possible_bands)
 
-        '''
-            slice_colours = []
-
-            if len(slice_number) == len(sorted_centers):
-
-                for slice_band in slice_number:
-
-                    for center in sorted_centers:
-                        if (center - (center * 0.25)) < slice_band.bounding_rectangle.x < (center + (center * 0.25)):
-                            print(slice_band.colour)
-                            slice_colours.append(slice_band.colour)
-
-                    if len(slice_colours) == len(sorted_centers):
-                        possible_bands.append(slice_colours)
-
-                        debug.append(slice_number)
-            '''
-
-        resistor_bands = self.most_frequent_bands(possible_bands)
-
-        return resistor_bands
+        else:
+            return None
 
     def remove_outliers(self):
         for slice_number in self.slice_bands:
@@ -186,7 +199,6 @@ class SliceBands:
 
                 if slice_band.bounding_rectangle.height < (
                         resistor_height * 0.7) or slice_band.bounding_rectangle.width < (mean_band_width * 1):
-
                     slice_number_index = self.slice_bands.index(slice_number)
                     self.slice_bands[slice_number_index].remove(slice_band)
 
@@ -203,6 +215,10 @@ class SliceBands:
         clusters = self.find_cluster(self.bands_attributes()[1])
         resistor_bands = self.find_bands(clusters)
 
-        self.check_valid_slices()
+        resistor_bands = None
 
-        print("DONE\n\n\n")
+        if resistor_bands is None:
+            resistor_bands = [band.colour for band in self.slice_bands[len(self.slice_bands) // 2]]
+
+        return resistor_bands
+

@@ -48,17 +48,9 @@ class Greyscale(Image):
         if type == 'HSV':
             return image
 
+        if type == 'HSV':
+            return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         if type == 'GREYSCALE':
-            bgr_image = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
-            return cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
+            return image
 
-if __name__ == '__main__':
-    image = Image().load('C:\\Users\\expiracy\\PycharmProjects\\resistor\\images\\BROWN BLACK BROWN GOLD.JPG')
-
-    image.height()
-
-    test = Greyscale(image.image)
-
-    print(test.height())
-
-    blurred = BGR(test.image).greyscale_to_bgr().blur().show()
