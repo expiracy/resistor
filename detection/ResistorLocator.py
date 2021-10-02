@@ -50,7 +50,7 @@ class ResistorLocator:
     def find_resistor_contour(self):
         greyscale_image = Greyscale(self.image.image, 'BGR')
 
-        monochrome_image = greyscale_image.monochrome(inverted=True)
+        monochrome_image = greyscale_image.monochrome(inverted=True, block_size=51, C=21)
 
         contours, _ = monochrome_image.find_contours()
 

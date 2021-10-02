@@ -1,23 +1,15 @@
 import cv2
-import numpy
 import numpy as np
 
-import os
-import glob
-
 from detection.HSV import HSV
-
-from detection.Colours import Colours
-from detection.Image import Image
-from detection.ResistorBand import ResistorBand
-from detection.Resistor import Resistor
-from detection.BoundingRectangle import BoundingRectangle
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
+from detection.Glare import Glare
+from detection.Colours import Colours
+from detection.BoundingRectangle import BoundingRectangle
 from detection.SliceBands import SliceBands
 from detection.SliceBand import SliceBand
-from detection.Glare import Glare
-from detection.Annotation import Annotation
+
 
 class BandLocator:
     def __init__(self, image):
@@ -52,7 +44,7 @@ class BandLocator:
     def check_if_edge_band(self, bounding_rectangle):
         image_width = self.image.width()
 
-        if bounding_rectangle.x < (0 + (image_width * 0.01)) or bounding_rectangle.x > (image_width - (image_width * 0.01)):
+        if bounding_rectangle.x < (0 + (image_width * 0.025)) or bounding_rectangle.x > (image_width - (image_width * 0.025)):
             return True
 
         else:
@@ -70,6 +62,7 @@ class BandLocator:
             hsv_ranges = Colours().lookup_hsv_range(colour)
 
             hsv_image = HSV(image_slice.image, 'BGR')
+
             colour_mask = hsv_image.mask(hsv_ranges)
 
             greyscale_mask_image = Greyscale(colour_mask, 'HSV')
@@ -82,8 +75,6 @@ class BandLocator:
                 band_contours, _ = greyscale_mask_image.find_contours()
 
             if band_contours is not None:
-
-                #greyscale_mask_image.show()
 
                 for contour in band_contours:
                     bounding_rectangle = BoundingRectangle(contour)

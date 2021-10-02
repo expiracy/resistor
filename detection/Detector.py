@@ -10,15 +10,18 @@ from detection.Resistor import Resistor
 
 class Detector:
 
-    @classmethod
-    def create(cls):
-        return Detector()
-
     def __init__(self):
         self.image = Image()
 
     def detect(self, location):
         self.image = Image().load(location)
+
+        if self.image.width() > 1280:
+            ratio = self.image.width() / self.image.height()
+
+            scale = 1280 / ratio
+
+            self.image.resize(1280, round(scale))
 
         self.image = ResistorLocator(self.image).locate()
 

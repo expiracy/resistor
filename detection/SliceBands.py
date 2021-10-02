@@ -10,21 +10,17 @@ class SliceBands:
         self.slice_bands = slice_bands
 
     def order_bands(self, reverse=False):
-
         for slice_number in range(len(self.slice_bands)):
             self.slice_bands[slice_number] = sorted(self.slice_bands[slice_number],
                                                     key=lambda slice_band: slice_band.bounding_rectangle.x,
                                                     reverse=reverse)
 
     def bands_attributes(self):
-
         slices_x_list = []
         slices_y_list = []
         slices_widths = []
         slices_heights = []
         slices_colours = []
-
-        x_list = []
 
         for bands_for_slice in self.slice_bands:
             slices_x_list.append([bands.bounding_rectangle.x for bands in bands_for_slice])
@@ -33,24 +29,23 @@ class SliceBands:
             slices_heights.append([bands.bounding_rectangle.height for bands in bands_for_slice])
             slices_colours.append([bands.colour for bands in bands_for_slice])
 
-            for band in bands_for_slice:
-                x_list.append(band.bounding_rectangle.x)
+        return slices_x_list, slices_x_list, slices_x_list, slices_x_list, slices_x_list
 
-        return slices_x_list, x_list, slices_x_list, slices_x_list, slices_x_list, slices_x_list
+    def find_x_cluster(self, x_list):
+        np_x_list = np.array(x_list)
 
-    def find_cluster(self, data):
-        np_data = np.array(data)
-
-        reshaped_data = np_data.reshape(len(np_data), 1)
+        reshaped_data = np_x_list.reshape(len(np_x_list), 1)
 
         max_list_length = len(max(self.bands_attributes()[0], key=len))
+
+        if max_list_length > 6:
+            max_list_length = 6
 
         clusters = KMeans(n_clusters=max_list_length).fit(reshaped_data)
 
         return clusters
 
     def identify_dupes(self):
-
         # if 2 x coordinates are less than 0.4 x the mean difference away from each other, assume it is a duplicate band
         for slice_number in self.slice_bands[:]:
 
@@ -71,7 +66,7 @@ class SliceBands:
                 if previous_band:
                     difference = slice_band.bounding_rectangle.x - previous_band.bounding_rectangle.x
 
-                    if difference < mean_difference * 0.2:
+                    if difference < mean_difference * 0.3:
                         slice_band.dupe = True
                         previous_band.dupe = True
 
@@ -112,7 +107,6 @@ class SliceBands:
         return resistor_bands
 
     def identify_possible_bands(self, sorted_centers, deviation):
-
         possible_bands = []
 
         debug = []
@@ -138,6 +132,7 @@ class SliceBands:
                     #print(f'COLOUR: {slice_band.colour}')
                     #print(f'X: {slice_band.bounding_rectangle.x}')
                     #print(f'UPPER: {nearest_center - (nearest_center * 0.25)} LOWER: {nearest_center + (nearest_center * 0.25)}')
+                    #print(f'\n')
 
                     if (nearest_center - (nearest_center * deviation)) < slice_band.bounding_rectangle.x < (
                             nearest_center + (nearest_center * deviation)):
@@ -150,8 +145,20 @@ class SliceBands:
 
         return possible_bands
 
-    def find_bands(self, clusters):
+    def check_if_band_in_band(self):
+        for slice_number_1 in self.slice_bands:
+            for slice_number_2 in self.slice_bands:
 
+                for slice_band_1 in slice_number_1:
+                    for slice_band_2 in slice_number_2:
+
+                        upper_range = slice_band_1.bounding_rectangle.x + (slice_band_1.bounding_rectangle.width * 0.9)
+                        lower_range = slice_band_1.bounding_rectangle.x + (slice_band_1.bounding_rectangle.x * 0.1)
+
+                        if lower_range < slice_band_2.bounding_rectangle.x < upper_range:
+                            slice_number_2.remove(slice_band_2)
+
+    def find_bands(self, clusters):
         centers = [round(center[0], 10) for center in clusters.cluster_centers_]
 
         sorted_centers = sorted(centers)
@@ -164,6 +171,7 @@ class SliceBands:
 
         for center in sorted_centers:
             difference = center - previous_center
+
             if difference < (mean_difference * 0.4):
                 sorted_centers.remove(center)
 
@@ -210,12 +218,20 @@ class SliceBands:
         self.identify_dupes()
         self.keep_biggest_dupe_band()
 
+        epic = self.slice_bands.copy()
+
+        self.check_if_band_in_band()
+
         self.order_bands()
 
-        clusters = self.find_cluster(self.bands_attributes()[1])
-        resistor_bands = self.find_bands(clusters)
+        x_list = []
 
-        resistor_bands = None
+        for slice_number in self.bands_attributes()[0]:
+            for x in slice_number:
+                x_list.append(x)
+
+        clusters = self.find_x_cluster(x_list)
+        resistor_bands = self.find_bands(clusters)
 
         if resistor_bands is None:
             resistor_bands = [band.colour for band in self.slice_bands[len(self.slice_bands) // 2]]

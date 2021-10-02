@@ -10,56 +10,39 @@ class Testing:
         pass
 
     def full_test(self):
+
         os.getcwd()
         os.chdir("../images")
 
-        for filename in os.listdir():
-
-            print(f'\n{filename}')
-
-            colour = []
-
-            resistor, image = Detector().detect(f'{os.curdir}\\{filename}')
-
-            # compare to data
-
-            filename = filename.split()
-
-            if not filename[len(filename) - 1].isalpha():
-                filename.remove(filename[len(filename) - 1])
-
-            detected_colours = [colour for colour in resistor.colours() if colour != 'NONE']
-
-
-    def test_band_locator(self):
-
         mode = int(input('MODE: '))
-
-        directory = os.path.abspath(os.curdir)
-
-        folder = f'{directory}\\resistorImages'
 
         if mode == 1:
 
-            for filename in os.listdir(folder):
-                if filename.endswith('jpg'):
-                    print(filename)
-                    resistor_image = cv2.imread(f'{folder}\\{filename}')
-                    resistor_image = Image(resistor_image)
+            for filename in os.listdir():
+                if filename.endswith('JPG'):
 
-                    BandLocator(resistor_image).locate()
+                    print(filename)
+
+                    resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
+
+                    image.show()
+                    print(resistor.bands)
+                    print('\n\n\n')
 
         else:
-            filename = '252947142356269709106327066630898623129.jpg'
 
-            resistor_image = cv2.imread(f'{folder}\\{filename}')
-            resistor_image = Image(resistor_image)
+            filename = 'RED RED BROWN GOLD (2)' + '.JPG'
 
-            BandLocator(resistor_image).locate()
+            print(f'{os.getcwd()}\\{filename}')
+
+            resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
+
+            image.show()
+            print(resistor.bands)
+            print('\n\n\n')
 
 
 if __name__ == '__main__':
-    #Testing().test_band_locator()
     Testing().full_test()
 
 

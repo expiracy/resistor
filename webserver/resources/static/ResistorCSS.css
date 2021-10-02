@@ -134,33 +134,7 @@ table {
 }
 
 .add_selected {
-    border: solid 4px #000000;
-}
-
-#banner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: #202225;
-    width: 100%;
- }
-
-#banner-content {
-    max-width: 430px;
-    margin: 0 auto;
-    padding: 30px;
-    color: white;
-    text-align: center;
-    font-family: 'Questrial', sans-serif;
-    font-size: 30px;
- }
-
-#main-content {
-    max-width: 430px;
-    padding: 90px;
-    margin: 0 auto;
-    font-family: 'Questrial', sans-serif;
-    font-size: 20px;
+    border: solid 8px #000000;
 }
 
 .band_amount_button {
@@ -184,7 +158,6 @@ table {
     margin: 10px 5px;
     font-family: 'Questrial', sans-serif;
     font-size: 20px;
-    vertical-align:top;
 }
 
 .space_top {
@@ -203,4 +176,31 @@ table {
 .hide_canvas {
     width: 0;
     height: 0;
+}
+
+#banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #202225;
+    width: 100%;
+    background-size: 100%;
+ }
+
+#banner-content {
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 30px;
+    color: white;
+    text-align: center;
+    font-family: 'Questrial', sans-serif;
+    font-size: 30px;
+ }
+
+#main-content {
+    max-width: 430px;
+    margin: 0 auto;
+    font-family: 'Questrial', sans-serif;
+    font-size: 20px;
+    padding: 90px;
 }

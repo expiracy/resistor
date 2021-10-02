@@ -89,8 +89,6 @@ class Resistor:
         else:
             flip_valid = self.check_valid(flip=True)
 
-            epic = self
-
             if flip_valid is True:
                 return self
 

@@ -2,6 +2,7 @@ import cv2
 import uuid
 import os
 import numpy as np
+import base64
 
 class Image:
 
@@ -39,6 +40,8 @@ class Image:
 
     def show(self):
 
+        cv2.destroyWindow("Image")
+
         cv2.imshow("Image", self.image)
         cv2.setMouseCallback("Image", self.mouse)
 
@@ -46,12 +49,16 @@ class Image:
 
     def mouse(self, event, x, y, flags, parameters):
 
-        if event == cv2.EVENT_LBUTTONDOWN:
-            hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
+        try:
+            if event == cv2.EVENT_LBUTTONDOWN:
+                hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
-            color = hsv_image[y][x]
+                color = hsv_image[y][x]
 
-            print(color)
+                print(color)
+
+        except:
+            print("Clicked outside image.")
 
     def rotate(self, angle, center=None, scale=1.0):
         height = self.height()
@@ -123,6 +130,12 @@ class Image:
         self.image = cv2.rotate(self.image, cv2.ROTATE_90_CLOCKWISE)
 
         return self
+
+    def byte_stream(self):
+        encoded_image, buffer = cv2.imencode('.jpg', self.image)
+        byte_stream_image = base64.b64encode(buffer)
+
+        return byte_stream_image
 
 
 

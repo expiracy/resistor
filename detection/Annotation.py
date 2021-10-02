@@ -26,9 +26,7 @@ class Annotation(Image):
 
         return self
 
-
-
-    def draw_hough_lines(self, lines, threshold=1, min_line_length=1, max_line_gap=1):
+    def draw_hough_lines(self, lines):
 
         try:
             for line in lines:

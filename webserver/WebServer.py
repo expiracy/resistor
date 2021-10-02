@@ -30,7 +30,7 @@ def api():
     with open(location, "wb") as target:
         file.save(target)
 
-    resistor, resistor_image = Detector.create().detect(location)
+    resistor, resistor_image = Detector().detect(location)
 
     resistor_colours = resistor.colours()
 
