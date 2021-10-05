@@ -1,48 +1,109 @@
-import matplotlib.pyplot as plt
-import seaborn as sns  # for plot styling
 import numpy as np
-from sklearn.datasets import make_blobs
-from sklearn.metrics import pairwise_distances_argmin
+import random as rd
+import matplotlib.pyplot as plt
 
 
-class Clusters:
-    def __init__(self):
+class Kmeans:
+    def __init__(self, data, K):
+        self.data = data
+        self.Output = {}
+        self.Centroids = np.array([]).reshape(self.data.shape[1], 0)
+        self.K = K
+        self.height = self.data.shape[0]
+
+    def kmeanspp(self):
+        i = rd.randint(0, self.data.shape[0])
+        Centroid_temp = np.array([self.data[i]])
+        for k in range(1, self.K):
+            D = np.array([])
+            for x in self.data:
+                D = np.append(D, np.min(np.sum((x - Centroid_temp) ** 2)))
+            prob = D / np.sum(D)
+            cummulative_prob = np.cumsum(prob)
+            r = rd.random()
+            i = 0
+            for j, p in enumerate(cummulative_prob):
+                if r < p:
+                    i = j
+                    break
+            Centroid_temp = np.append(Centroid_temp, [self.data[i]], axis=0)
+        return Centroid_temp.T
+
+    def euclidian_distance(self):
         pass
 
-    def main(self, X):
-        centers, labels = self.find_clusters(X, 4)
-        plt.scatter(X[:, 0], X[:, 1], c=labels,
-                    s=50, cmap='viridis')
+    def fit(self, n_iter):
+        # randomly Initialize the centroids
+        self.Centroids = self.kmeanspp()
 
-        plt.show()
+        """for i in range(self.K):
+            rand=rd.randint(0,self.m-1)
+            self.Centroids=np.c_[self.Centroids,self.X[rand]]"""
 
-    def find_clusters(self, X, n_clusters, rseed=2):
-        # 1. Randomly choose clusters
-        rng = np.random.RandomState(rseed)
-        i = rng.permutation(X.shape[0])[:n_clusters]
-        centers = X[i]
+        # compute euclidian distances and assign clusters
+        for n in range(n_iter):
+            EuclidianDistance = np.array([]).reshape(self.height, 0)
+            for k in range(self.K):
+                tempDist = np.sum((self.data - self.Centroids[:, k]) ^ 2, axis=1)
 
-        while True:
-            # 2a. Assign labels based on closest center
-            labels = pairwise_distances_argmin(X, centers)
+                EuclidianDistance = np.c_[EuclidianDistance, tempDist]
+
+            C = np.argmin(EuclidianDistance, axis=1) + 1
+
+            # adjust the centroids
+            Y = {}
+
+            for k in range(self.K):
+                Y[k + 1] = np.array([]).reshape(2, 0)
+
+            for i in range(self.height):
+                Y[C[i]] = np.c_[Y[C[i]], self.data[i]]
+
+            for k in range(self.K):
+                Y[k + 1] = Y[k + 1].T
+
+            for k in range(self.K):
+                self.Centroids[:, k] = np.mean(Y[k + 1], axis=0)
+
+            self.Output = Y
 
 
-            # 2b. Find new centers from means of points
-            new_centers = np.array([X[labels == i].mean(0)
-                                    for i in range(n_clusters)])
 
-            # 2c. Check for convergence
-            if np.all(centers == new_centers):
-                break
-            centers = new_centers
+    def predict(self):
+        return self.Output, self.Centroids.T
 
-        return centers, labels
-
+    def WCSS(self):
+        wcss = 0
+        for k in range(self.K):
+            wcss += np.sum((self.Output[k + 1] - self.Centroids[:, k]) ** 2)
+        return wcss
 
 
-X, y_true = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
+x_list = [30, 61, 30, 61, 30, 61, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 8, 30, 44, 60, 8, 30, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 60, 8, 29, 60, 8, 29, 60]
+x_y_list = [[x, 0] for x in x_list]
+x_y_list = np.array(x_y_list)
 
-X = [[0, 12], [0, 13], [0, 13], [0, 13]]
-X = np.array(X)
-plt.scatter(X[:, 0], X[:, 1], s=50)
-Clusters().main(X)
+
+plt.scatter(x_y_list[:, 0], x_y_list[:, 1], c='black', label='unclustered data')
+plt.show()
+
+k_means = Kmeans(x_y_list, 4)
+
+k_means.fit(10)
+
+output, centroids = k_means.predict()
+
+color = ['red', 'blue', 'green', 'cyan', 'magenta']
+labels = ['cluster1', 'cluster2', 'cluster3', 'cluster4', 'cluster5']
+
+print(centroids)
+
+for k in range(4):
+    plt.scatter(output[k+1][:, 0], output[k+1][:, 1], c=color[k], label=labels[k])
+
+for centroid in centroids:
+    plt.scatter(centroid[0], centroid[1], s=100, c='yellow', label='Centroids')
+
+plt.show()
+
+print("BREAK")
