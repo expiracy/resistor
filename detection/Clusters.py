@@ -5,22 +5,24 @@ from collections import defaultdict
 
 #https://github.com/pavankalyan1997/Machine-learning-without-any-libraries/blob/master/2.Clustering/1.K_Means_Clustering/K_means_clustering.ipynb
 class Kmeans:
-    def __init__(self, X, K):
-        self.X = X
-        self.Output = {}
-        self.centroids = np.array([]).reshape(self.X.shape[1], 0)
+    def __init__(self, data, K, number_of_iterations=10):
+        self.data = data
+        self.groups = {}
+        self.centroids = np.array([]).reshape(self.data.shape[1], 0)
         self.K = K
-        self.m = self.X.shape[0]
+        self.height = self.data.shape[0]
+        self.number_of_iterations = number_of_iterations
+        self.labels = np.array([])
 
     def find_centroids(self):
-        i = rd.randint(0, X.shape[0])
+        index = rd.randint(0, self.height) - 1
 
-        centroid_temp = np.array([X[i]])
+        centroid_temp = np.array([X[index]])
 
         for k in range(1, self.K):
             D = np.array([])
 
-            for x in self.X:
+            for x in self.data:
                 D = np.append(D, np.min(np.sum((x - centroid_temp) ** 2)))
 
             prob = D / np.sum(D)
@@ -35,51 +37,71 @@ class Kmeans:
                     i = j
                     break
 
-            centroid_temp = np.append(centroid_temp, [self.X[i]], axis=0)
+            centroid_temp = np.append(centroid_temp, [self.data[i]], axis=0)
 
         return centroid_temp.T
 
-    def fit(self, n_iter):
-        # randomly Initialize the centroids
-        self.centroids = self.find_centroids()
+    def adjust_centroids(self):
 
-        # compute euclidian distances and assign clusters
-        for n in range(n_iter):
+        for cluster_number in range(self.K):
+            self.groups[cluster_number + 1] = np.array([]).reshape(2, 0)
 
-            EuclideanDistance = np.array([]).reshape(self.m, 0)
+        for index in range(self.height):
+            self.groups[self.labels[index]] = np.c_[self.groups[self.labels[index]], self.data[index]]
 
-            for k in range(self.K):
+        for cluster_number in range(self.K):
+            self.groups[cluster_number + 1] = self.groups[cluster_number + 1].T
 
-                differences = np.sum((self.X - self.centroids[:, k]) ** 2, axis=1)
+        for cluster_number in range(self.K):
+            self.centroids[:, cluster_number] = np.mean(self.groups[cluster_number + 1], axis=0)
 
-                EuclideanDistance = np.c_[EuclideanDistance, differences]
 
-            C = np.argmin(EuclideanDistance, axis=1) + 1
+    def find_distances(self):
+        euclidean_distances = None
+        # compute euclidean distances and assign clusters
+        for iteration_number in range(self.number_of_iterations):
 
-            # adjust the centroids
-            Y = {}
+            euclidean_distances = np.array([[0 for k in range(self.K)] for row in range(self.height)])
 
-            for k in range(self.K):
-                Y[k + 1] = np.array([]).reshape(2, 0)
+            for cluster_number in range(self.K):
 
-            for i in range(self.m):
-                Y[C[i]] = np.c_[Y[C[i]], self.X[i]]
+                differences = self.data - self.centroids[:, cluster_number]
 
-            for k in range(self.K):
-                Y[k + 1] = Y[k + 1].T
+                squared_differences_sum = np.sum(differences ** 2, axis=1)
 
-            for k in range(self.K):
-                self.centroids[:, k] = np.mean(Y[k + 1], axis=0)
+                for index in range(len(squared_differences_sum)):
+                    euclidean_distances[index][cluster_number] = squared_differences_sum[index]
 
-            self.Output = Y
+        self.labels = np.argmin(euclidean_distances, axis=1) + 1
+
+        return euclidean_distances
+
+    def find_clusters(self):
+        for trial in range(self.number_of_iterations * 10):
+
+            self.centroids = self.find_centroids()
+
+            self.find_distances()
+
+            self.adjust_centroids()
+
+            invalid = False
+
+            for centroid in self.centroids:
+                for item in centroid:
+                    if item < self.data.min() or item > self.data.max():
+                        invalid = True
+
+            if not invalid:
+                return self
 
     def predict(self):
-        return self.Output, self.centroids.T
+        return self.groups, self.centroids.T
 
     def WCSS(self):
         wcss = 0
         for k in range(self.K):
-            wcss += np.sum((self.Output[k + 1] - self.centroids[:, k]) ** 2)
+            wcss += np.sum((self.groups[k + 1] - self.centroids[:, k]) ** 2)
         return wcss
 
 
@@ -87,15 +109,16 @@ x_list = [30, 61, 30, 61, 30, 61, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60
 X = [[x, 0] for x in x_list]
 X = np.array(X)
 
+print(X)
 
 plt.scatter(X[:, 0], X[:, 1], c='black', label='unclustered data')
-#plt.show()
+
+results = [8, 30, 44, 60]
 
 K = 4
 k_means = Kmeans(X, K)
-k_means.fit(10)
-output, centroids = k_means.predict()
 
-print(centroids)
-
-
+k_means = k_means.find_clusters()
+print(k_means.labels)
+print(k_means.groups)
+print(k_means.centroids)

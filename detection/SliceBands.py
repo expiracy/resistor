@@ -130,7 +130,7 @@ class SliceBands:
                     nearest_center = sorted_centers[smallest_difference_index]
 
                     #print(f'COLOUR: {slice_band.colour}')
-                    #print(f'X: {slice_band.bounding_rectangle.x}')
+                    #print(f'data: {slice_band.bounding_rectangle.x}')
                     #print(f'UPPER: {nearest_center - (nearest_center * 0.25)} LOWER: {nearest_center + (nearest_center * 0.25)}')
                     #print(f'\n')
 
