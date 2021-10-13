@@ -11,7 +11,7 @@ from detection.SliceBands import SliceBands
 from detection.SliceBand import SliceBand
 
 
-class BandLocator:
+class BandFinder:
     def __init__(self, image):
         self.image = image
 
@@ -50,7 +50,18 @@ class BandLocator:
         else:
             return False
 
-    def bands(self, image_slice):
+    def band_mask(self, colour, image_slice):
+        hsv_ranges = Colours().hsv_ranges(colour)
+
+        hsv_image = HSV(image_slice.image, 'BGR')
+
+        colour_mask = hsv_image.mask(hsv_ranges)
+
+        greyscale_mask_image = Greyscale(colour_mask, 'HSV')
+
+        return greyscale_mask_image
+
+    def find_bands(self, image_slice):
 
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
                    'SILVER']
@@ -59,13 +70,7 @@ class BandLocator:
 
         for colour in colours:
 
-            hsv_ranges = Colours().lookup_hsv_range(colour)
-
-            hsv_image = HSV(image_slice.image, 'BGR')
-
-            colour_mask = hsv_image.mask(hsv_ranges)
-
-            greyscale_mask_image = Greyscale(colour_mask, 'HSV')
+            greyscale_mask_image = self.band_mask(colour, image_slice)
 
             non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
 
@@ -105,7 +110,7 @@ class BandLocator:
 
         return self
 
-    def locate(self):
+    def find(self):
 
         self.image = self.image.resize(self.image.width(), self.image.height() * 10)
 
@@ -122,7 +127,7 @@ class BandLocator:
         slice_bands = []
 
         for image_slice in image_slices:
-            bands_for_slice = self.bands(image_slice)
+            bands_for_slice = self.find_bands(image_slice)
 
             #image_slice.show()
 

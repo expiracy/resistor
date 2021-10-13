@@ -3,7 +3,8 @@ import random as rd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-#https://github.com/pavankalyan1997/Machine-learning-without-any-libraries/blob/master/2.Clustering/1.K_Means_Clustering/K_means_clustering.ipynb
+
+# https://github.com/pavankalyan1997/Machine-learning-without-any-libraries/blob/master/2.Clustering/1.K_Means_Clustering/K_means_clustering.ipynb
 class Kmeans:
     def __init__(self, data, K, number_of_iterations=10):
         self.data = data
@@ -15,46 +16,58 @@ class Kmeans:
         self.labels = np.array([])
 
     def find_centroids(self):
-        index = rd.randint(0, self.height) - 1
+        random_index = rd.randint(0, self.height) - 1
 
-        centroid_temp = np.array([X[index]])
+        random_centroids = np.array([self.data[random_index]])
 
-        for k in range(1, self.K):
-            D = np.array([])
+        for cluster_number in range(1, self.K):
+            squared_difference_sums = np.array([])
 
-            for x in self.data:
-                D = np.append(D, np.min(np.sum((x - centroid_temp) ** 2)))
+            for item in self.data:
 
-            prob = D / np.sum(D)
-            cumulative_prob = np.cumsum(prob)
+                squared_difference = (item - random_centroids) ** 2
+                squared_difference_sum = np.sum(squared_difference)
 
-            r = rd.random()
+                squared_difference_sums = np.append(squared_difference_sums, squared_difference_sum)
 
-            i = 0
+                #print(f'sd {squared_difference}')
+                #print(f'sds {squared_difference_sum}')
 
-            for j, p in enumerate(cumulative_prob):
-                if r < p:
-                    i = j
+            probabilities = squared_difference_sums / np.sum(squared_difference_sums)
+            cumulative_probabilities = np.cumsum(probabilities)
+
+            random_decimal = rd.random()
+
+            index = 0
+
+            for probability_index, cumulative_probability in enumerate(cumulative_probabilities):
+                if random_decimal < cumulative_probability:
+                    index = probability_index
                     break
 
-            centroid_temp = np.append(centroid_temp, [self.data[i]], axis=0)
+            random_centroids = np.append(random_centroids, [self.data[index]], axis=0)
 
-        return centroid_temp.T
+        print(random_centroids)
+
+        return random_centroids.T
 
     def adjust_centroids(self):
 
-        for cluster_number in range(self.K):
-            self.groups[cluster_number + 1] = np.array([]).reshape(2, 0)
+        for label_number in range(self.K):
+            self.groups[label_number + 1] = np.array([]).reshape(2, 0)
 
-        for index in range(self.height):
-            self.groups[self.labels[index]] = np.c_[self.groups[self.labels[index]], self.data[index]]
+        for item in range(self.height):
+            item_label = self.labels[item]
 
-        for cluster_number in range(self.K):
-            self.groups[cluster_number + 1] = self.groups[cluster_number + 1].T
+            self.groups[item_label] = np.c_[self.groups[item_label], self.data[item]]
 
-        for cluster_number in range(self.K):
-            self.centroids[:, cluster_number] = np.mean(self.groups[cluster_number + 1], axis=0)
+        # Transposing the groups.
+        for label_number in range(self.K):
+            self.groups[label_number + 1] = self.groups[label_number + 1].T
 
+        for label_number in range(self.K):
+            label_items = self.groups[label_number + 1]
+            self.centroids[:, label_number] = np.mean(label_items, axis=0)
 
     def find_distances(self):
         euclidean_distances = None
@@ -76,7 +89,8 @@ class Kmeans:
 
         return euclidean_distances
 
-    def find_clusters(self):
+    def fit(self):
+
         for trial in range(self.number_of_iterations * 10):
 
             self.centroids = self.find_centroids()
@@ -105,20 +119,36 @@ class Kmeans:
         return wcss
 
 
-x_list = [30, 61, 30, 61, 30, 61, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 8, 30, 44, 60, 8, 30, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 60, 8, 29, 60, 8, 29, 60]
-X = [[x, 0] for x in x_list]
-X = np.array(X)
+if __name__ == '__main__':
+    data = [30, 61, 30, 61, 30, 61, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 8, 30, 44, 60, 8, 30,
+            44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44,
+            60, 8, 29, 60, 8, 29, 60, 8, 29, 60]
 
-print(X)
+    data = [[x, 0] for x in data]
+    data = np.array(data)
 
-plt.scatter(X[:, 0], X[:, 1], c='black', label='unclustered data')
+    data = np.array([[1, 2],
+                  [1.5, 1.8],
+                  [5, 8],
+                  [8, 8],
+                  [1, 0.6],
+                  [9, 11]])
 
-results = [8, 30, 44, 60]
+    data = np.zeros((40000, 4))
+    data[0:10000] = 30.0
+    data[10000:20000] = 60.0
+    data[20000:30000] = 90.0
+    data[30000:] = 120.0
 
-K = 4
-k_means = Kmeans(X, K)
+    plt.scatter(data[:, 0], data[:, 1], c='black', label='unclustered data')
 
-k_means = k_means.find_clusters()
-print(k_means.labels)
-print(k_means.groups)
-print(k_means.centroids)
+    plt.show()
+
+    results = [8, 30, 44, 60]
+
+    K = 4
+    k_means = Kmeans(data, K)
+
+    k_means = k_means.fit()
+
+    print(k_means.centroids)

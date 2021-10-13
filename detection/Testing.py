@@ -1,6 +1,6 @@
 import os
 from detection.Detector import Detector
-from detection.BandLocator import BandLocator
+from detection.BandFinder import BandFinder
 from detection.Image import Image
 
 import cv2
@@ -26,7 +26,7 @@ class Testing:
                     resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
 
                     image.show()
-                    print(resistor.bands)
+                    print(resistor.find_bands)
                     print('\n\n\n')
 
         else:
@@ -38,7 +38,7 @@ class Testing:
             resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
 
             image.show()
-            print(resistor.bands)
+            print(resistor.find_bands)
             print('\n\n\n')
 
 

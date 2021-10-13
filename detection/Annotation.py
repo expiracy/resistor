@@ -13,9 +13,9 @@ class Annotation(Image):
 
         return self
 
-    def draw_rectangle(self, x, y, width, height):
+    def draw_rectangle(self, x, y, width, height, thickness=2):
 
-        self.image = cv2.rectangle(self.image, (x, y), (x + width, y + height), (0, 255, 0), 2)
+        self.image = cv2.rectangle(self.image, (x, y), (x + width, y + height), (0, 255, 0), thickness)
 
         return self
 
