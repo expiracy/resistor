@@ -109,6 +109,9 @@ class BandLocator:
 
         self.image = self.image.resize(self.image.width(), self.image.height() * 10)
 
+
+        self.image.show()
+
         glare_mask = Glare(self.image).locate()
 
         self.remove_glare_from_image(glare_mask)

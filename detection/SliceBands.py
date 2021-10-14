@@ -41,6 +41,9 @@ class SliceBands:
         if max_list_length > 6:
             max_list_length = 6
 
+
+        print(x_list)
+
         clusters = KMeans(n_clusters=max_list_length).fit(reshaped_data)
 
         return clusters
@@ -237,4 +240,3 @@ class SliceBands:
             resistor_bands = [band.colour for band in self.slice_bands[len(self.slice_bands) // 2]]
 
         return resistor_bands
-

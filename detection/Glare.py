@@ -18,19 +18,7 @@ class Glare:
     def __init__(self, image):
         self.image = image
 
-    def show_colour_clusters(self, clusters):
-
-        centroids = clusters.cluster_centers_
-
-        labels = np.arange(0, len(np.unique(clusters.labels_)) + 1)
-
-        hist, _ = np.histogram(clusters.labels_, bins=labels)
-        hist = hist.astype("float")
-        hist /= hist.sum()
-
-        colours = [(percent, colour) for percent, colour in zip(hist, centroids)]
-
-        sorted_colours = sorted(colours)
+    def show_colour_clusters(self, colours):
 
         # Create frequency rect and iterate through each cluster's color and percentage
         rectangle = np.zeros((50, 300, 3), dtype=np.uint8)
@@ -100,7 +88,17 @@ class Glare:
         # Find and display most dominant colors
         clusters = KMeans(n_clusters=10).fit(image_data)
 
-        #self.show_colour_clusters(clusters)
+        centroids = clusters.cluster_centers_
+
+        labels = np.arange(0, len(np.unique(clusters.labels_)) + 1)
+
+        hist, _ = np.histogram(clusters.labels_, bins=labels)
+        hist = hist.astype("float")
+        hist /= hist.sum()
+
+        colours = sorted([(percent, colour) for percent, colour in zip(hist, centroids)])
+
+        self.show_colour_clusters(colours)
 
         return clusters
 

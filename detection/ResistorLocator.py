@@ -18,7 +18,6 @@ class ResistorLocator:
     def __init__(self, image):
         self.image = image
 
-    # From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
     def extract_resistor(self, rectangle):
         box = cv2.boxPoints(rectangle)
         box = np.int0(box)
@@ -52,16 +51,24 @@ class ResistorLocator:
 
         monochrome_image = greyscale_image.monochrome(inverted=True, block_size=51, C=21)
 
+        monochrome_image.show()
+
         contours, _ = monochrome_image.find_contours()
 
         # Fill in the holes in the resistor area so we can safely erode the image later
         contour_image = Annotation(monochrome_image.image).draw_contours(contours)
 
+        contour_image.show()
+
         # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
         eroded_image = contour_image.erode(iterations=2)
 
+        eroded_image.show()
+
         # Now the biggest contour should only be the resistor body
         monochrome_image = Greyscale(eroded_image.image)
+
+        monochrome_image.show()
 
         contours, _ = monochrome_image.find_contours()
 

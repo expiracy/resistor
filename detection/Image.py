@@ -40,7 +40,11 @@ class Image:
 
     def show(self):
 
-        cv2.destroyWindow("Image")
+        try:
+            cv2.destroyWindow("Image")
+
+        except:
+            print("Image window not open.")
 
         cv2.imshow("Image", self.image)
         cv2.setMouseCallback("Image", self.mouse)
@@ -137,10 +141,9 @@ class Image:
 
         return byte_stream_image
 
-
-
-
-
-
+        image_bytes = base64.standard_b64encode(image_bytes)
+    def byte_stream(self):
+        image_bytes = cv2.imencode('.jpg', self.image)[1]
+        return image_bytes
 
 

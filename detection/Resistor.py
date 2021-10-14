@@ -95,9 +95,3 @@ class Resistor:
             else:
                 self.bands = self.bands[::-1]
                 return self
-
-
-
-
-
-
