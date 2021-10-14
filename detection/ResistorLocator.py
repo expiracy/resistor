@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 from detection.Image import Image
-from detection.BandLocator import BandLocator
+from detection.BandFinder import BandFinder
 from detection.Greyscale import Greyscale
 from detection.Annotation import Annotation
 from detection.BGR import BGR
@@ -18,6 +18,33 @@ class ResistorLocator:
     def __init__(self, image):
         self.image = image
 
+    def find_resistor_contour(self):
+        greyscale_image = Greyscale(self.image.image, 'BGR')
+
+        monochrome_image = greyscale_image.monochrome(inverted=True, block_size=51, C=21)
+
+        contours, _ = monochrome_image.find_contours()
+
+        # Fill in the holes in the resistor area so we can safely erode the image later
+        contour_image = Annotation(monochrome_image.image).draw_contours(contours)
+
+        # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
+        eroded_image = contour_image.erode(iterations=2)
+
+        # Now the biggest contour should only be the resistor body
+        monochrome_image = Greyscale(eroded_image.image)
+
+        contours, _ = monochrome_image.find_contours()
+
+        # Sort the contours so  the biggest contour is first
+        sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        # Get the first (biggest) contour
+        resistor_body_contour = sorted_contours[0]
+
+        return resistor_body_contour
+
+    # From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
     def extract_resistor(self, rectangle):
         box = cv2.boxPoints(rectangle)
         box = np.int0(box)
@@ -45,40 +72,6 @@ class ResistorLocator:
             self.image = self.image.rotate_90_clockwise()
 
         return self.image
-
-    def find_resistor_contour(self):
-        greyscale_image = Greyscale(self.image.image, 'BGR')
-
-        monochrome_image = greyscale_image.monochrome(inverted=True, block_size=51, C=21)
-
-        monochrome_image.show()
-
-        contours, _ = monochrome_image.find_contours()
-
-        # Fill in the holes in the resistor area so we can safely erode the image later
-        contour_image = Annotation(monochrome_image.image).draw_contours(contours)
-
-        contour_image.show()
-
-        # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
-        eroded_image = contour_image.erode(iterations=2)
-
-        eroded_image.show()
-
-        # Now the biggest contour should only be the resistor body
-        monochrome_image = Greyscale(eroded_image.image)
-
-        monochrome_image.show()
-
-        contours, _ = monochrome_image.find_contours()
-
-        # Sort the contours so  the biggest contour is first
-        sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
-
-        # Get the first (biggest) contour
-        resistor_body_contour = sorted_contours[0]
-
-        return resistor_body_contour
 
     def locate(self):
         resistor_body_contour = self.find_resistor_contour()

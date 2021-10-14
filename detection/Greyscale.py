@@ -10,16 +10,6 @@ class Greyscale(Image):
         greyscale = self.greyscale_conversion(image, type)
         super().__init__(greyscale)
 
-    def canny(self, threshold_1=50, threshold_2=50, aperture_size=3):
-        self.image = cv2.Canny(self.image, threshold_1, threshold_2, aperture_size)
-
-        return self
-
-    def find_hough_lines(self, image, threshold=1, min_line_length=1, max_line_gap=1):
-        lines = cv2.HoughLinesP(image, 100, np.pi / 180, threshold, min_line_length, max_line_gap)
-
-        return lines
-
     def find_contours(self):
 
         contours, hierarchy = cv2.findContours(self.image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)

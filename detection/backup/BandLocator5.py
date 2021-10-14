@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     contours, _ = canny_image.contours()
 
-    band_locator = BandLocator(contours)
+    band_locator = BandFinder(contours)
 
     band_locator.remove_background(resized_image.image)
 
@@ -327,7 +327,7 @@ if __name__ == "__main__":
 
     monochrome_image = blurred_image.monochrome(inverted=True)
 
-    contours = BandLocator.create().scan(monochrome_image).select(7, 1).boxes()
+    contours = BandFinder.create().scan(monochrome_image).select(7, 1).boxes()
 
     contour_image = contours.draw(image)
 

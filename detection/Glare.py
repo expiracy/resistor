@@ -3,7 +3,6 @@ from detection.BoundingRectangle import BoundingRectangle
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
 from detection.HSV import HSV
-from detection.RGB import RGB
 from detection.HSVRange import HSVRange
 from detection.BoundingRectangle import BoundingRectangle
 from sklearn.cluster import KMeans
@@ -20,7 +19,7 @@ class Glare:
 
     def show_colour_clusters(self, colours):
 
-        # Create frequency rect and iterate through each cluster's color and percentage
+        # Create frequency rect and iterate through each clusters's color and percentage
         rectangle = np.zeros((50, 300, 3), dtype=np.uint8)
 
         rectangle = BGR(rectangle)
@@ -38,11 +37,11 @@ class Glare:
 
         #rectangle.show()
 
-    def identify_glare_clusters(self, cluster):
+    def identify_glare_clusters(self, clusters):
 
         hsv_colours = []
 
-        for colour in cluster.cluster_centers_:
+        for colour in clusters.cluster_centers_:
 
             hsv_colour = Colour().rgb_to_hsv(colour[2], colour[1], colour[0])
 
@@ -77,7 +76,6 @@ class Glare:
         #self.image.show()
 
         return self
-
 
     def find_colour_clusters(self):
 

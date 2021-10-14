@@ -148,7 +148,7 @@ class SliceBands:
 
         return possible_bands
 
-    def check_if_band_in_band(self):
+    def remove_bands_in_bands(self):
         for slice_number_1 in self.slice_bands:
             for slice_number_2 in self.slice_bands:
 
@@ -221,9 +221,7 @@ class SliceBands:
         self.identify_dupes()
         self.keep_biggest_dupe_band()
 
-        epic = self.slice_bands.copy()
-
-        self.check_if_band_in_band()
+        self.remove_bands_in_bands()
 
         self.order_bands()
 
@@ -232,6 +230,8 @@ class SliceBands:
         for slice_number in self.bands_attributes()[0]:
             for x in slice_number:
                 x_list.append(x)
+
+
 
         clusters = self.find_x_cluster(x_list)
         resistor_bands = self.find_bands(clusters)

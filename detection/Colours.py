@@ -16,7 +16,7 @@ class Colours:
     def __init__(self):
         pass
 
-    def lookup_hsv_range(self, colour):
+    def hsv_ranges(self, colour):
         h_ranges = {
             'BLACK': [0, 255],
             'BROWN': [0, 15],

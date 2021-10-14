@@ -3,7 +3,7 @@ import numpy
 import os
 
 from detection.ResistorLocator import ResistorLocator
-from detection.BandLocator import BandLocator
+from detection.BandFinder import BandFinder
 from detection.Image import Image
 from detection.Resistor import Resistor
 
@@ -11,7 +11,8 @@ from detection.Resistor import Resistor
 class Detector:
 
     def __init__(self):
-        self.image = Image()
+        self.image = None
+        self.resistor = None
 
     def detect(self, location):
         self.image = Image().load(location)
@@ -25,11 +26,11 @@ class Detector:
 
         self.image = ResistorLocator(self.image).locate()
 
-        resistor_bands = BandLocator(self.image.clone()).locate()
+        resistor_bands = BandFinder(self.image.clone()).find()
 
-        resistor = Resistor(resistor_bands).main()
+        self.resistor = Resistor(resistor_bands).main()
 
-        return resistor, self.image
+        return self.resistor, self.image
 
 
 
