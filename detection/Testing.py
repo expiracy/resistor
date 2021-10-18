@@ -2,7 +2,7 @@ import os
 from detection.Detector import Detector
 from detection.BandFinder import BandFinder
 from detection.Image import Image
-
+from detection.BGR import BGR
 import cv2
 
 class Testing:
@@ -24,9 +24,10 @@ class Testing:
                     print(filename)
 
                     resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
-
-                    image.show()
-                    print(resistor.find_bands)
+                    big_image = image.clone().resize(3 * image.width(), 3 * image.height())
+                    big_image = BGR(big_image.image).blur(1, big_image.height() * 2)
+                    big_image.show()
+                    print(resistor.colours())
                     print('\n\n\n')
 
         else:

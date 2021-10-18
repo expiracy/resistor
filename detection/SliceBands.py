@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.cluster import KMeans
+from detection.KMeans import KMeans
 import math
 
 from detection.Resistor import Resistor
@@ -32,19 +32,21 @@ class SliceBands:
         return slices_x_list, slices_x_list, slices_x_list, slices_x_list, slices_x_list
 
     def find_x_cluster(self, x_list):
-        np_x_list = np.array(x_list)
+        x_y_list = [[x, 0] for x in x_list]
+        np_x_y_list = np.array(x_y_list)
 
-        reshaped_data = np_x_list.reshape(len(np_x_list), 1)
+        optimal_k = KMeans().find_optimal_k(np_x_y_list)
 
-        max_list_length = len(max(self.bands_attributes()[0], key=len))
+        if optimal_k:
+            clusters = KMeans(optimal_k).fit(np_x_y_list)
 
-        if max_list_length > 6:
-            max_list_length = 6
+        else:
+            max_list_length = len(max(self.bands_attributes()[0], key=len))
 
+            if max_list_length > 6:
+                max_list_length = 6
 
-        print(x_list)
-
-        clusters = KMeans(n_clusters=max_list_length).fit(reshaped_data)
+            clusters = KMeans(max_list_length).fit(np_x_y_list)
 
         return clusters
 
@@ -162,25 +164,29 @@ class SliceBands:
                             slice_number_2.remove(slice_band_2)
 
     def find_bands(self, clusters):
-        centers = [round(center[0], 10) for center in clusters.cluster_centers_]
 
-        sorted_centers = sorted(centers)
+        centroids = []
 
-        differences = np.diff(sorted_centers)
+        for centroid_number, centroid in clusters.centroids.items():
+            centroids.append(centroid[0])
+
+        sorted_centroids = sorted(centroids)
+
+        differences = np.diff(sorted_centroids)
 
         mean_difference = np.mean(differences)
 
         previous_center = 0
 
-        for center in sorted_centers:
-            difference = center - previous_center
+        for centroid in sorted_centroids:
+            difference = centroid - previous_center
 
             if difference < (mean_difference * 0.4):
-                sorted_centers.remove(center)
+                sorted_centroids.remove(centroid)
 
-            previous_center = center
+            previous_center = centroid
 
-        possible_bands = self.identify_possible_bands(sorted_centers, 0.1)
+        possible_bands = self.identify_possible_bands(sorted_centroids, 0.1)
 
         if len(possible_bands) < 10:
 
@@ -188,7 +194,7 @@ class SliceBands:
 
             while len(possible_bands) < 3 and deviation < 0.3:
 
-                possible_bands = self.identify_possible_bands(sorted_centers, deviation)
+                possible_bands = self.identify_possible_bands(sorted_centroids, deviation)
 
                 deviation += 0.01
 
@@ -232,7 +238,6 @@ class SliceBands:
                 x_list.append(x)
 
 
-
         clusters = self.find_x_cluster(x_list)
         resistor_bands = self.find_bands(clusters)
 
@@ -240,3 +245,4 @@ class SliceBands:
             resistor_bands = [band.colour for band in self.slice_bands[len(self.slice_bands) // 2]]
 
         return resistor_bands
+
