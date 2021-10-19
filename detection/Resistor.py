@@ -81,20 +81,27 @@ class Resistor:
 
     def main(self):
 
-        non_flip_valid = self.check_valid(flip=False)
+        try:
 
-        if non_flip_valid is True:
-            return self
+            non_flip_valid = self.check_valid(flip=False)
 
-        else:
-            flip_valid = self.check_valid(flip=True)
-
-            if flip_valid is True:
+            if non_flip_valid is True:
                 return self
 
             else:
-                self.bands = self.bands[::-1]
-                return self
+                flip_valid = self.check_valid(flip=True)
+
+                if flip_valid is True:
+                    return self
+
+                else:
+                    self.bands = self.bands[::-1]
+                    return self
+
+        except:
+            print("Error with Resistor.")
+
+            return self
 
 
 

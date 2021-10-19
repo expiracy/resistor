@@ -1,40 +1,39 @@
+import numpy as np
+
+
 class BandIdentifier:
-    def __init__(self):
-        pass
+    def __init__(self, possible_bands, slice_bands):
+        self.possible_bands = possible_bands
+        self.slice_bands = slice_bands
+        self.bands = []
 
-    def find_bands(self, clusters):
-        centers = [round(center[0], 10) for center in clusters.cluster_centers_]
+    def find_most_frequent_bands(self):
+        try:
+            resistor_bands = []
 
-        sorted_centers = sorted(centers)
+            for index in range(len(self.possible_bands[0])):
+                band_colours = [bands[index] for bands in self.possible_bands]
 
-        differences = np.diff(sorted_centers)
+                band_colour = max(set(band_colours), key=band_colours.count)
 
-        mean_difference = np.mean(differences)
+                resistor_bands.append(band_colour)
 
-        previous_center = 0
+        except:
+            print("Error with input list.")
 
-        for center in sorted_centers:
-            difference = center - previous_center
+            resistor_bands = None
 
-            if difference < (mean_difference * 0.4):
-                sorted_centers.remove(center)
+        return resistor_bands
 
-            previous_center = center
+    def find_resistor_bands(self):
+        try:
+            resistor_bands = self.find_most_frequent_bands()
 
-        possible_bands = self.identify_possible_bands(sorted_centers, 0.1)
+            if resistor_bands is None:
+                resistor_bands = [band.colour for band in self.slice_bands[len(self.slice_bands) // 2]]
 
-        if len(possible_bands) < 10:
+            return resistor_bands
 
-            deviation = 0.11
+        except:
+            print("Error with BandIdentifier.")
 
-            while len(possible_bands) < 3 and deviation < 0.3:
-
-                possible_bands = self.identify_possible_bands(sorted_centers, deviation)
-
-                deviation += 0.01
-
-        if possible_bands:
-            return self.most_frequent_bands(possible_bands)
-
-        else:
-            return None

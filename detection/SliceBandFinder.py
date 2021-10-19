@@ -4,14 +4,13 @@ import numpy as np
 from detection.HSV import HSV
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
-from detection.Glare import Glare
+from detection.GlareRemover import GlareRemover
 from detection.Colours import Colours
 from detection.BoundingRectangle import BoundingRectangle
-from detection.SliceBands import SliceBands
 from detection.SliceBand import SliceBand
 
 
-class BandFinder:
+class SliceBandFinder:
     def __init__(self, image):
         self.image = image
 
@@ -112,30 +111,31 @@ class BandFinder:
 
     def find(self):
 
-        self.image = self.image.resize(self.image.width(), self.image.height() * 10)
+        try:
 
-        glare_mask = Glare(self.image).locate()
+            self.image = self.image.resize(self.image.width(), self.image.height() * 10)
 
-        self.remove_glare_from_image(glare_mask)
+            self.image = GlareRemover(self.image).remove()
 
-        self.image = self.image.resize(self.image.width(), self.image.height() * 5)
+            self.image = self.image.resize(self.image.width(), self.image.height() * 5)
 
-        self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
+            self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
 
-        image_slices = self.image.slices(round(self.image.height() * 0.05))
+            image_slices = self.image.slices(round(self.image.height() * 0.05))
 
-        slice_bands = []
+            slice_bands = []
 
-        for image_slice in image_slices:
-            bands_for_slice = self.find_bands(image_slice)
+            for image_slice in image_slices:
+                bands_for_slice = self.find_bands(image_slice)
 
-            #image_slice.show()
+                #image_slice.show()
 
-            slice_bands.append(bands_for_slice)
+                slice_bands.append(bands_for_slice)
 
-        resistor_bands = SliceBands(slice_bands).find_resistor_bands()
+            return slice_bands
 
-        return resistor_bands
+        except ValueError:
+            print("Error with SliceBandFinder.")
 
 
 

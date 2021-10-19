@@ -13,7 +13,7 @@ from detection.HSVRange import HSVRange
 import numpy as np
 
 
-class Glare:
+class GlareRemover:
     def __init__(self, image):
         self.image = image
 
@@ -55,9 +55,7 @@ class Glare:
 
         for colour in clusters.cluster_centers_:
 
-            hsv_colour = Colour().rgb_to_hsv(colour[2], colour[1], colour[0])
-
-            hsv_colours.append(hsv_colour)
+            hsv_colours.append(colour)
 
         v_values = [hsv_colour[2] for hsv_colour in hsv_colours]
 
@@ -112,16 +110,43 @@ class Glare:
 
         return greyscale_mask_image
 
-    def locate(self):
+    def remove_glare_from_image(self, glare_mask, image):
+        image = image.mask(glare_mask.image)
 
-        self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
+        contours, _ = Greyscale(image.image, 'BGR').find_contours()
 
-        #self.image.show()
+        largest_contour = max(contours, key=cv2.contourArea)
 
-        clusters = self.find_colour_clusters()
+        bounding_rectangle = BoundingRectangle(largest_contour)
 
-        glare_clusters = self.identify_glare_clusters(clusters)
+        #annotated_image = Annotation(self.image.image).draw_rectangle(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
+        #annotated_image.show()
 
-        self.remove_clusters(clusters, glare_clusters)
+        no_glare_image = image.region(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
 
-        return self.mask()
+        return no_glare_image
+
+    def remove(self):
+
+        try:
+
+            original_image = self.image.clone()
+
+            self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
+
+            #self.image.show()
+
+            clusters = self.find_colour_clusters()
+
+            glare_clusters = self.identify_glare_clusters(clusters)
+
+            self.remove_clusters(clusters, glare_clusters)
+
+            glare_mask = self.mask()
+
+            no_glare_image = self.remove_glare_from_image(glare_mask, original_image)
+
+            return no_glare_image
+
+        except ValueError:
+            print("Error with Glare.")
