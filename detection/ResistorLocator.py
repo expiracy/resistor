@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 from detection.Image import Image
-from detection.BandFinder import BandFinder
+from detection.SliceBandFinder import SliceBandFinder
 from detection.Greyscale import Greyscale
 from detection.Annotation import Annotation
 from detection.BGR import BGR
@@ -74,12 +74,16 @@ class ResistorLocator:
         return self.image
 
     def locate(self):
-        resistor_body_contour = self.find_resistor_contour()
+        try:
+            resistor_body_contour = self.find_resistor_contour()
 
-        # This should  wrap a box with the correct orientation around the resistor body
-        minimum_rectangle = cv2.minAreaRect(resistor_body_contour)
+            # This should  wrap a box with the correct orientation around the resistor body
+            minimum_rectangle = cv2.minAreaRect(resistor_body_contour)
 
-        resistor_image = self.extract_resistor(minimum_rectangle)
+            resistor_image = self.extract_resistor(minimum_rectangle)
 
-        return resistor_image
+            return resistor_image
+
+        except:
+            print("Error with ResistorLocator.")
 

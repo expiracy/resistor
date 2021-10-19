@@ -14,17 +14,6 @@ class Colour:
         # sRGBColor(red, green, blue, is_upscaled=True)
         pass
 
-    def distance(self, bgr):
-
-        red = bgr[2]
-        green = bgr[1]
-        blue = bgr[0]
-
-        rgb = sRGBColor(red, green, blue, is_upscaled=True)
-        lab = convert_color(rgb, LabColor)
-
-        return delta_e_cie2000(lab, self.lab)
-
     def rgb_to_hsv(self, r, g, b):
 
         # R, G, B values are divided by 255

@@ -1,5 +1,4 @@
 class ResistorBand:
 
-    def __init__(self, colour, bounding_rectangle):
+    def __init__(self, colour):
         self.colour = colour
-        self.bounding_rectangle = bounding_rectangle
