@@ -28,8 +28,6 @@ class Detector:
 
         self.image = ResistorLocator(self.image).locate()
 
-        self.image.show()
-
         slice_bands = SliceBandFinder(self.image.clone()).find()
 
         possible_bands = SliceBandSelector(slice_bands).find_possible_bands()

@@ -113,9 +113,9 @@ class SliceBandFinder:
 
         try:
 
-            self.image = self.image.resize(self.image.width(), self.image.height() * 10)
+            self.image = self.image.resize(self.image.width(), self.image.height() * 20)
 
-            self.image = GlareRemover(self.image).remove()
+            self.image = GlareRemover(self.image).main()
 
             self.image = self.image.resize(self.image.width(), self.image.height() * 5)
 

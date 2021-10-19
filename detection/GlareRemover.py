@@ -126,13 +126,15 @@ class GlareRemover:
 
         return no_glare_image
 
-    def remove(self):
+    def main(self):
 
         try:
 
             original_image = self.image.clone()
 
             self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
+
+            self.image = HSV(self.image.image, 'BGR')
 
             #self.image.show()
 
@@ -145,6 +147,8 @@ class GlareRemover:
             glare_mask = self.mask()
 
             no_glare_image = self.remove_glare_from_image(glare_mask, original_image)
+
+            no_glare_image.show()
 
             return no_glare_image
 

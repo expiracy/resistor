@@ -25,10 +25,12 @@ class Testing:
                     print(filename)
 
                     resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
+                    '''
                     big_image = image.clone().resize(3 * image.width(), 3 * image.height())
                     big_image = BGR(big_image.image).blur(1, big_image.height() * 2)
                     big_image = Greyscale(big_image.image, 'BGR').monochrome(inverted=True)
                     big_image.show()
+                    '''
                     print(resistor.colours())
                     print('\n\n\n')
 
