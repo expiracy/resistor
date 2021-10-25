@@ -1,8 +1,6 @@
 import numpy as np
 from detection.KMeans import KMeans
-import math
-
-from detection.Resistor import Resistor
+from detection.MergeSort import MergeSort
 
 
 class SliceBandSelector:
@@ -10,35 +8,45 @@ class SliceBandSelector:
         self.slice_bands = slice_bands
 
     def order_bands(self, reverse=False):
-        for slice_number in range(len(self.slice_bands)):
-            self.slice_bands[slice_number] = sorted(self.slice_bands[slice_number],
-                                                    key=lambda slice_band: slice_band.bounding_rectangle.x,
-                                                    reverse=reverse)
+
+        slices_x_lists = self.bands_attributes()[0]
+
+        for index, slice_x_list in enumerate(slices_x_lists):
+            sorted_slice_x_list = MergeSort().sort(slice_x_list, reverse)
+
+            sorted_slice_bands = []
+
+            for x in sorted_slice_x_list:
+                for slice_band in self.slice_bands[index]:
+                    if slice_band.bounding_rectangle.x == x:
+                        sorted_slice_bands.append(slice_band)
+
+            self.slice_bands[index] = sorted_slice_bands
 
     def bands_attributes(self):
-        slices_x_list = []
-        slices_y_list = []
+        slices_x_lists = []
+        slices_y_lists = []
         slices_widths = []
         slices_heights = []
         slices_colours = []
 
         for bands_for_slice in self.slice_bands:
-            slices_x_list.append([bands.bounding_rectangle.x for bands in bands_for_slice])
-            slices_y_list.append([bands.bounding_rectangle.y for bands in bands_for_slice])
+            slices_x_lists.append([bands.bounding_rectangle.x for bands in bands_for_slice])
+            slices_y_lists.append([bands.bounding_rectangle.y for bands in bands_for_slice])
             slices_widths.append([bands.bounding_rectangle.width for bands in bands_for_slice])
             slices_heights.append([bands.bounding_rectangle.height for bands in bands_for_slice])
             slices_colours.append([bands.colour for bands in bands_for_slice])
 
-        return slices_x_list, slices_x_list, slices_x_list, slices_x_list, slices_x_list
+        return slices_x_lists, slices_y_lists, slices_widths, slices_heights, slices_colours
 
     def find_x_cluster(self, x_list):
         x_y_list = [[x, 0] for x in x_list]
         np_x_y_list = np.array(x_y_list)
 
-        optimal_k = KMeans().find_optimal_k(np_x_y_list)
+        number_of_bands = KMeans().find_optimal_k(np_x_y_list)
 
-        if optimal_k:
-            clusters = KMeans(optimal_k).fit(np_x_y_list)
+        if number_of_bands:
+            clusters = KMeans(number_of_bands).fit(np_x_y_list)
 
         else:
             max_list_length = len(max(self.bands_attributes()[0], key=len))
@@ -48,7 +56,7 @@ class SliceBandSelector:
 
             clusters = KMeans(max_list_length).fit(np_x_y_list)
 
-        return clusters
+        return clusters, number_of_bands
 
     def identify_dupes(self):
         # if 2 x coordinates are less than 0.4 x the mean difference away from each other, assume it is a duplicate band
@@ -133,6 +141,7 @@ class SliceBandSelector:
         return possible_bands
 
     def remove_bands_in_bands(self):
+
         for slice_number_1 in self.slice_bands:
             for slice_number_2 in self.slice_bands:
 
@@ -140,9 +149,9 @@ class SliceBandSelector:
                     for slice_band_2 in slice_number_2:
 
                         upper_range = slice_band_1.bounding_rectangle.x + (slice_band_1.bounding_rectangle.width * 0.9)
-                        lower_range = slice_band_1.bounding_rectangle.x + (slice_band_1.bounding_rectangle.x * 0.1)
+                        lower_range = slice_band_1.bounding_rectangle.x + (slice_band_1.bounding_rectangle.width * 0.1)
 
-                        if lower_range < slice_band_2.bounding_rectangle.x < upper_range:
+                        if lower_range < slice_band_1.bounding_rectangle.x < upper_range:
                             slice_number_2.remove(slice_band_2)
 
     def identify_clustered_bands(self, clusters):
@@ -152,19 +161,20 @@ class SliceBandSelector:
         for centroid_number, centroid in clusters.centroids.items():
             centroids.append(centroid[0])
 
-        sorted_centroids = sorted(centroids)
+        sorted_centroids = MergeSort().sort(centroids)
 
         differences = np.diff(sorted_centroids)
 
         mean_difference = np.mean(differences)
 
-        previous_centroid = 0
+        previous_centroid = None
 
         for centroid in sorted_centroids:
-            difference = centroid - previous_centroid
+            if previous_centroid:
+                difference = centroid - previous_centroid
 
-            if difference < (mean_difference * 0.4):
-                sorted_centroids.remove(centroid)
+                if difference < (mean_difference * 0.4):
+                    sorted_centroids.remove(centroid)
 
             previous_centroid = centroid
 
@@ -197,7 +207,7 @@ class SliceBandSelector:
             for slice_band in slice_number[:]:
 
                 if slice_band.bounding_rectangle.height < (
-                        resistor_height * 0.7) or slice_band.bounding_rectangle.width < (mean_band_width * 1):
+                        resistor_height * 0.5) or slice_band.bounding_rectangle.width < (mean_band_width * 0.8):
                     slice_number_index = self.slice_bands.index(slice_number)
                     self.slice_bands[slice_number_index].remove(slice_band)
 
@@ -220,11 +230,10 @@ class SliceBandSelector:
                 for x in slice_number:
                     x_list.append(x)
 
-            clusters = self.find_x_cluster(x_list)
+            clusters, number_of_bands = self.find_x_cluster(x_list)
             possible_bands = self.identify_clustered_bands(clusters)
 
-            return possible_bands
+            return possible_bands, number_of_bands
 
-        except:
+        except ValueError:
             print("Error with SliceBandSelector.")
-

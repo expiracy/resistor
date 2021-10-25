@@ -2,7 +2,7 @@ import json
 import os
 import numpy as np
 
-from detection.Colours import Colours
+from detection.HSVRanges import HSVRanges
 
 
 class Resistor:
@@ -98,7 +98,7 @@ class Resistor:
                     self.bands = self.bands[::-1]
                     return self
 
-        except:
+        except ValueError:
             print("Error with Resistor.")
 
             return self

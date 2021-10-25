@@ -5,7 +5,7 @@ from detection.HSV import HSV
 from detection.Greyscale import Greyscale
 from detection.BGR import BGR
 from detection.GlareRemover import GlareRemover
-from detection.Colours import Colours
+from detection.HSVRanges import HSVRanges
 from detection.BoundingRectangle import BoundingRectangle
 from detection.SliceBand import SliceBand
 
@@ -43,14 +43,14 @@ class SliceBandFinder:
     def check_if_edge_band(self, bounding_rectangle):
         image_width = self.image.width()
 
-        if bounding_rectangle.x < (0 + (image_width * 0.025)) or bounding_rectangle.x > (image_width - (image_width * 0.025)):
+        if bounding_rectangle.x == 0 or bounding_rectangle.x == image_width:
             return True
 
         else:
             return False
 
     def band_mask(self, colour, image_slice):
-        hsv_ranges = Colours().hsv_ranges(colour)
+        hsv_ranges = HSVRanges().hsv_ranges(colour)
 
         hsv_image = HSV(image_slice.image, 'BGR')
 
@@ -112,7 +112,6 @@ class SliceBandFinder:
     def find(self):
 
         try:
-
             self.image = self.image.resize(self.image.width(), self.image.height() * 20)
 
             self.image = GlareRemover(self.image).main()

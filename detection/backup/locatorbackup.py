@@ -69,10 +69,27 @@ class ResistorLocator:
             else:
                 empty_image = True
 
-        #Graph().graph_x_against_y(range(0, len(squared_contour_areas)), squared_contour_areas, 'Erode Iteration', 'Squared Contour Area', 'Squared Contour Area Vs Erode Iteration')
+        Graph().graph_x_against_y(range(0, len(squared_contour_areas)), squared_contour_areas, 'Erode Iteration', 'Squared Contour Area', 'Squared Contour Area Vs Erode Iteration')
 
-        differences = np.diff(squared_contour_areas)
-        differences_of_differences = np.diff(differences)
+        spine_line = Line([0, squared_contour_areas[0]], [len(squared_contour_areas) - 1, squared_contour_areas[len(squared_contour_areas) - 1]])
+
+        y_spine_intersections = []
+
+        for x in range(0, len(squared_contour_areas)):
+            y = spine_line.solve_for_y(x)
+            #plt.scatter(x, y)
+
+            y_spine_intersections.append(y)
+
+        spine_line_tangent = spine_line.tangent()
+
+        for y in squared_contour_areas:
+            x = spine_line_tangent.solve_for_x(y)
+            print(x)
+            #plt.scatter(x, y)
+
+
+        print(y_spine_intersections)
 
         x = range(0, len(squared_contour_areas))
         y = squared_contour_areas
@@ -80,24 +97,19 @@ class ResistorLocator:
         plt.plot(x, y)
         plt.scatter(x, y)
 
-        x_2 = range(1, len(differences) + 1)
-        y_2 = differences
+        x_spine = [x[0], x[len(x) - 1]]
+        y_spine = [y[0], y[len(y) - 1]]
 
-        plt.plot(x_2, y_2)
-        plt.scatter(x_2, y_2)
-
-        x_3 = range(2, len(differences) + 1)
-        y_3 = differences_of_differences
-
-        plt.plot(x_3, y_3)
-        plt.scatter(x_3, y_3)
+        plt.plot(x_spine, y_spine, label="spine")
 
         # function to show the plot
         plt.show()
 
-        print(sorted(differences_of_differences))
+        spine_line_tangent = spine_line.tangent()
 
-        print(list(differences_of_differences))
+
+        differences = np.diff(squared_contour_areas)
+        differences_of_differences = np.diff(differences)
 
         return np.where(differences_of_differences == max(differences_of_differences))[0][0] + 3
 
@@ -116,8 +128,6 @@ class ResistorLocator:
         filled_image = Greyscale(filled_image.image)
 
         erode_iterations = self.find_erode_iterations(filled_image.clone(), contours)
-
-        print(erode_iterations)
 
         eroded_image = filled_image.erode(erode_iterations + 1)
 
@@ -161,12 +171,15 @@ class ResistorLocator:
         return self.image
 
     def locate(self):
+        try:
+            resistor_body_contour = self.find_resistor_contour()
 
-        resistor_body_contour = self.find_resistor_contour()
+            # This should  wrap a box with the correct orientation around the resistor body
+            minimum_rectangle = cv2.minAreaRect(resistor_body_contour)
 
-        # This should  wrap a box with the correct orientation around the resistor body
-        minimum_rectangle = cv2.minAreaRect(resistor_body_contour)
+            resistor_image = self.extract_resistor(minimum_rectangle)
 
-        resistor_image = self.extract_resistor(minimum_rectangle)
+            return resistor_image
 
-        return resistor_image
+        except ValueError:
+            print("Error with ResistorLocator.")

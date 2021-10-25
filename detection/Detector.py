@@ -17,26 +17,30 @@ class Detector:
         self.resistor = None
 
     def detect(self, location):
-        self.image = Image().load(location)
+        try:
+            self.image = Image().load(location)
 
-        if self.image.width() > 1280:
-            ratio = self.image.width() / self.image.height()
+            if self.image.width() > 1280:
+                ratio = self.image.width() / self.image.height()
 
-            scale = 1280 / ratio
+                scale = 1280 / ratio
 
-            self.image.resize(1280, round(scale))
+                self.image.resize(1280, round(scale))
 
-        self.image = ResistorLocator(self.image).locate()
+            self.image = ResistorLocator(self.image).locate()
 
-        slice_bands = SliceBandFinder(self.image.clone()).find()
+            slice_bands = SliceBandFinder(self.image.clone()).find()
 
-        possible_bands = SliceBandSelector(slice_bands).find_possible_bands()
+            possible_bands, number_of_bands = SliceBandSelector(slice_bands).find_possible_bands()
 
-        resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands()
+            resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands(number_of_bands)
 
-        self.resistor = Resistor(resistor_bands).main()
+            self.resistor = Resistor(resistor_bands).main()
 
-        return self.resistor, self.image
+            return self.resistor, self.image
+
+        except ZeroDivisionError:
+            print("Error with Detector.")
 
 
 

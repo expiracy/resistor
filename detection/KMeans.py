@@ -1,7 +1,8 @@
 import random as rd
 import matplotlib.pyplot as plt
 import numpy as np
-
+from detection.Graph import Graph
+from detection.Line import Line
 
 class KMeans:
     def __init__(self, number_of_centroids=2):
@@ -9,11 +10,13 @@ class KMeans:
         self.centroids = {}
         self.labels = []
 
+
     # function to compute euclidean distance
     def find_distance(self, point_1, point_2):
-        dx = (point_1[0] - point_2[0]) ** 2
-        dy = (point_1[1] - point_2[1]) ** 2
-        distance = np.sqrt(dx + dy)
+        dx_squared = (point_1[0] - point_2[0]) ** 2
+        dy_squared = (point_1[1] - point_2[1]) ** 2
+
+        distance = np.sqrt(dx_squared + dy_squared)
 
         return distance
 
@@ -57,23 +60,20 @@ class KMeans:
                     # Find the sum of all the minimum cluster distances for a value of K and append it to the distortions list.
                     sum_minimum_distances = np.sum(minimum_distances)
 
-                    deviations.append(sum_minimum_distances / len(data))
+                    deviations.append((sum_minimum_distances / len(data)) ** 2)
 
             # Plotting the resulting elbow graph.
-            plt.plot(range(1, len(deviations) + 1), deviations, 'bx-')
-            plt.xlabel('k')
-            plt.ylabel('Deviation')
-            plt.title('Elbow Method Graph')
-            #plt.show()
+            #Graph().graph_x_against_y(list(range(1, len(deviations) + 1)), deviations, 'k', 'Deviation', 'Elbow Method Graph')
+
             if mode == 'optimal':
                 for deviation in deviations:
                     if deviation < 1:
                         optimal_k = deviations.index(deviation) + 1
+
                         return optimal_k
 
             else:
                 return len(deviations) + 1
-
 
         except ValueError:
             print("Value of K higher than number of distinct clusters.")
@@ -219,9 +219,5 @@ if __name__ == "__main__":
     test = KMeans().find_optimal_k(original)
     print(test)
 
-    pog = KMeans(test)
-    pog.fit(original, pog.initialize_centroids(original))
-    print(pog.centroids)
-    print(pog.labels)
 
 

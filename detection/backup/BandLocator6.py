@@ -6,7 +6,7 @@ import os
 import glob
 
 
-from detection.Colours import Colours
+from detection.HSVRanges import HSVRanges
 from detection.Image2 import Image2
 from detection.ResistorBand import ResistorBand
 from detection.Resistor import Resistor
@@ -58,7 +58,7 @@ class BandLocator:
 
     def colours(self, no_glare_image, rectangles):
 
-        matcher = Colours.create()
+        matcher = HSVRanges.create()
 
         colours = []
 

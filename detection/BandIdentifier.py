@@ -25,15 +25,19 @@ class BandIdentifier:
 
         return resistor_bands
 
-    def find_resistor_bands(self):
+    def find_resistor_bands(self, number_of_bands):
         try:
             resistor_bands = self.find_most_frequent_bands()
 
             if resistor_bands is None:
-                resistor_bands = [band.colour for band in self.slice_bands[len(self.slice_bands) // 2]]
+                for slice_number in self.slice_bands:
+                    if len(slice_number) == number_of_bands:
+                        resistor_bands = [band.colour for band in self.slice_bands[self.slice_bands.index(slice_number)]]
+
+                print("Alternate band finding method used.")
 
             return resistor_bands
 
-        except:
+        except ValueError:
             print("Error with BandIdentifier.")
 

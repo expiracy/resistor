@@ -102,7 +102,7 @@ class Image:
         return self
 
     def erode(self, iterations):
-        element = cv2.getStructuringElement(cv2.MORPH_ERODE, (9, 9), (3, 3))
+        element = cv2.getStructuringElement(cv2.MORPH_ERODE, (3, 3), (1, 1))
         self.image = cv2.erode(self.image, element, iterations=iterations)
 
         return self
@@ -140,10 +140,4 @@ class Image:
         byte_stream_image = base64.b64encode(buffer)
 
         return byte_stream_image
-
-        image_bytes = base64.standard_b64encode(image_bytes)
-    def byte_stream(self):
-        image_bytes = cv2.imencode('.jpg', self.image)[1]
-        return image_bytes
-
 

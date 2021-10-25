@@ -31,19 +31,18 @@ class Testing:
                     big_image = Greyscale(big_image.image, 'BGR').monochrome(inverted=True)
                     big_image.show()
                     '''
-                    print(resistor.colours())
+                    print(resistor.bands)
                     print('\n\n\n')
 
         else:
 
-            filename = 'RED RED BROWN GOLD (2)' + '.JPG'
+            filename = 'BROWN RED RED GOLD (2)' + '.JPG'
 
             print(f'{os.getcwd()}\\{filename}')
 
             resistor, image = Detector().detect(f'{os.getcwd()}\\{filename}')
 
-            image.show()
-            print(resistor.find_bands)
+            print(resistor.bands)
             print('\n\n\n')
 
 

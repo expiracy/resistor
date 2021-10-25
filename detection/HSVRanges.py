@@ -11,7 +11,7 @@ from detection.Colour import Colour
 from detection.HSVRange import HSVRange
 
 
-class Colours:
+class HSVRanges:
 
     def __init__(self):
         pass
