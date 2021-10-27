@@ -7,6 +7,7 @@ class SliceBandSelector:
     def __init__(self, slice_bands=None):
         self.slice_bands = slice_bands
 
+    # Ordering the bands based on the bounding box X coordinate.
     def order_bands(self, reverse=False):
 
         slices_x_lists = self.bands_attributes()[0]
@@ -23,6 +24,7 @@ class SliceBandSelector:
 
             self.slice_bands[index] = sorted_slice_bands
 
+    # Returns list(s) of a certain attribute(s) from the slice bands.
     def bands_attributes(self):
         slices_x_lists = []
         slices_y_lists = []
@@ -39,14 +41,17 @@ class SliceBandSelector:
 
         return slices_x_lists, slices_y_lists, slices_widths, slices_heights, slices_colours
 
+    # Using K-means to find where there are clusters of X (locating the band).
     def find_x_cluster(self, x_list):
-        x_y_list = [[x, 0] for x in x_list]
-        np_x_y_list = np.array(x_y_list)
+        x_y_list = np.array([[x, 0] for x in x_list])
 
-        number_of_bands = KMeans().find_optimal_k(np_x_y_list)
+        k_means = KMeans()
+
+        number_of_bands = k_means.find_optimal_number_of_clusters(x_y_list)
 
         if number_of_bands:
-            clusters = KMeans(number_of_bands).fit(np_x_y_list)
+            k_means.number_of_centroids = number_of_bands
+            clusters = k_means.fit(x_y_list, k_means.initialize_centroids(x_y_list))
 
         else:
             max_list_length = len(max(self.bands_attributes()[0], key=len))
@@ -54,12 +59,15 @@ class SliceBandSelector:
             if max_list_length > 6:
                 max_list_length = 6
 
-            clusters = KMeans(max_list_length).fit(np_x_y_list)
+            k_means_alternative = KMeans(max_list_length)
+
+            clusters = k_means_alternative.fit(x_y_list, k_means_alternative.initialize_centroids(x_y_list))
 
         return clusters, number_of_bands
 
+    # Removing duplicate bands from the slice bands.
     def identify_dupes(self):
-        # if 2 x coordinates are less than 0.4 x the mean difference away from each other, assume it is a duplicate band
+        # if 2 x coordinates are less than 0.3x the mean difference away from each other, assume it is a duplicate band
         for slice_number in self.slice_bands[:]:
 
             x_list = [slice_band.bounding_rectangle.x for slice_band in slice_number]
@@ -85,6 +93,7 @@ class SliceBandSelector:
 
                 previous_band = slice_band
 
+    # Select the biggest dupe band as it is more likely to be the correct band.
     def keep_biggest_dupe_band(self):
         for slice_number in self.slice_bands:
 
@@ -101,10 +110,9 @@ class SliceBandSelector:
                         if slice_number.index(slice_band) != biggest_area_index:
                             slice_number.remove(slice_band)
 
+    # Identifying the slice bands that match up with the x centroids.
     def identify_possible_bands(self, sorted_centroids, deviation):
         possible_bands = []
-
-        debug = []
 
         for slice_number in self.slice_bands:
 
@@ -120,14 +128,9 @@ class SliceBandSelector:
 
                     abs_differences = [abs(difference) for difference in differences]
 
-                    smallest_difference_index = abs_differences.index(min(abs_differences))
+                    smallest_difference_index = np.argmin(abs_differences)
 
                     nearest_centroid = sorted_centroids[smallest_difference_index]
-
-                    #print(f'COLOUR: {slice_band.colour}')
-                    #print(f'data: {slice_band.bounding_rectangle.x}')
-                    #print(f'UPPER: {nearest_centroid - (nearest_centroid * 0.25)} LOWER: {nearest_centroid + (nearest_centroid * 0.25)}')
-                    #print(f'\n')
 
                     if (nearest_centroid - (nearest_centroid * deviation)) < slice_band.bounding_rectangle.x < (
                             nearest_centroid + (nearest_centroid * deviation)):
@@ -136,10 +139,9 @@ class SliceBandSelector:
                 if len(slice_colours) == len(sorted_centroids):
                     possible_bands.append(slice_colours)
 
-                    debug.append(slice_number)
-
         return possible_bands
 
+    # Remove bands that are within bands by removing bands within a certain range of x values.
     def remove_bands_in_bands(self):
 
         for slice_number_1 in self.slice_bands:
@@ -154,7 +156,8 @@ class SliceBandSelector:
                         if lower_range < slice_band_1.bounding_rectangle.x < upper_range:
                             slice_number_2.remove(slice_band_2)
 
-    def identify_clustered_bands(self, clusters):
+    # Removing centroids that are close to each other.
+    def remove_false_centroids(self, clusters):
 
         centroids = []
 
@@ -178,14 +181,18 @@ class SliceBandSelector:
 
             previous_centroid = centroid
 
+        return sorted_centroids
+
+    # Keep trying to find binds with a certain deviation until a sufficient amount has been found.
+    def possible_bands(self, sorted_centroids):
+
         possible_bands = self.identify_possible_bands(sorted_centroids, 0.1)
 
-        if len(possible_bands) < 10:
+        if len(possible_bands) < 5:
 
             deviation = 0.11
 
             while len(possible_bands) < 3 and deviation < 0.3:
-
                 possible_bands = self.identify_possible_bands(sorted_centroids, deviation)
 
                 deviation += 0.01
@@ -196,6 +203,7 @@ class SliceBandSelector:
         else:
             return None
 
+    # Remove obvious outlier bands that do not meet certain criteria.
     def remove_outliers(self):
         for slice_number in self.slice_bands:
             widths = [slice_band.bounding_rectangle.width for slice_band in slice_number]
@@ -211,6 +219,7 @@ class SliceBandSelector:
                     slice_number_index = self.slice_bands.index(slice_number)
                     self.slice_bands[slice_number_index].remove(slice_band)
 
+    # Identifying the possible bands out of the slice bands by only keeping bands that meet certain criteria.
     def find_possible_bands(self):
         try:
             self.remove_outliers()
@@ -231,9 +240,12 @@ class SliceBandSelector:
                     x_list.append(x)
 
             clusters, number_of_bands = self.find_x_cluster(x_list)
-            possible_bands = self.identify_clustered_bands(clusters)
+
+            sorted_centroids = self.remove_false_centroids(clusters)
+            possible_bands = self.possible_bands(sorted_centroids)
 
             return possible_bands, number_of_bands
 
-        except ValueError:
-            print("Error with SliceBandSelector.")
+        except Exception as E:
+            print('Error with SliceBandSelector.')
+            print(E)

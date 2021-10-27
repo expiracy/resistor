@@ -7,6 +7,7 @@ class BandIdentifier:
         self.slice_bands = slice_bands
         self.bands = []
 
+    # Finding the most frequent bands.
     def find_most_frequent_bands(self):
         try:
             resistor_bands = []
@@ -18,26 +19,35 @@ class BandIdentifier:
 
                 resistor_bands.append(band_colour)
 
-        except:
-            print("Error with input list.")
+        except Exception as E:
+            print('Error with input list.')
+            print(E)
 
             resistor_bands = None
 
         return resistor_bands
 
+    # Finding the resistor bands with the most frequent bands or alternate criteria.
     def find_resistor_bands(self, number_of_bands):
         try:
             resistor_bands = self.find_most_frequent_bands()
 
-            if resistor_bands is None:
-                for slice_number in self.slice_bands:
-                    if len(slice_number) == number_of_bands:
-                        resistor_bands = [band.colour for band in self.slice_bands[self.slice_bands.index(slice_number)]]
+            if not resistor_bands:
+                while resistor_bands is None:
+                    for slice_number in self.slice_bands:
+                        if len(slice_number) == number_of_bands:
+                            resistor_bands = [band.colour for band in
+                                              self.slice_bands[self.slice_bands.index(slice_number)]]
+                            return resistor_bands
 
-                print("Alternate band finding method used.")
+                    number_of_bands -= 1
 
-            return resistor_bands
+                    if number_of_bands == 0:
+                        return None
 
-        except ValueError:
-            print("Error with BandIdentifier.")
+            else:
+                return resistor_bands
 
+        except Exception as E:
+            print('Error with BandIdentifier.')
+            print(E)

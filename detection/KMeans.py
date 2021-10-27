@@ -1,17 +1,14 @@
 import random as rd
-import matplotlib.pyplot as plt
 import numpy as np
-from detection.Graph import Graph
-from detection.Line import Line
+
 
 class KMeans:
-    def __init__(self, number_of_centroids=2):
+    def __init__(self, number_of_centroids=4):
         self.number_of_centroids = number_of_centroids
         self.centroids = {}
         self.labels = []
 
-
-    # function to compute euclidean distance
+    # Finds the distance between 2 points.
     def find_distance(self, point_1, point_2):
         dx_squared = (point_1[0] - point_2[0]) ** 2
         dy_squared = (point_1[1] - point_2[1]) ** 2
@@ -20,204 +17,247 @@ class KMeans:
 
         return distance
 
-    # Function to find the optimal number of clusters for data.
-    def find_optimal_k(self, data, mode='optimal'):
-        try:
-            deviations = []
+    # Finds the distance between items and centroids.
+    def find_distance_to_centroids(self, data):
+        item_to_centroids_distances = {}
 
-            # Run K-means for every value of K in range 1, 10.
-            for centroid_number in range(1, 10):
+        for centroid_number in range(1, self.number_of_centroids + 1):
+            item_to_centroids_distances[centroid_number] = []
 
-                self.centroids = {}
-                centroids_distances = {}
+        for centroid_number in range(1, self.number_of_centroids + 1):
+            for index in range(len(data)):
+                item_to_centroid_distance = self.find_distance(data[index], self.centroids[centroid_number])
 
-                self.number_of_centroids = centroid_number
-                self.fit(data)
+                item_to_centroids_distances[centroid_number].append(item_to_centroid_distance)
 
-                # Create dictionary to hold the distance values.
-                if len(self.centroids) == centroid_number:
-                    for centroid_number_2 in range(1, self.number_of_centroids + 1):
-                        centroids_distances[centroid_number_2] = []
+        return item_to_centroids_distances
 
-                    # Calculate the distance between every centroid to every item and append it to the corresponding cluster dictionary list.
-                    for centroid_number_2 in range(1, self.number_of_centroids + 1):
-                        for index in range(len(data)):
-                            centroid_distance = self.find_distance(data[index], self.centroids[centroid_number_2])
+    # Finds the minimum inter-cluster distance.
+    def find_minimum_inter_cluster_distance(self):
+        minimum_inter_cluster_distance = np.inf
 
-                            centroids_distances[centroid_number_2].append(centroid_distance)
+        for _, centroid_1 in self.centroids.items():
+            for _, centroid_2 in self.centroids.items():
 
-                    # Find the minimum cluster distance for each item and append it to the minimum distances list.
-                    minimum_distances = []
+                if centroid_1 != centroid_2 or len(self.centroids) == 1:
+                    inter_cluster_distance = self.find_distance(centroid_1, centroid_2)
 
-                    for item in range(len(data)):
-                        item_distances = []
+                    minimum_inter_cluster_distance = min(minimum_inter_cluster_distance, inter_cluster_distance)
 
-                        for centroid_number_2 in range(1, self.number_of_centroids + 1):
-                            item_distances.append(centroids_distances[centroid_number_2][item])
+        return minimum_inter_cluster_distance
 
-                        minimum_distances.append(np.min(item_distances))
+    # Finds the maximum intra-cluster distance.
+    def find_maximum_intra_cluster_distance(self, data_grouped_by_label):
+        maximum_intra_cluster_distance = -np.inf
 
-                    # Find the sum of all the minimum cluster distances for a value of K and append it to the distortions list.
-                    sum_minimum_distances = np.sum(minimum_distances)
+        for centroid_number, data in data_grouped_by_label.items():
+            for item in data:
+                intra_cluster_distance = self.find_distance(item, self.centroids[centroid_number])
 
-                    deviations.append((sum_minimum_distances / len(data)) ** 2)
+                maximum_intra_cluster_distance = max(maximum_intra_cluster_distance, intra_cluster_distance)
 
-            # Plotting the resulting elbow graph.
-            #Graph().graph_x_against_y(list(range(1, len(deviations) + 1)), deviations, 'k', 'Deviation', 'Elbow Method Graph')
+        if maximum_intra_cluster_distance == 0:
+            return 1
+        else:
+            return maximum_intra_cluster_distance
 
-            if mode == 'optimal':
-                for deviation in deviations:
-                    if deviation < 1:
-                        optimal_k = deviations.index(deviation) + 1
+    # Finds the optimal number of clusters using dunn-index.
+    def find_optimal_number_of_clusters(self, data):
+        dunn_indexes = []
 
-                        return optimal_k
+        for centroid_amount in range(1, 10):
+            self.centroids = {}
+            self.number_of_centroids = centroid_amount
+            self.fit(data, self.initialize_centroids(data))
 
-            else:
-                return len(deviations) + 1
+            data_grouped_by_label = self.group_data_by_label(data)
 
-        except ValueError:
-            print("Value of K higher than number of distinct clusters.")
-            return None
+            maximum_intra_cluster_distance = self.find_maximum_intra_cluster_distance(data_grouped_by_label)
 
-    # initialization algorithm
+            minimum_inter_cluster_distance = self.find_minimum_inter_cluster_distance()
+
+            dunn_index = minimum_inter_cluster_distance / maximum_intra_cluster_distance
+
+            dunn_indexes.append(dunn_index)
+
+        optimal_number_of_clusters = np.argmax(dunn_indexes) + 1
+
+        return optimal_number_of_clusters
+
+    # Initialises the seeds to be used for fit().
     def initialize_centroids(self, data):
         number_of_items = data.shape[0]
 
-        # Randomly choose the first cluster.
-        seeds = {1: (data[rd.randint(0, number_of_items - 1)])}
+        centroids = {1: (data[rd.randint(0, number_of_items - 1)])}
 
-        # Identify the rest of the clusters.
         for centroid_number in range(1, self.number_of_centroids):
 
-            minimum_seed_distances = []
+            minimum_centroid_distances = []
 
             for item in data:
-                minimum_seed_distance = np.inf
+                minimum_centroid_distance = np.inf
 
                 # Find the distance.
-                for seed_number, seed in seeds.items():
-                    seed_distance = self.find_distance(item, seed)
-                    minimum_seed_distance = min(minimum_seed_distance, seed_distance)
+                for _, centroid in centroids.items():
+                    centroid_distance = self.find_distance(item, centroid)
+                    minimum_centroid_distance = min(minimum_centroid_distance, centroid_distance)
 
-                minimum_seed_distances.append(minimum_seed_distance)
+                minimum_centroid_distances.append(minimum_centroid_distance)
 
             # Item the produces the largest distance is the centroid.
-            minimum_seed_distances = np.array(minimum_seed_distances)
+            minimum_centroid_distances = np.array(minimum_centroid_distances)
 
-            next_seed = data[np.argmax(minimum_seed_distances)]
+            next_centroid = data[np.argmax(minimum_centroid_distances)]
 
-            seeds[centroid_number + 1] = next_seed
+            centroids[centroid_number + 1] = next_centroid
 
-        return seeds
+        return centroids
 
-    # Labelling items with their closest centroid.
-    def find_labels(self, centroids_distances, data):
-
+    # Labelling items with the number of their closest centroid.
+    def find_labels(self, data, intra_cluster_distances_for_centroids):
         self.labels = []
 
         for item_index in range(len(data)):
             distances_from_centroids = []
 
-            for centroid, distances_from_centroid in centroids_distances.items():
-                distances_from_centroids.append(distances_from_centroid[item_index])
+            for _, intra_cluster_distances in intra_cluster_distances_for_centroids.items():
+                distances_from_centroids.append(intra_cluster_distances[item_index])
 
             self.labels.append(distances_from_centroids.index(min(distances_from_centroids)) + 1)
 
-    # K-means algorithm to find the centroids based on the seeds.
-    def fit(self, data):
+    # Grouping the data by the labels.
+    def group_data_by_label(self, data):
+        data_grouped_by_label = {}
 
+        for centroid_number in range(1, self.number_of_centroids + 1):
+            data_grouped_by_label[centroid_number] = []
+
+        for centroid_number in range(1, self.number_of_centroids + 1):
+            for index, label in enumerate(self.labels):
+                if label == centroid_number:
+                    data_grouped_by_label[centroid_number].append(data[index])
+
+        return data_grouped_by_label
+
+    # Moving centroids by calculating the mean of the data grouped by centroid.
+    def move_centroids(self, data_grouped_by_label):
+
+        for centroid_number in range(1, len(data_grouped_by_label) + 1):
+            x_total = 0
+            y_total = 0
+
+            for item in data_grouped_by_label[centroid_number]:
+                x_total += item[0]
+                y_total += item[1]
+
+            number_of_items = len(data_grouped_by_label[centroid_number])
+
+            x_mean = x_total / number_of_items
+            y_mean = y_total / number_of_items
+
+            self.centroids[centroid_number] = [x_mean, y_mean]
+
+    # Finding the intra-cluster distances for centroids.
+    def find_intra_cluster_distances_for_centroids(self, data, centroids):
+        intra_cluster_distances_for_centroids = {}
+
+        for centroid_number, centroid in centroids.items():
+
+            intra_cluster_distances = []
+
+            for item in data:
+                intra_cluster_distance = self.find_distance(centroid, item)
+                intra_cluster_distances.append(intra_cluster_distance)
+
+            intra_cluster_distances_for_centroids[centroid_number] = intra_cluster_distances
+
+        return intra_cluster_distances_for_centroids
+
+    # Checking the centroids have moved by comparing the moved centroids to the initially input centroids.
+    def check_if_centroids_moved(self, centroids):
+        inter_cluster_distances = []
+
+        for centroid_number in range(1, self.number_of_centroids + 1):
+
+            inter_cluster_distance = np.subtract(self.centroids[centroid_number], centroids[centroid_number])
+
+            inter_cluster_distance_sum = np.sum(inter_cluster_distance)
+
+            inter_cluster_distances.append(abs(inter_cluster_distance_sum))
+
+        inter_cluster_distances_sum = sum(inter_cluster_distances)
+
+        if inter_cluster_distances_sum != 0:
+            return True
+
+        else:
+            return False
+
+    # K-means algorithm to find the labels and centroids based on the centroids.
+    def fit(self, data, centroids, iteration=0, max_iterations=50):
         try:
-            seeds = self.initialize_centroids(data)
+            self.centroids = {}
+            self.labels = []
 
-            difference = 1
-            iteration = 0
+            intra_cluster_distances_for_cluster = self.find_intra_cluster_distances_for_centroids(data, centroids)
 
-            while difference != 0:
-                centroid_number = 1
-                centroids_distances = {}
+            self.find_labels(data, intra_cluster_distances_for_cluster)
 
-                for seed_number, seed in seeds.items():
+            data_grouped_by_label = self.group_data_by_label(data)
 
-                    seed_distances = []
+            self.move_centroids(data_grouped_by_label)
 
-                    for item in data:
-                        seed_distance = self.find_distance(seed, item)
-                        seed_distances.append(seed_distance)
+            iteration += 1
 
-                    centroids_distances[centroid_number] = seed_distances
+            centroids_moved = self.check_if_centroids_moved(centroids)
 
-                    centroid_number += 1
-
-                self.find_labels(centroids_distances, data)
-
-                data_grouped_by_label = {}
-
-                for cluster_number in range(1, self.number_of_centroids + 1):
-                    data_grouped_by_label[cluster_number] = []
-
-                for cluster_number in range(1, self.number_of_centroids + 1):
-                    for index, label in enumerate(self.labels):
-                        if label == cluster_number:
-                            data_grouped_by_label[cluster_number].append(data[index])
-
-                    x_total = 0
-                    y_total = 0
-
-                    for item in data_grouped_by_label[cluster_number]:
-                        x_total += item[0]
-                        y_total += item[1]
-
-                    number_of_items = len(data_grouped_by_label[cluster_number])
-
-                    x_mean = x_total / number_of_items
-                    y_mean = y_total / number_of_items
-
-                    self.centroids[cluster_number] = [x_mean, y_mean]
-
-                if iteration == 0:
-                    difference = 1
-                    iteration += 1
-
+            if iteration == 1 or centroids_moved:
+                if iteration <= max_iterations:
+                    return self.fit(data, self.centroids, iteration)
                 else:
-                    cluster_seed_difference_sums = []
+                    return self
 
-                    for cluster_number in range(1, self.number_of_centroids + 1):
-                        cluster_seed_difference = np.subtract(self.centroids[cluster_number], seeds[cluster_number])
-                        cluster_seed_difference_sum = np.sum(cluster_seed_difference)
-                        cluster_seed_difference_sums.append(cluster_seed_difference_sum)
+            else:
+                return self
 
-                    difference = sum(cluster_seed_difference_sums)
+        except Exception as E:
+            print('Error with K value.')
+            print(E)
 
-                    seeds = self.centroids
-
-            return self
-
-        except:
-            print("Error due to K value.")
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     data = [30, 61, 30, 61, 30, 61, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 8, 30, 44, 60, 8, 30,
             44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44,
             60, 8, 29, 60, 8, 29, 60, 8, 29, 60]
 
+    data_x = [25,34,22,27,33,33,31,22,35,34,67,54,57,43,50,57,59,52,65,47,49,48,35,33,44,45,38,43,51,46]
+    data_y = [79,51,53,78,59,74,73,57,69,75,51,32,40,47,53,36,35,58,59,50,25,20,14,12,20,5,29,27,8,7]
+
+    data = sorted(data)
+
     original = [[x, 0] for x in data]
+
     original = np.array(original)
     '''
     original = np.zeros((100, 2))
     original[0:10] = 1
-    original[10:25] = 5
-    original[25:50] = 6
-    original[50:75] = 8
-    original[75:100] = 15
+    original[10:25] = 25
+    original[25:50] = 50
+    original[50:75] = 100
+    original[75:100] = 1500
+    
     '''
-    # Step 1 and 2 - Choose the number of clusters (k) and select random centroid for each cluster
 
-    # number of clusters
+
+    # Step 1 and 2 - Choose the number of centroids (k) and select random centroid for each centroid
+
+    # number of centroids
 
     # Select random observation as centroids
-    test = KMeans().find_optimal_k(original)
-    print(test)
+    k_means = KMeans(2)
+    seeds = k_means.initialize_centroids(original)
+    test = k_means.fit(original, seeds)
+    k_means.find_optimal_number_of_clusters(original)
+    print(test.centroids)
 
 
 

@@ -14,32 +14,7 @@ class SliceBandFinder:
     def __init__(self, image):
         self.image = image
 
-    def remove_outlier_contours(self, contours):
-
-        bounding_rectangles = []
-
-        for contour in contours:
-            bounding_rectangle = BoundingRectangle(contour)
-
-            bounding_rectangles.append(bounding_rectangle)
-
-        areas = [bounding_rectangle.width * bounding_rectangle.height for bounding_rectangle in bounding_rectangles]
-
-        if areas:
-            mean = np.mean(areas)
-        else:
-            mean = 0
-
-        lower_bound = mean - (mean * 0.6)
-
-        # write about different outlier algorithms tried
-
-        for index in range(len(areas))[:]:
-            if areas[index] < lower_bound:
-                contours.remove(contours[index])
-
-        return contours
-
+    # Check if the band is right at the edge of the image.
     def check_if_edge_band(self, bounding_rectangle):
         image_width = self.image.width()
 
@@ -49,6 +24,7 @@ class SliceBandFinder:
         else:
             return False
 
+    # Returns a mask for the specified colour on an image slice.
     def band_mask(self, colour, image_slice):
         hsv_ranges = HSVRanges().hsv_ranges(colour)
 
@@ -60,8 +36,8 @@ class SliceBandFinder:
 
         return greyscale_mask_image
 
+    # Finds the bands.
     def find_bands(self, image_slice):
-
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
                    'SILVER']
 
@@ -93,22 +69,7 @@ class SliceBandFinder:
 
         return bands
 
-    def remove_glare_from_image(self, glare_mask):
-        self.image.mask(glare_mask.image)
-
-        contours, _ = Greyscale(self.image.image, 'BGR').find_contours()
-
-        largest_contour = max(contours, key=cv2.contourArea)
-
-        bounding_rectangle = BoundingRectangle(largest_contour)
-
-        #annotated_image = Annotation(self.image.image).draw_rectangle(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
-        #annotated_image.show()
-
-        self.image = self.image.region(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
-
-        return self
-
+    # Finds all the bands for all slices.
     def find(self):
 
         try:

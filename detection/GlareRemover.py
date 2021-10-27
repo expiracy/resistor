@@ -1,22 +1,20 @@
 import cv2
-from detection.BoundingRectangle import BoundingRectangle
-from detection.Greyscale import Greyscale
+import numpy as np
+from sklearn.cluster import KMeans
+
 from detection.BGR import BGR
+from detection.BoundingRectangle import BoundingRectangle
+from detection.Contours import Contours
+from detection.Greyscale import Greyscale
 from detection.HSV import HSV
 from detection.HSVRange import HSVRange
-from detection.BoundingRectangle import BoundingRectangle
-from sklearn.cluster import KMeans
-from detection.Colour import Colour
-from detection.HSVRange import HSVRange
-
-
-import numpy as np
 
 
 class GlareRemover:
     def __init__(self, image):
         self.image = image
 
+    # Shows the colour clusters.
     def show_colour_clusters(self, colours):
 
         # Create frequency rect and iterate through each clusters's color and percentage
@@ -27,22 +25,22 @@ class GlareRemover:
         start = 0
 
         for percent, colour in colours:
-            #print(colour, f'{round((percent * 100), 5)} %')
+            # print(colour, f'{round((percent * 100), 5)} %')
 
             end = start + (percent * 300)
 
-            cv2.rectangle(rectangle.image, (int(start), 0), (int(end), 50), colour.astype("uint8").tolist(), -1)
+            cv2.rectangle(rectangle.image, (int(start), 0), (int(end), 50), colour.astype('uint8').tolist(), -1)
 
             start = end
 
-        #rectangle.show()
+        # rectangle.show()
 
+    # Identifies the glare clusters based on V values.
     def identify_glare_clusters(self, clusters):
 
         hsv_colours = []
 
         for colour in clusters.cluster_centers_:
-
             hsv_colours.append(colour)
 
         v_values = [hsv_colour[2] for hsv_colour in hsv_colours]
@@ -61,6 +59,7 @@ class GlareRemover:
 
         return glare_clusters
 
+    # Change the pixels to 0 if its closest centroid identified as a glare cluster.
     def remove_clusters(self, cluster, glare_clusters):
         cluster_labels = cluster.labels_
 
@@ -71,10 +70,11 @@ class GlareRemover:
                 if cluster_labels[row][column] in glare_clusters:
                     self.image.image[row][column] = 0
 
-        #self.image.show()
+        # self.image.show()
 
         return self
 
+    # Find the colour clusters.
     def find_colour_clusters(self):
 
         # Load image and convert to a data of pixels
@@ -82,14 +82,14 @@ class GlareRemover:
         image_data = self.image.image.reshape(self.image.height() * self.image.width(), 3)
 
         # Find and display most dominant colors
-        clusters = KMeans(n_clusters=10).fit(image_data)
+        clusters = KMeans(n_clusters=5).fit(image_data)
 
         centroids = clusters.cluster_centers_
 
         labels = np.arange(0, len(np.unique(clusters.labels_)) + 1)
 
         hist, _ = np.histogram(clusters.labels_, bins=labels)
-        hist = hist.astype("float")
+        hist = hist.astype('float')
         hist /= hist.sum()
 
         colours = sorted([(percent, colour) for percent, colour in zip(hist, centroids)])
@@ -98,6 +98,7 @@ class GlareRemover:
 
         return clusters
 
+    # Masks the image for non black values.
     def mask(self):
 
         hsv_image = HSV(self.image.image, 'BGR')
@@ -108,33 +109,33 @@ class GlareRemover:
 
         return greyscale_mask_image
 
+    # Removes the glare from the image by taking the biggest region.
     def remove_glare_from_image(self, glare_mask, image):
         image = image.mask(glare_mask.image)
 
         contours, _ = Greyscale(image.image, 'BGR').find_contours()
 
-        largest_contour = max(contours, key=cv2.contourArea)
+        sorted_contours = Contours(contours).sort()
+
+        largest_contour = sorted_contours[len(sorted_contours) - 1]
 
         bounding_rectangle = BoundingRectangle(largest_contour)
 
-        #annotated_image = Annotation(self.image.image).draw_rectangle(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
-        #annotated_image.show()
-
-        no_glare_image = image.region(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width, bounding_rectangle.height)
+        no_glare_image = image.region(bounding_rectangle.x, bounding_rectangle.y, bounding_rectangle.width,
+                                      bounding_rectangle.height)
 
         return no_glare_image
 
+    # Runs the functions within the glare remover.
     def main(self):
 
         try:
-
             original_image = self.image.clone()
 
             self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
-
             self.image = HSV(self.image.image, 'BGR')
 
-            #self.image.show()
+            # self.image.show()
 
             clusters = self.find_colour_clusters()
 
@@ -146,9 +147,8 @@ class GlareRemover:
 
             no_glare_image = self.remove_glare_from_image(glare_mask, original_image)
 
-            no_glare_image.show()
-
             return no_glare_image
 
-        except ValueError:
-            print("Error with Glare.")
+        except Exception as E:
+            print('Error with Glare.')
+            print(E)

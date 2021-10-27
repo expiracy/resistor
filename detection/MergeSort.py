@@ -2,6 +2,7 @@ class MergeSort:
     def __init__(self):
         pass
 
+    # Sorts input data.
     def sort(self, data, reverse=False):
         # The last data split
         if len(data) <= 1:
@@ -17,6 +18,7 @@ class MergeSort:
 
         return merged
 
+    # Merges and sorts a list.
     def merge(self, left, right, merged, reverse):
 
         left_cursor = 0

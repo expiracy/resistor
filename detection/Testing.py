@@ -36,7 +36,7 @@ class Testing:
 
         else:
 
-            filename = 'BROWN RED RED GOLD (2)' + '.JPG'
+            filename = 'RED RED BROWN GOLD' + '.JPG'
 
             print(f'{os.getcwd()}\\{filename}')
 

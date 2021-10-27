@@ -1,7 +1,3 @@
-import cv2
-import numpy
-import os
-
 from detection.ResistorLocator import ResistorLocator
 from detection.SliceBandFinder import SliceBandFinder
 from detection.Image import Image
@@ -16,6 +12,7 @@ class Detector:
         self.image = None
         self.resistor = None
 
+    # Detects the resistor colours from an image.
     def detect(self, location):
         try:
             self.image = Image().load(location)
@@ -27,20 +24,28 @@ class Detector:
 
                 self.image.resize(1280, round(scale))
 
-            self.image = ResistorLocator(self.image).locate()
+            resistor_image = ResistorLocator(self.image).locate()
 
-            slice_bands = SliceBandFinder(self.image.clone()).find()
+            if resistor_image:
 
-            possible_bands, number_of_bands = SliceBandSelector(slice_bands).find_possible_bands()
+                slice_bands = SliceBandFinder(resistor_image.clone()).find()
 
-            resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands(number_of_bands)
+                possible_bands, number_of_bands = SliceBandSelector(slice_bands).find_possible_bands()
 
-            self.resistor = Resistor(resistor_bands).main()
+                resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands(number_of_bands)
 
-            return self.resistor, self.image
+                self.resistor = Resistor(resistor_bands).main()
 
-        except ZeroDivisionError:
-            print("Error with Detector.")
+                return self.resistor, resistor_image
+
+            else:
+                self.resistor.bands = ['BLACK', 'BLACK', 'BLACK', 'BLACK', 'BLACK', 'BLACK']
+
+                return self.resistor, self.image
+
+        except Exception as E:
+            print('Error with Detector.')
+            print(E)
 
 
 

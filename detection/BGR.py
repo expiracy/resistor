@@ -29,6 +29,7 @@ class BGR(Image):
 
         return channels
 
+    # Conversion between types.
     def bgr_conversion(self, image, type):
         if type == 'BGR':
             return image

@@ -8,9 +8,9 @@ from detection.HSVRanges import HSVRanges
 class Resistor:
 
     def __init__(self, bands):
-
         self.bands = bands
 
+    # Returns the resistor type.
     def type(self):
         if self.bands:
             return len(self.bands)
@@ -18,6 +18,7 @@ class Resistor:
         else:
             return 6
 
+    # Returns the formatted colours for the resistor.
     def colours(self):
 
         type = self.type()
@@ -41,6 +42,7 @@ class Resistor:
 
         return colours
 
+    # Gets the digit band colours.
     def get_digit_band_colours(self):
         digit_band_colours = []
 
@@ -53,6 +55,7 @@ class Resistor:
 
             return digit_band_colours
 
+    # Checks if the resistor digit band colours are in the standard values database.
     def check_valid(self, flip=False):
 
         if flip is True:
@@ -79,6 +82,7 @@ class Resistor:
             else:
                 return False
 
+    # Finds the most probable correct version of a resistor.
     def main(self):
 
         try:
