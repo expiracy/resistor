@@ -7,7 +7,6 @@ class Line:
 
     # Make a line from 2 points.
     def from_points(self, start_point, end_point):
-
         line = Line()
 
         line.gradient = self.find_gradient(start_point, end_point)
@@ -17,7 +16,6 @@ class Line:
 
     # Make a line from a point and a gradient.
     def from_gradient(self, gradient, start_point):
-
         line = Line()
 
         line.gradient = gradient
@@ -41,7 +39,6 @@ class Line:
 
     # Find the constant value of the line.
     def find_constant(self, point):
-
         if self.gradient is not None:
             return point[1] - self.gradient * point[0]
 

@@ -20,7 +20,6 @@ class MergeSort:
 
     # Merges and sorts a list.
     def merge(self, left, right, merged, reverse):
-
         left_cursor = 0
         right_cursor = 0
 
@@ -51,15 +50,6 @@ class MergeSort:
             merged[left_cursor + right_cursor] = right[right_cursor]
 
         return merged
-
-# Driver Code
-if __name__ == '__main__':
-    data = [12, 11, 13, 5, 6, 7, 4, 2, 1, 10, 321]
-
-    data = MergeSort().sort(data, reverse=True)
-
-    print(data)
-
 
 
 

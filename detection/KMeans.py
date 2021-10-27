@@ -141,7 +141,6 @@ class KMeans:
 
     # Moving centroids by calculating the mean of the data grouped by centroid.
     def move_centroids(self, data_grouped_by_label):
-
         for centroid_number in range(1, len(data_grouped_by_label) + 1):
             x_total = 0
             y_total = 0
@@ -223,41 +222,3 @@ class KMeans:
         except Exception as E:
             print('Error with K value.')
             print(E)
-
-if __name__ == '__main__':
-    data = [30, 61, 30, 61, 30, 61, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 30, 44, 60, 8, 30, 44, 60, 8, 30,
-            44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44, 60, 8, 29, 44,
-            60, 8, 29, 60, 8, 29, 60, 8, 29, 60]
-
-    data_x = [25,34,22,27,33,33,31,22,35,34,67,54,57,43,50,57,59,52,65,47,49,48,35,33,44,45,38,43,51,46]
-    data_y = [79,51,53,78,59,74,73,57,69,75,51,32,40,47,53,36,35,58,59,50,25,20,14,12,20,5,29,27,8,7]
-
-    data = sorted(data)
-
-    original = [[x, 0] for x in data]
-
-    original = np.array(original)
-    '''
-    original = np.zeros((100, 2))
-    original[0:10] = 1
-    original[10:25] = 25
-    original[25:50] = 50
-    original[50:75] = 100
-    original[75:100] = 1500
-    
-    '''
-
-
-    # Step 1 and 2 - Choose the number of centroids (k) and select random centroid for each centroid
-
-    # number of centroids
-
-    # Select random observation as centroids
-    k_means = KMeans(2)
-    seeds = k_means.initialize_centroids(original)
-    test = k_means.fit(original, seeds)
-    k_means.find_optimal_number_of_clusters(original)
-    print(test.centroids)
-
-
-

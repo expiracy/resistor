@@ -1,18 +1,15 @@
 import cv2
-import numpy as np
 
 from detection.Image import Image
-from detection.BGR import BGR
+
 
 class Greyscale(Image):
-
     def __init__(self, image=None, type='GREYSCALE'):
         greyscale = self.greyscale_conversion(image, type)
         super().__init__(greyscale)
 
     # Finds contours of an image.
     def find_contours(self):
-
         contours, hierarchy = cv2.findContours(self.image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         return contours, hierarchy

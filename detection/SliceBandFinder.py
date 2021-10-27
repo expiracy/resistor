@@ -1,12 +1,9 @@
-import cv2
-import numpy as np
-
-from detection.HSV import HSV
-from detection.Greyscale import Greyscale
 from detection.BGR import BGR
-from detection.GlareRemover import GlareRemover
-from detection.HSVRanges import HSVRanges
 from detection.BoundingRectangle import BoundingRectangle
+from detection.GlareRemover import GlareRemover
+from detection.Greyscale import Greyscale
+from detection.HSV import HSV
+from detection.HSVRanges import HSVRanges
 from detection.SliceBand import SliceBand
 
 
@@ -71,7 +68,6 @@ class SliceBandFinder:
 
     # Finds all the bands for all slices.
     def find(self):
-
         try:
             self.image = self.image.resize(self.image.width(), self.image.height() * 20)
 

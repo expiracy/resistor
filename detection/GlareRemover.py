@@ -16,8 +16,6 @@ class GlareRemover:
 
     # Shows the colour clusters.
     def show_colour_clusters(self, colours):
-
-        # Create frequency rect and iterate through each clusters's color and percentage
         rectangle = np.zeros((50, 300, 3), dtype=np.uint8)
 
         rectangle = BGR(rectangle)
@@ -37,7 +35,6 @@ class GlareRemover:
 
     # Identifies the glare clusters based on V values.
     def identify_glare_clusters(self, clusters):
-
         hsv_colours = []
 
         for colour in clusters.cluster_centers_:
@@ -76,9 +73,6 @@ class GlareRemover:
 
     # Find the colour clusters.
     def find_colour_clusters(self):
-
-        # Load image and convert to a data of pixels
-
         image_data = self.image.image.reshape(self.image.height() * self.image.width(), 3)
 
         # Find and display most dominant colors
@@ -100,7 +94,6 @@ class GlareRemover:
 
     # Masks the image for non black values.
     def mask(self):
-
         hsv_image = HSV(self.image.image, 'BGR')
 
         colour_mask = hsv_image.mask(HSVRange([0, 255], [0, 255], [1, 255]))
@@ -128,7 +121,6 @@ class GlareRemover:
 
     # Runs the functions within the glare remover.
     def main(self):
-
         try:
             original_image = self.image.clone()
 

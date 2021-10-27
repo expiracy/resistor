@@ -3,13 +3,11 @@ import numpy as np
 
 from detection.Greyscale import Greyscale
 from detection.Annotation import Annotation
-from detection.Graph import Graph
 from detection.Line import Line
 from detection.Contours import Contours
 
 
 class ResistorLocator:
-
     def __init__(self, image):
         self.image = image
 
@@ -115,7 +113,6 @@ class ResistorLocator:
 
     # Extracts the image of the resistor body from a resistor body contour.
     def locate(self):
-
         try:
             resistor_body_contour = self.find_resistor_contour()
 

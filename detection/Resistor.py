@@ -1,12 +1,8 @@
 import json
 import os
-import numpy as np
-
-from detection.HSVRanges import HSVRanges
 
 
 class Resistor:
-
     def __init__(self, bands):
         self.bands = bands
 
@@ -20,7 +16,6 @@ class Resistor:
 
     # Returns the formatted colours for the resistor.
     def colours(self):
-
         type = self.type()
 
         if type == 3:
@@ -57,7 +52,6 @@ class Resistor:
 
     # Checks if the resistor digit band colours are in the standard values database.
     def check_valid(self, flip=False):
-
         if flip is True:
             self.bands = self.bands[::-1]
 
@@ -84,7 +78,6 @@ class Resistor:
 
     # Finds the most probable correct version of a resistor.
     def main(self):
-
         try:
 
             non_flip_valid = self.check_valid(flip=False)

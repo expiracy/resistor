@@ -2,10 +2,10 @@ from detection.HSVRange import HSVRange
 
 
 class HSVRanges:
-
     def __init__(self):
         pass
 
+    # The HSV ranges for all the resistor colours.
     def hsv_ranges(self, colour):
         h_ranges = {
             'BLACK': [0, 255],

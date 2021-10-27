@@ -7,7 +7,6 @@ from detection.SliceBandSelector import SliceBandSelector
 
 
 class Detector:
-
     def __init__(self):
         self.image = None
         self.resistor = None

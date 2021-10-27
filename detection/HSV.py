@@ -10,7 +10,6 @@ class HSV(Image):
 
     # Masking HSV ranges from an image.
     def mask(self, hsv_ranges):
-
         h, s, v = self.split()
 
         h_range = cv2.inRange(h, hsv_ranges.h_range[0], hsv_ranges.h_range[1])

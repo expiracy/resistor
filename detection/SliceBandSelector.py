@@ -9,7 +9,6 @@ class SliceBandSelector:
 
     # Ordering the bands based on the bounding box X coordinate.
     def order_bands(self, reverse=False):
-
         slices_x_lists = self.bands_attributes()[0]
 
         for index, slice_x_list in enumerate(slices_x_lists):
@@ -143,7 +142,6 @@ class SliceBandSelector:
 
     # Remove bands that are within bands by removing bands within a certain range of x values.
     def remove_bands_in_bands(self):
-
         for slice_number_1 in self.slice_bands:
             for slice_number_2 in self.slice_bands:
 
@@ -158,7 +156,6 @@ class SliceBandSelector:
 
     # Removing centroids that are close to each other.
     def remove_false_centroids(self, clusters):
-
         centroids = []
 
         for centroid_number, centroid in clusters.centroids.items():
@@ -185,7 +182,6 @@ class SliceBandSelector:
 
     # Keep trying to find binds with a certain deviation until a sufficient amount has been found.
     def possible_bands(self, sorted_centroids):
-
         possible_bands = self.identify_possible_bands(sorted_centroids, 0.1)
 
         if len(possible_bands) < 5:
