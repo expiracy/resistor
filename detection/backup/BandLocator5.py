@@ -81,7 +81,7 @@ class BandLocator:
 
             print(str(brg))
 
-            color = matcher.find(brg)
+            color = matcher.main(brg)
 
             colors.append(color)
 
@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     contours, _ = canny_image.contours()
 
-    band_locator = SliceBandFinder(contours)
+    band_locator = SliceBandsFinder(contours)
 
     band_locator.remove_background(resized_image.image)
 
@@ -327,7 +327,7 @@ if __name__ == "__main__":
 
     monochrome_image = blurred_image.monochrome(inverted=True)
 
-    contours = SliceBandFinder.create().scan(monochrome_image).select(7, 1).boxes()
+    contours = SliceBandsFinder.create().scan(monochrome_image).select(7, 1).boxes()
 
     contour_image = contours.draw(image)
 

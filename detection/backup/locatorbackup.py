@@ -8,7 +8,7 @@ from detection.BoundingRectangle import BoundingRectangle
 import numpy as np
 
 from detection.Image import Image
-from detection.SliceBandFinder import SliceBandFinder
+from detection.SliceBandsFinder import SliceBandsFinder
 from detection.Greyscale import Greyscale
 from detection.Annotation import Annotation
 from detection.BGR import BGR

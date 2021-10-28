@@ -6,28 +6,28 @@ class Line:
         self.constant = None
 
     # Make a line from 2 points.
-    def from_points(self, start_point, end_point):
+    def from_points(self, point_1, point_2):
         line = Line()
 
-        line.gradient = self.find_gradient(start_point, end_point)
-        line.constant = start_point[1] - line.gradient * start_point[0]
+        line.gradient = self.find_gradient(point_1, point_2)
+        line.constant = point_1[1] - line.gradient * point_1[0]
 
         return line
 
     # Make a line from a point and a gradient.
-    def from_gradient(self, gradient, start_point):
+    def from_gradient(self, gradient, point):
         line = Line()
 
         line.gradient = gradient
-        line.constant = start_point[1] - line.gradient * start_point[0]
+        line.constant = point[1] - line.gradient * point[0]
 
         return line
 
     # Find the gradient of a line from 2 points.
-    def find_gradient(self, start_point, end_point):
+    def find_gradient(self, point_1, point_2):
         try:
-            dx = (end_point[0] - start_point[0])
-            dy = (end_point[1] - start_point[1])
+            dx = (point_2[0] - point_1[0])
+            dy = (point_2[1] - point_1[1])
 
             gradient = dy / dx
 
@@ -101,10 +101,10 @@ class Line:
     # Finds the knee of data.
     def find_knee(self, points):
         try:
-            start_point = points[0]
-            end_point = points[len(points) - 1]
+            point_1 = points[0]
+            point_2 = points[len(points) - 1]
 
-            spine = self.from_points(start_point, end_point)
+            spine = self.from_points(point_1, point_2)
 
             intersection_distances = []
 

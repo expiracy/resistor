@@ -56,9 +56,9 @@ class GlareRemover:
 
         return glare_clusters
 
-    # Change the pixels to 0 if its closest centroid identified as a glare cluster.
-    def remove_clusters(self, cluster, glare_clusters):
-        cluster_labels = cluster.labels_
+    # Change the pixels to 0 if its closest centroid identified as a glare clusters.
+    def remove_clusters(self, clusters, glare_clusters):
+        cluster_labels = clusters.labels_
 
         cluster_labels = cluster_labels.reshape(self.image.height(), self.image.width())
 

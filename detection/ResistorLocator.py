@@ -49,7 +49,7 @@ class ResistorLocator:
 
         knee = Line().find_knee(points)
 
-        safe_knee = knee + 2
+        safe_knee = knee + 3
 
         return safe_knee
 

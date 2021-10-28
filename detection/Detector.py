@@ -1,5 +1,5 @@
 from detection.ResistorLocator import ResistorLocator
-from detection.SliceBandFinder import SliceBandFinder
+from detection.SliceBandsFinder import SliceBandsFinder
 from detection.Image import Image
 from detection.Resistor import Resistor
 from detection.BandIdentifier import BandIdentifier
@@ -27,7 +27,7 @@ class Detector:
 
             if resistor_image:
 
-                slice_bands = SliceBandFinder(resistor_image.clone()).find()
+                slice_bands = SliceBandsFinder(resistor_image.clone()).main()
 
                 possible_bands, number_of_bands = SliceBandSelector(slice_bands).find_possible_bands()
 

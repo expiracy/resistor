@@ -20,6 +20,8 @@ var current_type_pressed = 6;
 // locked status
 var resistor_type_lock = false
 
+var valid = false
+
 // simulate button click
 function clickButton(element_id) {
     document.getElementById(element_id).click();
@@ -58,6 +60,27 @@ function base64ToBlob(base_64_data, content_type) {
     return new Blob(byte_arrays, { type: content_type });
 }
 
+function validateResistor() {
+    let form = new FormData();
+    let xhr = new XMLHttpRequest();
+
+    // posting the values to flask
+    form.append("resistor_bands", JSON.stringify(resistor_bands))
+    xhr.open('post', '/api/validate', true);
+    xhr.send(form);
+
+    // responses to the ajax post
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+
+            // change back to global if it doesn't work
+            let response = JSON.parse(xhr.responseText)
+            valid = response['valid'];
+            outputValid()
+        }
+    }
+}
+
 function uploadAndResponse(file, resistor_type_lock) {
 
     // creating variables for ajax
@@ -70,7 +93,7 @@ function uploadAndResponse(file, resistor_type_lock) {
 
     // posting the values to flask
     form.append('file', file);
-    xhr.open('post', '/api', true);
+    xhr.open('post', '/api/detect', true);
     xhr.send(form);
 
     // responses to the ajax post
@@ -83,6 +106,9 @@ function uploadAndResponse(file, resistor_type_lock) {
             let resistor_bands = resistor['colours'];
             let number_of_bands = resistor['type'];
             let resistor_image_byte_stream = resistor['image'];
+            valid = resistor['valid'];
+
+            outputValid()
 
             console.log('COLOURS: ' + resistor_bands)
             console.log('BANDS: ' + number_of_bands)
@@ -217,6 +243,9 @@ function bandButtonPress(band, colour) {
         resistor_bands[5] = colour
     }
 
+    validateResistor()
+    outputValid()
+
     outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 }
 
@@ -317,6 +346,30 @@ function getTemperatureConstant(colour) {
     return temperature_constants[colour]
 }
 
+function shortenResistance(resistance) {
+    let suffix_magnitude = Math.floor(Math.floor(Math.log10(resistance), 1000) / 3);
+    resistance = +resistance.toFixed(5);
+
+    let large_suffixes = {
+        0: '',
+        1: 'K',
+        2: 'M',
+        3: 'G',
+        4: 'T',
+        5: 'P',
+    }
+
+    if (resistance > 0) {
+        let suffix = large_suffixes[suffix_magnitude];
+        let mantissa = resistance / 10 ** (suffix_magnitude * 3);
+        return mantissa.toString() + suffix;
+    }
+
+    else {
+        return resistance
+    }
+
+}
 
 function processResistor(band_1, band_2, band_3, band_4, band_5, band_6) {
     resistor_bands = [band_1, band_2, band_3, band_4, band_5, band_6]
@@ -327,6 +380,8 @@ function processResistor(band_1, band_2, band_3, band_4, band_5, band_6) {
     let temperature_constant = getTemperatureConstant(band_6);
 
     let resistance = digits * multiplier;
+
+    resistance = shortenResistance(resistance)
 
     return {'resistance':resistance, 'tolerance':tolerance, 'temperature_constant':temperature_constant}
 }
@@ -409,6 +464,15 @@ function deselectColumns() {
 
     // recalculating the resistance after a column is deselected
     outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
+}
+
+function outputValid() {
+    if (valid === true) {
+        document.getElementById('valid').innerText = '✔';
+    }
+    else {
+        document.getElementById('valid').innerText = '⨉';
+    }
 }
 
 function outputResistorValues(resistor_values) {

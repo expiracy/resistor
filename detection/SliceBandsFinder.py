@@ -7,7 +7,7 @@ from detection.HSVRanges import HSVRanges
 from detection.SliceBand import SliceBand
 
 
-class SliceBandFinder:
+class SliceBandsFinder:
     def __init__(self, image):
         self.image = image
 
@@ -23,7 +23,7 @@ class SliceBandFinder:
 
     # Returns a mask for the specified colour on an image slice.
     def band_mask(self, colour, image_slice):
-        hsv_ranges = HSVRanges().hsv_ranges(colour)
+        hsv_ranges = HSVRanges().for_colour(colour)
 
         hsv_image = HSV(image_slice.image, 'BGR')
 
@@ -67,7 +67,7 @@ class SliceBandFinder:
         return bands
 
     # Finds all the bands for all slices.
-    def find(self):
+    def main(self):
         try:
             self.image = self.image.resize(self.image.width(), self.image.height() * 20)
 
@@ -91,7 +91,7 @@ class SliceBandFinder:
             return slice_bands
 
         except ValueError:
-            print("Error with SliceBandFinder.")
+            print("Error with SliceBandsFinder.")
 
 
 

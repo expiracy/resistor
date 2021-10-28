@@ -42,15 +42,15 @@ class SliceBandSelector:
 
     # Using K-means to find where there are clusters of X (locating the band).
     def find_x_cluster(self, x_list):
-        x_y_list = np.array([[x, 0] for x in x_list])
+        x_y_z_list = np.array([[x, 0, 0] for x in x_list])
 
         k_means = KMeans()
 
-        number_of_bands = k_means.find_optimal_number_of_clusters(x_y_list)
+        number_of_bands = k_means.find_optimal_number_of_clusters(x_y_z_list)
 
         if number_of_bands:
             k_means.number_of_centroids = number_of_bands
-            clusters = k_means.fit(x_y_list, k_means.initialize_centroids(x_y_list))
+            clusters = k_means.fit(x_y_z_list, k_means.initialize_centroids(x_y_z_list))
 
         else:
             max_list_length = len(max(self.bands_attributes()[0], key=len))
@@ -60,7 +60,7 @@ class SliceBandSelector:
 
             k_means_alternative = KMeans(max_list_length)
 
-            clusters = k_means_alternative.fit(x_y_list, k_means_alternative.initialize_centroids(x_y_list))
+            clusters = k_means_alternative.fit(x_y_z_list, k_means_alternative.initialize_centroids(x_y_z_list))
 
         return clusters, number_of_bands
 

@@ -12,8 +12,9 @@ class KMeans:
     def find_distance(self, point_1, point_2):
         dx_squared = (point_1[0] - point_2[0]) ** 2
         dy_squared = (point_1[1] - point_2[1]) ** 2
+        dz_squared = (point_1[2] - point_2[2]) ** 2
 
-        distance = np.sqrt(dx_squared + dy_squared)
+        distance = np.sqrt(dx_squared + dy_squared + dz_squared)
 
         return distance
 
@@ -32,8 +33,8 @@ class KMeans:
 
         return item_to_centroids_distances
 
-    # Finds the minimum inter-cluster distance.
-    def find_minimum_inter_cluster_distance(self):
+    # Finds the minimum inter-clusters distance.
+    def find_min_inter_cluster_distance(self):
         minimum_inter_cluster_distance = np.inf
 
         for _, centroid_1 in self.centroids.items():
@@ -46,8 +47,8 @@ class KMeans:
 
         return minimum_inter_cluster_distance
 
-    # Finds the maximum intra-cluster distance.
-    def find_maximum_intra_cluster_distance(self, data_grouped_by_label):
+    # Finds the maximum intra-clusters distance.
+    def find_max_intra_cluster_distance(self, data_grouped_by_label):
         maximum_intra_cluster_distance = -np.inf
 
         for centroid_number, data in data_grouped_by_label.items():
@@ -72,9 +73,9 @@ class KMeans:
 
             data_grouped_by_label = self.group_data_by_label(data)
 
-            maximum_intra_cluster_distance = self.find_maximum_intra_cluster_distance(data_grouped_by_label)
+            maximum_intra_cluster_distance = self.find_max_intra_cluster_distance(data_grouped_by_label)
 
-            minimum_inter_cluster_distance = self.find_minimum_inter_cluster_distance()
+            minimum_inter_cluster_distance = self.find_min_inter_cluster_distance()
 
             dunn_index = minimum_inter_cluster_distance / maximum_intra_cluster_distance
 
@@ -123,7 +124,7 @@ class KMeans:
             for _, intra_cluster_distances in intra_cluster_distances_for_centroids.items():
                 distances_from_centroids.append(intra_cluster_distances[item_index])
 
-            self.labels.append(distances_from_centroids.index(min(distances_from_centroids)) + 1)
+            self.labels.append(np.argmin(distances_from_centroids) + 1)
 
     # Grouping the data by the labels.
     def group_data_by_label(self, data):
@@ -144,19 +145,22 @@ class KMeans:
         for centroid_number in range(1, len(data_grouped_by_label) + 1):
             x_total = 0
             y_total = 0
+            z_total = 0
 
             for item in data_grouped_by_label[centroid_number]:
                 x_total += item[0]
                 y_total += item[1]
+                z_total += item[2]
 
             number_of_items = len(data_grouped_by_label[centroid_number])
 
             x_mean = x_total / number_of_items
             y_mean = y_total / number_of_items
+            z_mean = z_total / number_of_items
 
-            self.centroids[centroid_number] = [x_mean, y_mean]
+            self.centroids[centroid_number] = [x_mean, y_mean, z_mean]
 
-    # Finding the intra-cluster distances for centroids.
+    # Finding the intra-clusters distances for centroids.
     def find_intra_cluster_distances_for_centroids(self, data, centroids):
         intra_cluster_distances_for_centroids = {}
 

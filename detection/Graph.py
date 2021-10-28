@@ -16,7 +16,6 @@ class Graph:
 
         plt.plot(x_spine, y_spine, label="spine")
 
-
         plt.xlabel(x_label)
 
         plt.ylabel(y_label)
