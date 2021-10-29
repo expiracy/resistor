@@ -91,6 +91,7 @@ function validateResistor() {
     }
 }
 
+// outputting errors to a banner for the user to see
 function outputError() {
     var error_banner = document.getElementById('error-banner');
     var error_banner_content = document.getElementById('error-banner-content');
@@ -112,6 +113,7 @@ function outputError() {
     }
 }
 
+// closing the banner if the banner close button is clicked
 function close_banner() {
     var error_banner = document.getElementById('error-banner');
 
