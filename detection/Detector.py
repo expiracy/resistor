@@ -11,7 +11,7 @@ class Detector:
         self.image = None
         self.resistor = None
 
-    # Detects the resistor colours from an image.
+    # Detects the resistor bands from an image.
     def detect(self, location):
         try:
             self.image = Image().load(location)
@@ -29,16 +29,16 @@ class Detector:
 
                 slice_bands = SliceBandsFinder(resistor_image.clone()).main()
 
-                possible_bands, number_of_bands = SliceBandSelector(slice_bands).find_possible_bands()
+                possible_bands = SliceBandSelector(slice_bands).find_possible_bands()
 
-                resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands(number_of_bands)
+                resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands()
 
                 self.resistor = Resistor(resistor_bands).main()
 
                 return self.resistor, resistor_image
 
             else:
-                self.resistor.bands = ['BLACK', 'BLACK', 'BLACK', 'BLACK', 'BLACK', 'BLACK']
+                self.resistor.bands = [None, None, None, None, None, None]
 
                 return self.resistor, self.image
 

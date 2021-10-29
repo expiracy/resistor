@@ -5,7 +5,7 @@ class HSVRanges:
     def __init__(self):
         pass
 
-    # The HSV ranges for all the resistor colours.
+    # The HSV ranges for all the resistor bands.
     def for_colour(self, colour):
         h_ranges = {
             'BLACK': [0, 255],

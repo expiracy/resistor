@@ -26,41 +26,41 @@ class Resistor:
         else:
             return 6
 
-    # Returns the formatted colours for the resistor.
+    # Returns the formatted bands for the resistor.
     def colours(self):
         type = self.type()
 
         if type == 3:
-            colours = [self.bands[0], self.bands[1], None, self.bands[2], None, None]
+            colours = [self.bands[0].colour, self.bands[1].colour, None, self.bands[2].colour, None, None]
 
         elif type == 4:
-            colours = [self.bands[0], self.bands[1], None, self.bands[2],
-                       self.bands[3], None]
+            colours = [self.bands[0].colour, self.bands[1].colour, None, self.bands[2].colour,
+                       self.bands[3].colour, None]
 
         elif type == 5:
-            colours = [self.bands[0], self.bands[1], self.bands[2], self.bands[3],
-                       self.bands[4], None]
+            colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
+                       self.bands[4].colour, None]
 
         elif type == 6:
-            colours = [self.bands[0], self.bands[1], self.bands[2], self.bands[3],
-                       self.bands[4], self.bands[5]]
+            colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
+                       self.bands[4].colour, self.bands[5].colour]
         else:
             colours = [None, None, None, None, None, None]
 
         return colours
 
-    # Gets the digit band colours.
-    def get_digit_band_colours(self, colours):
+    # Gets the digit band bands.
+    def get_digit_band_colours(self, bands):
         digit_band_colours = []
 
-        if colours:
+        if bands:
             for index in range(3):
-                if colours[index] is not None:
-                    digit_band_colours.append(colours[index])
+                if bands[index] is not None:
+                    digit_band_colours.append(bands[index])
 
             return digit_band_colours
 
-    # Checks if the resistor digit band colours are in the standard values database.
+    # Checks if the resistor digit band bands are in the standard values database.
     def check_valid(self):
         digit_band_colours = self.get_digit_band_colours(self.colours())
 
@@ -103,7 +103,6 @@ class Resistor:
 
                 return self
 
-        except ValueError:
+        except Exception as E:
             print("Error with Resistor.")
-
-            return self
+            print(E)

@@ -38,7 +38,7 @@ class SliceBandsFinder:
         colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
                    'SILVER']
 
-        bands = []
+        slice_bands = []
 
         for colour in colours:
 
@@ -60,11 +60,11 @@ class SliceBandsFinder:
 
                     if not edge_band:
 
-                        band = SliceBand(colour, bounding_rectangle)
+                        slice_band = SliceBand(colour, bounding_rectangle)
 
-                        bands.append(band)
+                        slice_bands.append(slice_band)
 
-        return bands
+        return slice_bands
 
     # Finds all the bands for all slices.
     def main(self):

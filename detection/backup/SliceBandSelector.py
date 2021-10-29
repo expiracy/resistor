@@ -1,6 +1,7 @@
 import numpy as np
 from detection.KMeans import KMeans
 from detection.MergeSort import MergeSort
+from detection.ResistorBand import ResistorBand
 
 
 class SliceBandSelector:
@@ -51,86 +52,147 @@ class SliceBandSelector:
 
         number_of_bands = k_means.find_optimal_number_of_clusters(x_y_z_list)
 
-        if number_of_bands > 6 or None:
-            number_of_bands = 4
+        if number_of_bands:
+            k_means.number_of_centroids = number_of_bands
+            clusters = k_means.fit(x_y_z_list, k_means.initialize_centroids(x_y_z_list))
 
-        k_means.number_of_centroids = number_of_bands
-        clusters = k_means.fit(x_y_z_list, k_means.initialize_centroids(x_y_z_list))
+        else:
+            max_list_length = len(max(self.bands_attributes()[0], key=len))
+
+            if max_list_length > 6:
+                max_list_length = 6
+
+            k_means_alternative = KMeans(max_list_length)
+
+            clusters = k_means_alternative.fit(x_y_z_list, k_means_alternative.initialize_centroids(x_y_z_list))
 
         return clusters, number_of_bands
 
+    def check_if_close(self, slice_band, previous_band, mean_spacing):
+
+        if slice_band.bounding_rectangle.x - mean_spacing * 0.5 < previous_band.bounding_rectangle.x < (
+                slice_band.bounding_rectangle.x + mean_spacing * 0.5):
+
+            return True
+
+        else:
+            return False
+
+    def find_mean_spacing(self, slice_number):
+        x_list = [slice_band.bounding_rectangle.x for slice_band in slice_number]
+
+        if len(x_list) > 1:
+
+            spacing = np.diff(x_list)
+            mean_spacing = np.mean(spacing)
+
+            return mean_spacing
+
+        else:
+            mean_spacing = 0
+
+            return mean_spacing
+
+    def remove_dupe_bands_from_slice_number(self, dupe_bands, slice_number):
+        previous_dupe_band = None
+
+        mean_spacing = self.find_mean_spacing(slice_number)
+
+        for dupe_band in dupe_bands:
+            if previous_dupe_band:
+
+                close = self.check_if_close(dupe_band, previous_dupe_band, mean_spacing)
+
+                if close:
+                    smaller_dupe_band = self.find_smaller_band(dupe_band, previous_dupe_band)
+
+                    if smaller_dupe_band in slice_number:
+
+                        slice_number.remove(smaller_dupe_band)
+
+            previous_dupe_band = dupe_band
+
+        return self
+
     # Removing duplicate bands from the slice bands.
-    def identify_dupes(self):
+    def remove_dupes(self):
         # if 2 x coordinates are less than 0.3x the mean difference away from each other, assume it is a duplicate band
-        for slice_number in self.slice_bands[:]:
+        for slice_number in self.slice_bands:
 
-            x_list = [slice_band.bounding_rectangle.x for slice_band in slice_number]
-
-            if len(x_list) > 1:
-
-                differences = np.diff(x_list)
-                mean_difference = np.mean(differences)
-
-            else:
-                mean_difference = 0
+            mean_spacing = self.find_mean_spacing(slice_number)
 
             previous_band = None
 
             for slice_band in slice_number[:]:
 
                 if previous_band:
-                    difference = slice_band.bounding_rectangle.x - previous_band.bounding_rectangle.x
+                    close = self.check_if_close(slice_band, previous_band, mean_spacing)
 
-                    if difference < mean_difference * 0.3:
+                    if close:
                         slice_band.dupe = True
                         previous_band.dupe = True
 
                 previous_band = slice_band
 
+            dupe_bands = [slice_band for slice_band in slice_number if slice_band.dupe is True]
+
+            if dupe_bands:
+                self.remove_dupe_bands_from_slice_number(dupe_bands, slice_number)
+
+        return self
+
     # Select the biggest dupe band as it is more likely to be the correct band.
-    def keep_biggest_dupe_band(self):
-        for slice_number in self.slice_bands:
+    def find_smaller_band(self, slice_band_1, slice_band_2):
+        slice_band_1_area = slice_band_1.bounding_rectangle.width * slice_band_1.bounding_rectangle.height
+        slice_band_2_area = slice_band_2.bounding_rectangle.width * slice_band_2.bounding_rectangle.height
 
-            areas = [slice_band.bounding_rectangle.width * slice_band.bounding_rectangle.height
-                     for slice_band in slice_number if slice_band.dupe is True]
+        if slice_band_1_area == slice_band_2_area:
+            slice_band_1.dupe = False
+            return slice_band_2
 
-            if areas:
-                # I am assuming that the best colour match is the best band
-                biggest_area = max(areas)
-                biggest_area_index = areas.index(biggest_area)
+        elif slice_band_1_area > slice_band_2_area:
+            slice_band_1.dupe = False
+            return slice_band_2
 
-                for slice_band in slice_number:
-                    if slice_band.dupe is True:
-                        if slice_number.index(slice_band) != biggest_area_index:
-                            slice_number.remove(slice_band)
-
-    def find_mean_difference(self, list):
-        differences = np.diff(list)
-        mean_difference = np.mean(differences)
-
-        return mean_difference
+        else:
+            slice_band_2.dupe = False
+            return slice_band_1
 
     # Identifying the slice bands that match up with the x centroids.
     def identify_possible_bands(self, sorted_centroids, deviation):
-        possible_bands = {}
-
-        for possible_band in range(len(sorted_centroids)):
-            possible_bands[possible_band] = []
-
-        mean_centroid_difference = self.find_mean_difference(sorted_centroids)
+        possible_bands = []
 
         for slice_number in self.slice_bands:
-            for band_number, centroid in enumerate(sorted_centroids):
+
+            slice_colours = []
+
+            if len(sorted_centroids) == len(slice_number):
+                stop = "epic"
+
                 for slice_band in slice_number:
-                    centroid_band_difference = abs(slice_band.bounding_rectangle.x - centroid)
-                    if centroid_band_difference < mean_centroid_difference * deviation:
-                        possible_bands[band_number].append(slice_band.colour)
+
+                    slice_band_x_list = [slice_band.bounding_rectangle.x] * len(sorted_centroids)
+
+                    differences = np.subtract(sorted_centroids, slice_band_x_list)
+
+                    abs_differences = [abs(difference) for difference in differences]
+
+                    smallest_difference_index = np.argmin(abs_differences)
+
+                    nearest_centroid = sorted_centroids[smallest_difference_index]
+
+                    if (nearest_centroid - (nearest_centroid * deviation)) < slice_band.bounding_rectangle.x < (
+                            nearest_centroid + (nearest_centroid * deviation)):
+
+                        slice_colours.append(slice_band.colour)
+
+                if len(slice_colours) == len(sorted_centroids):
+                    possible_bands.append(slice_colours)
 
         return possible_bands
 
     # Remove bands that are within bands by removing bands within a certain range of x values.
     def remove_bands_in_bands(self):
-
         for slice_number_1 in self.slice_bands:
             for slice_number_2 in self.slice_bands:
 
@@ -152,7 +214,9 @@ class SliceBandSelector:
 
         sorted_centroids = MergeSort().sort(centroids)
 
-        mean_difference = self.find_mean_difference(sorted_centroids)
+        differences = np.diff(sorted_centroids)
+
+        mean_difference = np.mean(differences)
 
         previous_centroid = None
 
@@ -199,9 +263,10 @@ class SliceBandSelector:
 
                 if slice_band.bounding_rectangle.height < (
                         resistor_height * 0.5) or slice_band.bounding_rectangle.width < (mean_band_width * 0.8):
-
                     slice_number_index = self.slice_bands.index(slice_number)
                     self.slice_bands[slice_number_index].remove(slice_band)
+
+            return self
 
     # Identifying the possible bands out of the slice bands by only keeping bands that meet certain criteria.
     def find_possible_bands(self):
@@ -210,8 +275,7 @@ class SliceBandSelector:
 
             self.order_bands()
 
-            self.identify_dupes()
-            self.keep_biggest_dupe_band()
+            self.remove_dupes()
 
             self.remove_bands_in_bands()
 
@@ -228,7 +292,7 @@ class SliceBandSelector:
             sorted_centroids = self.remove_false_centroids(clusters)
             possible_bands = self.possible_bands(sorted_centroids)
 
-            return possible_bands
+            return possible_bands, number_of_bands
 
         except Exception as E:
             print('Error with SliceBandSelector.')

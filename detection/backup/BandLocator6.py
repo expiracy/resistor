@@ -209,7 +209,7 @@ class BandLocator:
 
         #image = self.band_colours(no_glare_image)
 
-        colours = self.colours(no_glare_image, band_rectangles)
+        bands = self.bands(no_glare_image, band_rectangles)
 
         resized_image.show()
     '''

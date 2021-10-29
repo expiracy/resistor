@@ -122,7 +122,7 @@ function uploadAndResponse(file, resistor_type_lock) {
 
             drawFile(resistor_image_blob)
 
-            // selecting colours
+            // selecting bands
             let index = 0;
 
             for (; index < resistor_bands.length; index++) {
@@ -350,6 +350,8 @@ function shortenResistance(resistance) {
     let suffix_magnitude = Math.floor(Math.floor(Math.log10(resistance), 1000) / 3);
     resistance = +resistance.toFixed(5);
 
+    console.log(resistance)
+
     let large_suffixes = {
         0: '',
         1: 'K',
@@ -359,7 +361,7 @@ function shortenResistance(resistance) {
         5: 'P',
     }
 
-    if (resistance > 0) {
+    if (resistance > 1) {
         let suffix = large_suffixes[suffix_magnitude];
         let mantissa = resistance / 10 ** (suffix_magnitude * 3);
         return mantissa.toString() + suffix;

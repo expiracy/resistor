@@ -71,7 +71,7 @@ function uploadAndResponse(file, position) {
             // change back to global if it doesn't work
             let resistor = JSON.parse(xhr.responseText)
 
-            let resistor_bands = resistor['colours'];
+            let resistor_bands = resistor['bands'];
             let number_of_bands = resistor['type'];
 
             console.log(resistor)
@@ -81,7 +81,7 @@ function uploadAndResponse(file, position) {
             resistorType(number_of_bands)
             outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 
-            // selecting colours
+            // selecting bands
             let index = 0;
 
             for (; index < resistor_bands.length; index++) {
