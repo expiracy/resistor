@@ -14,7 +14,7 @@ class GlareRemover:
     def __init__(self, image):
         self.image = image
 
-    # Shows the colour clusters.
+    # Shows the colour clusters (for development only).
     def show_colour_clusters(self, colours):
         rectangle = np.zeros((50, 300, 3), dtype=np.uint8)
 

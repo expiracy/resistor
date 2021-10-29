@@ -30,9 +30,15 @@ def detect():
     location = f'{os.getcwd()}\\images\\{file.filename}'
 
     location = os.path.abspath(location)
+
     try:
         with open(location, 'wb') as target:
             file.save(target)
+
+    except Exception as E:
+        print(E)
+
+    try:
 
         resistor, resistor_image = Detector().detect(location)
 
@@ -41,22 +47,20 @@ def detect():
         resistor_image_byte_stream = resistor_image_byte_stream.decode('utf-8')
 
         resistor_colours = resistor.colours()
-        print(resistor_colours)
 
         if resistor_type is None:
             resistor_type = resistor.type()
 
-        return jsonify(colours=resistor_colours, type=resistor_type, image=resistor_image_byte_stream, valid=resistor.valid)
+        return jsonify(colours=resistor_colours, type=resistor_type, image=resistor_image_byte_stream, valid=resistor.valid, error='')
 
-    except Exception as E:
-        print(E)
-
+    except:
+        error = 'Unable to find resistor in the input image. Try again with flash and a resistor against a white background.'
         colours = [None, None, None, None, None, None]
 
         if resistor_type is None:
             resistor_type = 6
 
-        return jsonify(colours=colours, type=resistor_type, image=None, valid=False)
+        return jsonify(colours=colours, type=resistor_type, image=None, valid=False, error=error)
 
 
 @app.route('/api/validate', methods=['POST'])

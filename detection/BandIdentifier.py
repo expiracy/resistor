@@ -18,6 +18,7 @@ class BandIdentifier:
 
         return resistor_band_colours
 
+    # Create instances of ResistorBand, that are to make up Resistor.
     def create_resistor_bands(self, resistor_band_colours):
 
         resistor_bands = []
@@ -41,5 +42,6 @@ class BandIdentifier:
             return resistor_bands
 
         except Exception as E:
-            print('Error with BandIdentifier.')
             print(E)
+
+            return None

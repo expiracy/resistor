@@ -21,6 +21,7 @@ var current_type_pressed = 6;
 var resistor_type_lock = false
 
 var valid = false
+var error_message = ''
 
 // simulate button click
 function clickButton(element_id) {
@@ -64,20 +65,58 @@ function validateResistor() {
     let form = new FormData();
     let xhr = new XMLHttpRequest();
 
-    // posting the values to flask
-    form.append("resistor_bands", JSON.stringify(resistor_bands))
-    xhr.open('post', '/api/validate', true);
-    xhr.send(form);
+    try {
+        // posting the values to flask
+        form.append('resistor_bands', JSON.stringify(resistor_bands))
+        xhr.open('post', '/api/validate', true);
+        xhr.send(form);
 
-    // responses to the ajax post
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
 
-            // change back to global if it doesn't work
-            let response = JSON.parse(xhr.responseText)
-            valid = response['valid'];
-            outputValid()
+        // responses to the ajax post
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+
+                // change back to global if it doesn't work
+                let response = JSON.parse(xhr.responseText)
+                valid = response['valid'];
+                outputValid()
+            }
         }
+    }
+
+    catch {
+        let error = 'Cannot validate result: cannot connect to webserver.'
+        console.log(error)
+        error_message = error
+    }
+}
+
+function outputError() {
+    var error_banner = document.getElementById('error-banner');
+    var error_banner_content = document.getElementById('error-banner-content');
+
+    if (error_message !== '') {
+        if (error_banner.classList.contains('hide_banner')) {
+            error_banner.classList.remove('hide_banner')
+        }
+
+        error_banner_content.innerText = error_message
+    }
+
+    else {
+
+        if (!(error_banner.classList.contains('hide_banner'))) {
+            error_banner.classList.add('hide_banner')
+
+        }
+    }
+}
+
+function close_banner() {
+    var error_banner = document.getElementById('error-banner');
+
+    if (!(error_banner.classList.contains('hide_banner'))) {
+            error_banner.classList.add('hide_banner')
     }
 }
 
@@ -105,10 +144,13 @@ function uploadAndResponse(file, resistor_type_lock) {
 
             let resistor_bands = resistor['colours'];
             let number_of_bands = resistor['type'];
+
             let resistor_image_byte_stream = resistor['image'];
             valid = resistor['valid'];
+            error_message = resistor['error'];
 
             outputValid()
+            outputError()
 
             console.log('COLOURS: ' + resistor_bands)
             console.log('BANDS: ' + number_of_bands)
@@ -117,10 +159,12 @@ function uploadAndResponse(file, resistor_type_lock) {
             resistorType(number_of_bands)
             outputResistorValues(processResistor(resistor_bands[0], resistor_bands[1], resistor_bands[2], resistor_bands[3], resistor_bands[4], resistor_bands[5]))
 
-            // displaying resistor image
-            let resistor_image_blob = base64ToBlob(resistor_image_byte_stream, 'image/jpeg')
+            if (resistor_image_byte_stream !== null) {
+                // displaying resistor image
+                let resistor_image_blob = base64ToBlob(resistor_image_byte_stream, 'image/jpeg')
 
-            drawFile(resistor_image_blob)
+                drawFile(resistor_image_blob)
+            }
 
             // selecting bands
             let index = 0;
@@ -130,6 +174,7 @@ function uploadAndResponse(file, resistor_type_lock) {
             }
         }
     }
+
 }
 
 function calculateHeight() {
@@ -166,7 +211,7 @@ function stopSelected(element_id) {
         document.getElementById(element_id).classList.remove('add_selected');
     }
     catch {
-        console.log("Error deselecting button (maybe button doesn't exist).")
+        console.log('Error deselecting button (maybe button does not exist).')
     }
 }
 
@@ -176,7 +221,7 @@ function addSelected(element_id) {
         document.getElementById(element_id).classList.add('add_selected');
     }
     catch {
-        console.log("Specified element id does not exist.")
+        console.log('Specified element id does not exist.')
     }
 }
 
@@ -455,7 +500,7 @@ function deselectColumns() {
                 document.getElementById(element_id).classList.remove('add_selected');
             }
             catch {
-                console.log("Deselected a button that doesn't exist.")
+                console.log('Deselected a button that does not exist.')
             }
         }
     }

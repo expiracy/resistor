@@ -181,7 +181,6 @@ class KMeans:
         inter_cluster_distances = []
 
         for centroid_number in range(1, self.number_of_centroids + 1):
-
             inter_cluster_distance = np.subtract(self.centroids[centroid_number], centroids[centroid_number])
 
             inter_cluster_distance_sum = np.sum(inter_cluster_distance)
@@ -223,6 +222,5 @@ class KMeans:
             else:
                 return self
 
-        except Exception as E:
-            print('Error with K value.')
-            print(E)
+        except:
+            pass

@@ -82,7 +82,7 @@ class ResistorLocator:
 
         return resistor_body_contour
 
-    # From https://jdhao.github.io/2019/02/23/crop_rotated_rectangle_opencv/
+    # Extracts the resistor from a rectanglef9
     def extract_resistor(self, rectangle):
         box = cv2.boxPoints(rectangle)
         box = np.int0(box)

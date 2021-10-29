@@ -90,7 +90,7 @@ class SliceBandsFinder:
 
             return slice_bands
 
-        except ValueError:
+        except:
             print("Error with SliceBandsFinder.")
 
 

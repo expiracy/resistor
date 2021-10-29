@@ -9,7 +9,7 @@ class SliceBandSelector:
 
     # Ordering the bands based on the bounding box X coordinate.
     def order_bands(self, reverse=False):
-        slices_x_lists = self.bands_attributes()[0]
+        slices_x_lists = self.get_bands_attributes()[0]
 
         for index, slice_x_list in enumerate(slices_x_lists):
             sorted_slice_x_list = MergeSort().sort(slice_x_list, reverse=reverse)
@@ -27,7 +27,7 @@ class SliceBandSelector:
             self.slice_bands[index] = sorted_slice_bands
 
     # Returns list(s) of a certain attribute(s) from the slice bands.
-    def bands_attributes(self):
+    def get_bands_attributes(self):
         slices_x_lists = []
         slices_y_lists = []
         slices_widths = []
@@ -68,8 +68,7 @@ class SliceBandSelector:
 
             if len(x_list) > 1:
 
-                differences = np.diff(x_list)
-                mean_difference = np.mean(differences)
+                mean_difference = self.find_mean_difference(x_list)
 
             else:
                 mean_difference = 0
@@ -104,6 +103,7 @@ class SliceBandSelector:
                         if slice_number.index(slice_band) != biggest_area_index:
                             slice_number.remove(slice_band)
 
+    # Finds the mean difference for a list.
     def find_mean_difference(self, list):
         differences = np.diff(list)
         mean_difference = np.mean(differences)
@@ -219,7 +219,7 @@ class SliceBandSelector:
 
             x_list = []
 
-            for slice_number in self.bands_attributes()[0]:
+            for slice_number in self.get_bands_attributes()[0]:
                 for x in slice_number:
                     x_list.append(x)
 

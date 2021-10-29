@@ -14,7 +14,7 @@ class Contours:
 
         return biggest_contour
 
-    # Sorts contours based on their are.
+    # Sorts contours based on their areas.
     def sort(self):
         contour_areas = []
         area_for_contour = {}
