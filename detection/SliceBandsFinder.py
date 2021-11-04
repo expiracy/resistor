@@ -13,58 +13,69 @@ class SliceBandsFinder:
 
     # Check if the band is right at the edge of the image.
     def check_if_edge_band(self, bounding_rectangle):
-        image_width = self.image.width()
+        try:
+            image_width = self.image.width()
 
-        if bounding_rectangle.x == 0 or bounding_rectangle.x == image_width:
-            return True
+            if bounding_rectangle.x == 0 or bounding_rectangle.x == image_width:
+                return True
 
-        else:
-            return False
+            else:
+                return False
+
+        except:
+            raise Exception("Error checking edge band, bounding rectangle is None")
 
     # Returns a mask for the specified colour on an image slice.
     def band_mask(self, colour, image_slice):
-        hsv_ranges = HSVRanges().for_colour(colour)
+        try:
+            hsv_ranges = HSVRanges().for_colour(colour)
 
-        hsv_image = HSV(image_slice.image, 'BGR')
+            hsv_image = HSV(image_slice.image, 'BGR')
 
-        colour_mask = hsv_image.mask(hsv_ranges)
+            colour_mask = hsv_image.mask(hsv_ranges)
 
-        greyscale_mask_image = Greyscale(colour_mask, 'HSV')
+            greyscale_mask_image = Greyscale(colour_mask, 'HSV')
 
-        return greyscale_mask_image
+            return greyscale_mask_image
+
+        except:
+            raise Exception(f"Error trying to mask colour {colour}")
 
     # Finds the bands.
     def find_bands(self, image_slice):
-        colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
-                   'SILVER']
+        try:
+            colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
+                       'SILVER']
 
-        slice_bands = []
+            slice_bands = []
 
-        for colour in colours:
+            for colour in colours:
 
-            greyscale_mask_image = self.band_mask(colour, image_slice)
+                greyscale_mask_image = self.band_mask(colour, image_slice)
 
-            non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
+                non_zero_pixels = greyscale_mask_image.count_non_zero_pixels()
 
-            band_contours = None
+                band_contours = None
 
-            if non_zero_pixels != 0:
-                band_contours, _ = greyscale_mask_image.find_contours()
+                if non_zero_pixels != 0:
+                    band_contours, _ = greyscale_mask_image.find_contours()
 
-            if band_contours is not None:
+                if band_contours is not None:
 
-                for contour in band_contours:
-                    bounding_rectangle = BoundingRectangle(contour)
+                    for contour in band_contours:
+                        bounding_rectangle = BoundingRectangle(contour)
 
-                    edge_band = self.check_if_edge_band(bounding_rectangle)
+                        edge_band = self.check_if_edge_band(bounding_rectangle)
 
-                    if not edge_band:
+                        if not edge_band:
+                            slice_band = SliceBand(colour, bounding_rectangle)
 
-                        slice_band = SliceBand(colour, bounding_rectangle)
+                            slice_bands.append(slice_band)
 
-                        slice_bands.append(slice_band)
+            return slice_bands
 
-        return slice_bands
+        except:
+            raise Exception("Error trying to find bands for image slice")
 
     # Finds all the bands for all slices.
     def main(self):
@@ -84,14 +95,11 @@ class SliceBandsFinder:
             for image_slice in image_slices:
                 bands_for_slice = self.find_bands(image_slice)
 
-                #image_slice.show()
+                # image_slice.show()
 
                 slice_bands.append(bands_for_slice)
 
             return slice_bands
 
-        except:
-            print("Error with SliceBandsFinder.")
-
-
-
+        except Exception as error:
+            raise Exception(f"Error finding slice bands {error}")

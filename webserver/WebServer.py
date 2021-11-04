@@ -1,7 +1,9 @@
-import os.path
 import json
-from flask import Flask, request, render_template, jsonify
+import os.path
 from os.path import join, dirname, realpath
+
+from flask import Flask, request, render_template, jsonify
+
 from detection.Detector import Detector
 from detection.Resistor import Resistor
 from detection.ResistorBand import ResistorBand
@@ -27,18 +29,13 @@ def detect():
     if request.values:
         resistor_type = request.values['type']
 
-    location = f'{os.getcwd()}\\images\\{file.filename}'
-
-    location = os.path.abspath(location)
+    location = f'{os.getcwd()}\\data\\images\\{file.filename}'
 
     try:
+
         with open(location, 'wb') as target:
             file.save(target)
 
-    except Exception as E:
-        print(E)
-
-    try:
 
         resistor, resistor_image = Detector().detect(location)
 
@@ -51,16 +48,18 @@ def detect():
         if resistor_type is None:
             resistor_type = resistor.type()
 
-        return jsonify(colours=resistor_colours, type=resistor_type, image=resistor_image_byte_stream, valid=resistor.valid, error='')
+        return jsonify(colours=resistor_colours, type=resistor_type, image=resistor_image_byte_stream,
+                       valid=resistor.valid, error='')
 
-    except:
-        error = 'Unable to find resistor in the input image. Try again with flash and a resistor against a white background.'
+    except Exception as error:
+        print(error)
+
         colours = [None, None, None, None, None, None]
 
         if resistor_type is None:
             resistor_type = 6
 
-        return jsonify(colours=colours, type=resistor_type, image=None, valid=False, error=error)
+        return jsonify(colours=colours, type=resistor_type, image=None, valid=False, error=str(error))
 
 
 @app.route('/api/validate', methods=['POST'])

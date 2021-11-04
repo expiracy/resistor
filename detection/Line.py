@@ -7,21 +7,29 @@ class Line:
 
     # Make a line from 2 points.
     def from_points(self, point_1, point_2):
-        line = Line()
+        try:
+            line = Line()
 
-        line.gradient = self.find_gradient(point_1, point_2)
-        line.constant = point_1[1] - line.gradient * point_1[0]
+            line.gradient = self.find_gradient(point_1, point_2)
+            line.constant = point_1[1] - line.gradient * point_1[0]
 
-        return line
+            return line
+
+        except:
+            raise Exception(f"Could not create line from points: {point_1} and {point_2}")
 
     # Make a line from a point and a gradient.
     def from_gradient(self, gradient, point):
-        line = Line()
+        try:
+            line = Line()
 
-        line.gradient = gradient
-        line.constant = point[1] - line.gradient * point[0]
+            line.gradient = gradient
+            line.constant = point[1] - line.gradient * point[0]
 
-        return line
+            return line
+
+        except:
+            raise Exception(f"Could not create line from gradient: {gradient} and point: {point}")
 
     # Find the gradient of a line from 2 points.
     def find_gradient(self, point_1, point_2):
@@ -66,9 +74,8 @@ class Line:
         try:
             return -1 / self.gradient
 
-        except Exception as E:
+        except:
             print('Line has no gradient.')
-            print(E)
 
     # Finds the intersection of 2 lines.
     def find_intersection(self, line_2):
@@ -80,9 +87,8 @@ class Line:
 
             return intersection
 
-        except Exception as E:
-            print('Error finding intersection.')
-            print(E)
+        except:
+            raise Exception('Error finding intersection.')
 
     # Finds the length of 2 lines between 2 points.
     def length(self, point_1, point_2):
@@ -94,9 +100,8 @@ class Line:
 
             return distance
 
-        except Exception as E:
-            print('Error finding line length.')
-            print(E)
+        except:
+            raise Exception('Error finding line length.')
 
     # Finds the knee of data.
     def find_knee(self, points):
@@ -121,6 +126,5 @@ class Line:
 
             return knee
 
-        except Exception as E:
-            print('Error finding knee.')
-            print(E)
+        except Exception as error:
+            print(f'Error finding knee: {error}')

@@ -51,5 +51,22 @@ class MergeSort:
 
         return merged
 
+    def split(self, data):
+        middle_index = len(data) // 2
+
+        if len(data) <= 1:
+            return data
+
+        left = data[:middle_index]
+        right = data[middle_index:]
+
+        return left, right
+
+    def sorting(self, left, right=None):
+
+        while len(left) > 1:
+            pass
 
 
+if __name__ == "__main__":
+    MergeSort().split([38, 27, 43, 3, 9, 82, 10])

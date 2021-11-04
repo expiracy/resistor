@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-from detection.Greyscale import Greyscale
 from detection.Annotation import Annotation
-from detection.Line import Line
 from detection.Contours import Contours
+from detection.Greyscale import Greyscale
+from detection.Line import Line
 
 
 class ResistorLocator:
@@ -13,116 +13,123 @@ class ResistorLocator:
 
     # Finding the amount of erosion needed to remove the resistor wires.
     def find_erode_iterations(self, image, contours):
-        image = Greyscale(image.image)
+        try:
+            image = Greyscale(image.image)
 
-        biggest_initial_contour = Contours(contours).find_biggest()
+            biggest_initial_contour = Contours(contours).find_biggest()
 
-        biggest_initial_contour_area = cv2.contourArea(biggest_initial_contour)
+            biggest_initial_contour_area = cv2.contourArea(biggest_initial_contour)
 
-        squared_contour_areas = [biggest_initial_contour_area ** 2]
+            squared_contour_areas = [biggest_initial_contour_area ** 2]
 
-        empty_image = False
+            empty_image = False
 
-        while not empty_image:
+            while not empty_image:
 
-            eroded_image = image.erode(1)
+                eroded_image = image.erode(1)
 
-            if eroded_image.count_non_zero_pixels() != 0:
+                if eroded_image.count_non_zero_pixels() != 0:
 
-                #eroded_image.show()
+                    # eroded_image.show()
 
-                contours, _ = eroded_image.find_contours()
-                biggest_contour = Contours(contours).find_biggest()
+                    contours, _ = eroded_image.find_contours()
+                    biggest_contour = Contours(contours).find_biggest()
 
-                contour_area = cv2.contourArea(biggest_contour)
-                squared_contour_areas.append(contour_area ** 2)
+                    contour_area = cv2.contourArea(biggest_contour)
+                    squared_contour_areas.append(contour_area ** 2)
 
-            else:
-                empty_image = True
+                else:
+                    empty_image = True
 
-        #Graph().graph_x_against_y(range(0, len(squared_contour_areas)), squared_contour_areas, 'Erode Iteration', 'Squared Contour Area', 'Squared Contour Area Vs Erode Iteration')
+            # Graph().graph_x_against_y(range(0, len(squared_contour_areas)), squared_contour_areas, 'Erode Iteration', 'Squared Contour Area', 'Squared Contour Area Vs Erode Iteration')
 
-        points = []
+            points = []
 
-        for x in range(len(squared_contour_areas)):
-            points.append([x, squared_contour_areas[x]])
+            for x in range(len(squared_contour_areas)):
+                points.append([x, squared_contour_areas[x]])
 
-        knee = Line().find_knee(points)
+            knee = Line().find_knee(points)
 
-        safe_knee = knee + 3
+            safe_knee = knee + 3
 
-        return safe_knee
+            return safe_knee
+
+        except:
+            raise Exception("Error trying to find erode iterations")
 
     # Finding the contour of the resistor body.
     def find_resistor_contour(self):
-        greyscale_image = Greyscale(self.image.image, 'BGR')
+        try:
+            greyscale_image = Greyscale(self.image.image, 'BGR')
 
-        monochrome_image = greyscale_image.monochrome(inverted=True, block_size=51, C=21)
+            monochrome_image = greyscale_image.monochrome(inverted=True, block_size=151, C=21)
 
-        contours, _ = monochrome_image.find_contours()
+            contours, _ = monochrome_image.find_contours()
 
-        # Fill in the holes in the resistor area so we can safely erode the image later
-        filled_image = Annotation(monochrome_image.image).draw_contours(contours)
+            # Fill in the holes in the resistor area so we can safely erode the image later
+            filled_image = Annotation(monochrome_image.image).draw_contours(contours)
 
-        # Erode the wires away - the ksize needs to be bigger than wires and smaller than resistor body
+            # Erode the wires away - the number of iterations needs to be bigger than wires and smaller than resistor body.
+            filled_image = Greyscale(filled_image.image)
 
-        filled_image = Greyscale(filled_image.image)
+            erode_iterations = self.find_erode_iterations(filled_image.clone(), contours)
 
-        erode_iterations = self.find_erode_iterations(filled_image.clone(), contours)
+            eroded_image = filled_image.erode(erode_iterations)
 
-        eroded_image = filled_image.erode(erode_iterations)
+            # eroded_image.show()
 
-        #eroded_image.show()
+            # The biggest contour should only be the resistor body
+            contours, _ = eroded_image.find_contours()
 
-        # Now the biggest contour should only be the resistor body
+            resistor_body_contour = Contours(contours).find_biggest()
 
-        contours, _ = eroded_image.find_contours()
+            return resistor_body_contour
 
-        resistor_body_contour = Contours(contours).find_biggest()
+        except:
+            raise Exception("Error trying to find resistor contour")
 
-        return resistor_body_contour
+    # Extracts the resistor from a rectangle
+    def extract_resistor(self, resistor_body_contour):
+        try:
+            resistor_rectangle = cv2.minAreaRect(resistor_body_contour)
 
-    # Extracts the resistor from a rectanglef9
-    def extract_resistor(self, rectangle):
-        box = cv2.boxPoints(rectangle)
-        box = np.int0(box)
+            box = cv2.boxPoints(resistor_rectangle)
+            box = np.int0(box)
 
-        # get width and height of the detected rectangle
-        width = int(rectangle[1][0])
-        height = int(rectangle[1][1])
+            # Get width and height of the detected resistor_rectangle.
+            width = int(resistor_rectangle[1][0])
+            height = int(resistor_rectangle[1][1])
 
-        src_pts = box.astype('float32')
+            source_points = box.astype('float32')
 
-        # coordinate of the points in box points after the rectangle has been
-        # straightened
-        dst_pts = np.array([[0, height - 1],
-                            [0, 0],
-                            [width - 1, 0],
-                            [width - 1, height - 1]], dtype='float32')
+            # Coordinate of the points in box points after the resistor_rectangle has been straightened.
+            destination_points = np.array([[0, height - 1],
+                                           [0, 0],
+                                           [width - 1, 0],
+                                           [width - 1, height - 1]], dtype='float32')
 
-        # the perspective transformation matrix
-        matrix = cv2.getPerspectiveTransform(src_pts, dst_pts)
+            # The perspective transformation.
+            matrix = cv2.getPerspectiveTransform(source_points, destination_points)
 
-        # directly warp the rotated rectangle to get the straightened rectangle
-        self.image = self.image.warp_perspective(matrix, width, height)
+            # directly warp the rotated resistor_rectangle to get the straightened resistor_rectangle
+            self.image = self.image.warp_perspective(matrix, width, height)
 
-        if self.image.width() < self.image.height():
-            self.image = self.image.rotate_90_clockwise()
+            if self.image.width() < self.image.height():
+                self.image = self.image.rotate_90_clockwise()
 
-        return self.image
+            return self.image
+
+        except:
+            raise Exception("Error trying to extract resistor.")
 
     # Extracts the image of the resistor body from a resistor body contour.
     def locate(self):
         try:
             resistor_body_contour = self.find_resistor_contour()
 
-            # This should  wrap a box with the correct orientation around the resistor body
-            minimum_rectangle = cv2.minAreaRect(resistor_body_contour)
-
-            resistor_image = self.extract_resistor(minimum_rectangle)
+            resistor_image = self.extract_resistor(resistor_body_contour)
 
             return resistor_image
 
-        except Exception as E:
-            print('Error with ResistorLocator.')
-            print(E)
+        except Exception as error:
+            raise Exception(f'Error locating resistor in image {error}')

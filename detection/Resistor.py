@@ -51,42 +51,50 @@ class Resistor:
 
     # Gets the digit band bands.
     def get_digit_band_colours(self, bands):
-        digit_band_colours = []
+        try:
+            digit_band_colours = []
 
-        if bands:
-            for index in range(3):
-                if bands[index] is not None:
-                    digit_band_colours.append(bands[index])
+            if bands:
+                for index in range(3):
+                    if bands[index] is not None:
+                        digit_band_colours.append(bands[index])
 
-            return digit_band_colours
+                return digit_band_colours
+
+        except:
+            raise Exception("Error getting digit band colours")
 
     # Checks if the resistor digit band bands are in the standard values database.
     def check_valid(self):
-        digit_band_colours = self.get_digit_band_colours(self.colours())
+        try:
+            digit_band_colours = self.get_digit_band_colours(self.colours())
 
-        if len(digit_band_colours) >= 2:
-            type = self.type()
+            if len(digit_band_colours) >= 2:
+                type = self.type()
 
-            if type < 5:
-                number_of_digit_bands = 2
-
-            else:
-                number_of_digit_bands = 3
-
-            data_file = f'standardResistorValues{number_of_digit_bands}sf.json'
-
-            with open(f'{os.path.dirname(os.path.abspath(__file__))}\\data\\{data_file}') as valid_band_colours_list:
-
-                valid_band_colours_list = json.load(valid_band_colours_list)
-
-                if digit_band_colours in valid_band_colours_list:
-                    return True
+                if type < 5:
+                    number_of_digit_bands = 2
 
                 else:
-                    return False
+                    number_of_digit_bands = 3
 
-        else:
-            return False
+                data_file = f'standardResistorValues{number_of_digit_bands}sf.json'
+
+                with open(f'{os.getcwd()}\\data\\standardResistorValues\\{data_file}') as valid_band_colours_list:
+
+                    valid_band_colours_list = json.load(valid_band_colours_list)
+
+                    if digit_band_colours in valid_band_colours_list:
+                        return True
+
+                    else:
+                        return False
+
+            else:
+                return False
+
+        except:
+            print("Error validating resistor")
 
     # Finds the most probable correct version of a resistor.
     def main(self):
@@ -103,6 +111,5 @@ class Resistor:
 
                 return self
 
-        except Exception as E:
-            print("Error with Resistor.")
-            print(E)
+        except Exception as error:
+            raise Exception(f'Error while trying to validate resistor {error}')

@@ -8,26 +8,33 @@ class BandIdentifier:
 
     # Finding the most frequent bands.
     def find_most_frequent_bands(self):
+        try:
 
-        resistor_band_colours = []
+            resistor_band_colours = []
 
-        for band_number, possible_colours in self.possible_bands.items():
-            band_colour = max(set(possible_colours), key=possible_colours.count)
+            for band_number, possible_colours in self.possible_bands.items():
+                band_colour = max(set(possible_colours), key=possible_colours.count)
 
-            resistor_band_colours.append(band_colour)
+                resistor_band_colours.append(band_colour)
 
-        return resistor_band_colours
+            return resistor_band_colours
+
+        except:
+            raise Exception("Error trying to find most frequent bands")
 
     # Create instances of ResistorBand, that are to make up Resistor.
     def create_resistor_bands(self, resistor_band_colours):
+        try:
+            resistor_bands = []
 
-        resistor_bands = []
+            for resistor_band_colour in resistor_band_colours:
+                resistor_band = ResistorBand(resistor_band_colour)
+                resistor_bands.append(resistor_band)
 
-        for resistor_band_colour in resistor_band_colours:
-            resistor_band = ResistorBand(resistor_band_colour)
-            resistor_bands.append(resistor_band)
+            return resistor_bands
 
-        return resistor_bands
+        except:
+            raise Exception("Error creating resistor bands")
 
     # Finding the resistor bands with the most frequent bands or alternate criteria.
     def find_resistor_bands(self):
@@ -41,7 +48,5 @@ class BandIdentifier:
 
             return resistor_bands
 
-        except Exception as E:
-            print(E)
-
-            return None
+        except Exception as error:
+            raise Exception(f'Error identifying resistor bands {error}')

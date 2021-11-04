@@ -1,4 +1,5 @@
 import random as rd
+
 import numpy as np
 
 
@@ -10,13 +11,17 @@ class KMeans:
 
     # Finds the distance between 2 points.
     def find_distance(self, point_1, point_2):
-        dx_squared = (point_1[0] - point_2[0]) ** 2
-        dy_squared = (point_1[1] - point_2[1]) ** 2
-        dz_squared = (point_1[2] - point_2[2]) ** 2
+        try:
+            dx_squared = (point_1[0] - point_2[0]) ** 2
+            dy_squared = (point_1[1] - point_2[1]) ** 2
+            dz_squared = (point_1[2] - point_2[2]) ** 2
 
-        distance = np.sqrt(dx_squared + dy_squared + dz_squared)
+            distance = np.sqrt(dx_squared + dy_squared + dz_squared)
 
-        return distance
+            return distance
+
+        except:
+            print(f"Error trying to find distance between {point_1} and {point_2}")
 
     # Finds the distance between items and centroids.
     def find_distance_to_centroids(self, data):
@@ -223,4 +228,4 @@ class KMeans:
                 return self
 
         except:
-            pass
+            print("Error with KMeans fit, value of K is too large")
