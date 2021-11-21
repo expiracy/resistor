@@ -3,6 +3,7 @@ import cv2
 from detection.Image import Image
 
 
+# Class initiates with an image and inherits from Image. Is responsible for any annotations on the image.
 class Annotation(Image):
     def __init__(self, image):
         super().__init__(image)

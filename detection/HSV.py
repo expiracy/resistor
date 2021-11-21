@@ -3,6 +3,11 @@ import numpy as np
 
 from detection.Image import Image
 
+'''
+Initiates with an image and current image type (for conversion) and inherits from Image. Responsible for carrying out 
+operations that work on HSV images.
+'''
+
 
 class HSV(Image):
     def __init__(self, image, type='HSV'):
@@ -14,7 +19,15 @@ class HSV(Image):
         try:
             h, s, v = self.split()
 
-            h_range = cv2.inRange(h, hsv_ranges.h_range[0], hsv_ranges.h_range[1])
+            if hsv_ranges.h_range[0] > hsv_ranges.h_range[1]:
+                h_range_1 = cv2.inRange(h, hsv_ranges.h_range[0], 180)
+                h_range_2 = cv2.inRange(h, 0, hsv_ranges.h_range[1])
+
+                h_range = cv2.bitwise_or(h_range_1, h_range_2)
+
+            else:
+                h_range = cv2.inRange(h, hsv_ranges.h_range[0], hsv_ranges.h_range[1])
+
             s_range = cv2.inRange(s, hsv_ranges.s_range[0], hsv_ranges.s_range[1])
             v_range = cv2.inRange(v, hsv_ranges.v_range[0], hsv_ranges.v_range[1])
 
@@ -25,7 +38,7 @@ class HSV(Image):
             return hsv_mask
 
         except:
-            print(f"Error masking HSV ranges {hsv_ranges}")
+            print(f'Error masking HSV ranges {hsv_ranges}')
 
     # Splitting and HSV image into its h, s and v components.
     def split(self):
@@ -34,8 +47,8 @@ class HSV(Image):
 
             return h, s, v
 
-        except:
-            raise Exception("Error splitting image into h, s, v components")
+        except Exception as error:
+            raise Exception(f'Error splitting image into h, s, v components, {error}')
 
     # Conversion between types.
     def HSV_conversion(self, image, type):
@@ -47,4 +60,4 @@ class HSV(Image):
                 return image
 
         except Exception as error:
-            raise Exception(f"Error converting image from greyscale {error}")
+            raise Exception(f'Error converting image from greyscale, {error}')

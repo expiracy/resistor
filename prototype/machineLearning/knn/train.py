@@ -5,7 +5,7 @@ img = cv.imread('digits.png')
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 # Now we split the image to 5000 cells, each 20x20 size
 cells = [np.hsplit(row, 100) for row in np.vsplit(gray, 50)]
-# Make it into a Numpy array: its size will be (50,100,20,20)
+# Make it into a Numpy data: its size will be (50,100,20,20)
 x = np.array(cells)
 # Now we prepare the training data and test data
 train = x[:, :50].reshape(-1, 400).astype(np.float32)  # Size = (2500,400)

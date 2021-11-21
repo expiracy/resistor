@@ -1,5 +1,11 @@
 import numpy as np
 
+'''
+Class responsible for line operations. There are multiple ways to initialise lines and multiple operations that can be
+performed.
+'''
+
+
 class Line:
     def __init__(self):
         self.gradient = None

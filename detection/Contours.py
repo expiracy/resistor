@@ -3,6 +3,7 @@ import cv2
 from detection.MergeSort import MergeSort
 
 
+# Initiates with contours and is responsible for carrying out operations on contours.
 class Contours:
     def __init__(self, contours):
         self.contours = contours
@@ -16,8 +17,8 @@ class Contours:
 
             return biggest_contour
 
-        except:
-            raise Exception("Error finding biggest contour")
+        except Exception as error:
+            raise Exception(f'Error finding biggest contour, {error}')
 
     # Sorts contours based on their areas.
     def sort(self):
@@ -41,5 +42,5 @@ class Contours:
 
             return sorted_contours
 
-        except:
-            raise Exception("Error sorting contours")
+        except Exception as error:
+            raise Exception(f'Error sorting contours, {error}')

@@ -2,10 +2,11 @@ from detection.BandIdentifier import BandIdentifier
 from detection.Image import Image
 from detection.Resistor import Resistor
 from detection.ResistorLocator import ResistorLocator
-from detection.SliceBandSelector import SliceBandSelector
+from detection.SliceBandsFilter import SliceBandsFilter
 from detection.SliceBandsFinder import SliceBandsFinder
 
 
+# The main class of the program, responsible for managing the operation of the other classes.
 class Detector:
     def __init__(self):
         self.image = None
@@ -13,19 +14,15 @@ class Detector:
 
     # Resizes the image to a more processable size.
     def resize_image(self):
-        try:
-            if self.image.width() > 1280:
-                ratio = self.image.width() / self.image.height()
+        if self.image.width() > 1280:
+            ratio = self.image.width() / self.image.height()
 
-                scale = 1280 / ratio
+            scale = 1280 / ratio
 
-                self.image.resize(1280, round(scale))
-
-        except:
-            raise Exception("Error resizing image")
+            self.image.resize(1280, round(scale))
 
     # Detects the resistor bands from an image.
-    def detect(self, location):
+    def detect(self, location, maximum_band_count):
         try:
             self.image = Image().load(location)
 
@@ -33,20 +30,41 @@ class Detector:
 
             resistor_image = ResistorLocator(self.image).locate()
 
-            slice_bands = SliceBandsFinder(resistor_image.clone()).main()
+            # resistor_image.show()
 
-            possible_bands = SliceBandSelector(slice_bands).find_possible_bands()
+            slice_bands = SliceBandsFinder(resistor_image.clone()).find_all_bands()
 
-            if len(possible_bands) > 3:
+            # print('Original Detected Bands')
+            # print(str(slice_bands))
 
-                resistor_bands = BandIdentifier(possible_bands, slice_bands).find_resistor_bands()
+            slice_band_filter = SliceBandsFilter(slice_bands)
+
+            slice_band_filter.remove_short_bands()
+
+            slice_band_filter.remove_narrow_bands()
+
+            # print('Slice bands after removing narrow')
+            # print(str(slice_bands))
+
+            # band_count = slice_bands.get_band_group_count()
+            # print(f'Predicted bands count={band_count}')
+
+            possible_bands = slice_band_filter.find_possible_bands(maximum_band_count)
+
+            # print('Possible bands using k-means')
+            # print(str(possible_bands))
+
+            if 3 <= len(possible_bands.groups()) <= 6:
+
+                resistor_bands = BandIdentifier(possible_bands).find_resistor_bands()
 
                 self.resistor = Resistor(resistor_bands).main()
 
                 return self.resistor, resistor_image
 
             else:
-                raise Exception("Error finding possible bands")
+                raise Exception('Not enough bands were located')
 
         except Exception as error:
+            print(error)
             raise Exception(f'Error detecting resistor values: {error}')

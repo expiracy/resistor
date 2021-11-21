@@ -133,7 +133,7 @@ class ResistorLocator:
 
         #cropped_image.show()
 
-        #cropped_image = numpy.array(cropped_image)
+        # cropped_image = numpy.data(cropped_image)
 
         return cropped_image
 

@@ -4,7 +4,10 @@ import uuid
 
 import cv2
 
+colour_list = []
 
+
+# Initiates with an image. Responsible for carrying out the generic image operations that work on all image types.
 class Image:
     def __init__(self, image=None):
         self.image = image
@@ -56,8 +59,8 @@ class Image:
 
             return self
 
-        except:
-            print("Error getting region of image")
+        except Exception as error:
+            print(f"Error getting region of image {error}")
 
     # Shows an image and returns colour values for clicked pixels.
     def show(self):
@@ -78,9 +81,10 @@ class Image:
             if event == cv2.EVENT_LBUTTONDOWN:
                 hsv_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
-                color = hsv_image[y][x]
+                colour = hsv_image[y][x]
 
-                print(color)
+                colour_list.append(list(colour))
+                print(colour_list)
 
         except:
             print('Clicked outside image')
@@ -122,7 +126,7 @@ class Image:
             raise Exception(f"Error eroding image with {iterations} iterations")
 
     # Returns the slices of an image.
-    def slices(self, slice_height):
+    def create_slices(self, slice_height):
         try:
             height = self.height()
 

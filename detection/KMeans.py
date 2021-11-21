@@ -3,6 +3,7 @@ import random as rd
 import numpy as np
 
 
+# Initiates with the number of centroids and contains the various parts of the K-Means algorithm.
 class KMeans:
     def __init__(self, number_of_centroids=4):
         self.number_of_centroids = number_of_centroids
@@ -20,8 +21,8 @@ class KMeans:
 
             return distance
 
-        except:
-            print(f"Error trying to find distance between {point_1} and {point_2}")
+        except Exception as error:
+            print(f'find_distance, {error}')
 
     # Finds the distance between items and centroids.
     def find_distance_to_centroids(self, data):
@@ -67,11 +68,11 @@ class KMeans:
         else:
             return maximum_intra_cluster_distance
 
-    # Finds the optimal number of clusters using dunn-index.
+    # Finds the optimal number of clusters using Dunn-index.
     def find_optimal_number_of_clusters(self, data):
         dunn_indexes = []
 
-        for centroid_amount in range(1, 10):
+        for centroid_amount in range(3, 7):
             self.centroids = {}
             self.number_of_centroids = centroid_amount
             self.fit(data, self.initialize_centroids(data))
@@ -90,6 +91,15 @@ class KMeans:
 
         return optimal_number_of_clusters
 
+    def find_next_centroid(self, data, minimum_centroid_distances):
+        minimum_centroid_distances = np.array(minimum_centroid_distances)
+
+        index_of_highest_distance = np.argmax(minimum_centroid_distances)
+
+        next_centroid = data[index_of_highest_distance]
+
+        return next_centroid
+
     # Initialises the seeds to be used for fit().
     def initialize_centroids(self, data):
         number_of_items = data.shape[0]
@@ -101,19 +111,17 @@ class KMeans:
             minimum_centroid_distances = []
 
             for item in data:
-                minimum_centroid_distance = np.inf
+                minimum_item_centroid_distance = np.inf
 
                 # Find the distance.
                 for _, centroid in centroids.items():
-                    centroid_distance = self.find_distance(item, centroid)
-                    minimum_centroid_distance = min(minimum_centroid_distance, centroid_distance)
+                    item_centroid_distance = self.find_distance(item, centroid)
+                    minimum_item_centroid_distance = min(minimum_item_centroid_distance, item_centroid_distance)
 
-                minimum_centroid_distances.append(minimum_centroid_distance)
+                minimum_centroid_distances.append(minimum_item_centroid_distance)
 
-            # Item the produces the largest distance is the centroid.
-            minimum_centroid_distances = np.array(minimum_centroid_distances)
-
-            next_centroid = data[np.argmax(minimum_centroid_distances)]
+            # Item that produces the largest distance is the centroid.
+            next_centroid = self.find_next_centroid(data, minimum_centroid_distances)
 
             centroids[centroid_number + 1] = next_centroid
 
@@ -201,31 +209,30 @@ class KMeans:
             return False
 
     # K-means algorithm to find the labels and centroids based on the centroids.
-    def fit(self, data, centroids, iteration=0, max_iterations=50):
+    def fit(self, data, centroids, iteration=0, max_iterations=15):
         try:
             self.centroids = {}
             self.labels = []
 
-            intra_cluster_distances_for_cluster = self.find_intra_cluster_distances_for_centroids(data, centroids)
+            intra_cluster_distances_for_centroids = self.find_intra_cluster_distances_for_centroids(data, centroids)
 
-            self.find_labels(data, intra_cluster_distances_for_cluster)
+            self.find_labels(data, intra_cluster_distances_for_centroids)
 
             data_grouped_by_label = self.group_data_by_label(data)
 
             self.move_centroids(data_grouped_by_label)
-
             iteration += 1
 
             centroids_moved = self.check_if_centroids_moved(centroids)
 
             if iteration == 1 or centroids_moved:
                 if iteration <= max_iterations:
-                    return self.fit(data, self.centroids, iteration)
+                    return self.fit(data, self.centroids, iteration, max_iterations)
                 else:
                     return self
 
             else:
                 return self
 
-        except:
-            print("Error with KMeans fit, value of K is too large")
+        except Exception as error:
+            print(f'fit(), {error}')

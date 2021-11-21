@@ -1,7 +1,9 @@
-from detection.Image import Image
 import cv2
 
+from detection.Image import Image
 
+
+# Initiates with an image and inherits from Image. Is responsible for performing functions that work on BGR images.
 class BGR(Image):
     def __init__(self, image, type='BGR'):
         bgr = self.bgr_conversion(image, type)
@@ -29,4 +31,5 @@ class BGR(Image):
         if type == 'GREYSCALE':
             return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
-
+        if type == 'HSV':
+            return cv2.cvtColor(image, cv2.COLOR_HSV2BGR)

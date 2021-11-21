@@ -225,15 +225,3 @@ table {
     font-size: 18px;
     padding: 0;
 }
-
-div button {
-    float: right;
-    margin-left: -50%;
-    margin-top: -25px;
-    background-color: Transparent;
-    background-repeat:no-repeat;
-    font-size: 20px;
-    color: white;
-    border: none;
-    cursor: pointer;
-}

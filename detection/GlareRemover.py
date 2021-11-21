@@ -10,32 +10,31 @@ from detection.HSV import HSV
 from detection.HSVRange import HSVRange
 
 
+# Initiates with an image and is responsible for removing the glare within an image.
 class GlareRemover:
     def __init__(self, image):
         self.image = image
 
     # Shows the colour clusters (for development only).
-    def show_colour_clusters(self, colours):
+    def show_colour_clusters(self, colours_information):
         try:
             rectangle = np.zeros((50, 300, 3), dtype=np.uint8)
 
-            rectangle = BGR(rectangle)
-
             start = 0
 
-            for percent, colour in colours:
+            for colour in colours_information:
                 # print(colour, f'{round((percent * 100), 5)} %')
+                end = start + (colour[0] * 300)
 
-                end = start + (percent * 300)
-
-                cv2.rectangle(rectangle.image, (int(start), 0), (int(end), 50), colour.astype('uint8').tolist(), -1)
+                cv2.rectangle(rectangle, (int(start), 0), (int(end), 50), colour[1].astype('uint8').tolist(), -1)
 
                 start = end
 
-            # rectangle.show()
+            rectangle_image = HSV(rectangle)
+            # rectangle_image.show()
 
-        except:
-            print("Error showing colour clusters")
+        except Exception as error:
+            print(f'show_colour_clusters(), {error}')
 
     # Identifies the glare clusters based on V values.
     def identify_glare_clusters(self, clusters):
@@ -61,8 +60,8 @@ class GlareRemover:
 
             return glare_clusters
 
-        except:
-            raise Exception("Error identifying glare clusters")
+        except Exception as error:
+            raise Exception(f'Error identifying glare clusters, {error}')
 
     # Change the pixels to 0 if its closest centroid identified as a glare clusters.
     def remove_clusters(self, clusters, glare_clusters):
@@ -80,8 +79,8 @@ class GlareRemover:
 
             return self
 
-        except:
-            raise Exception("Error removing clusters from image")
+        except Exception as error:
+            raise Exception(f'Error removing clusters from image, {error}')
 
     # Find the colour clusters.
     def find_colour_clusters(self):
@@ -101,12 +100,12 @@ class GlareRemover:
 
             colours = sorted([(percent, colour) for percent, colour in zip(hist, centroids)])
 
-            self.show_colour_clusters(colours)
+            # self.show_colour_clusters(colours)
 
             return clusters
 
-        except:
-            raise Exception("Error finding colour clusters")
+        except Exception as error:
+            raise Exception(f'Error finding colour clusters, {error}')
 
     # Masks the image for non black values.
     def mask(self):
@@ -119,8 +118,8 @@ class GlareRemover:
 
             return greyscale_mask_image
 
-        except:
-            raise Exception("Error masking image")
+        except Exception as error:
+            raise Exception(f'Error masking image, {error}')
 
     # Removes the glare from the image by taking the biggest region.
     def remove_glare_from_image(self, glare_mask, image):
@@ -140,20 +139,25 @@ class GlareRemover:
 
             return no_glare_image
 
-        except:
-            raise Exception("Error removing glare from image")
+        except Exception as error:
+            raise Exception(f'Error removing glare from image, {error}')
 
     # Runs the functions within the glare remover.
     def main(self):
         try:
             original_image = self.image.clone()
 
+            # original_image.show()
+
             self.image = BGR(self.image.image).blur(round(self.image.width() * 10), 1)
-            self.image = HSV(self.image.image, 'BGR')
+
+            self.image = HSV(self.image.image)
 
             # self.image.show()
 
             clusters = self.find_colour_clusters()
+
+            # self.show_colour_clusters(clusters)
 
             glare_clusters = self.identify_glare_clusters(clusters)
 
@@ -163,7 +167,9 @@ class GlareRemover:
 
             no_glare_image = self.remove_glare_from_image(glare_mask, original_image)
 
+            # no_glare_image.show()
+
             return no_glare_image
 
         except Exception as error:
-            raise Exception(f'Error trying to remove glare from image {error}')
+            raise Exception(f'Error trying to remove glare from image, {error}')

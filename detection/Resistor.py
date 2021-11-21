@@ -2,6 +2,7 @@ import json
 import os
 
 
+# The resistor class initiates with resistor bands and contains various operations that work on the resistor bands.
 class Resistor:
     def __init__(self, bands):
         self.bands = bands
@@ -31,19 +32,22 @@ class Resistor:
         type = self.type()
 
         if type == 3:
-            colours = [self.bands[0].colour, self.bands[1].colour, None, self.bands[2].colour, None, None]
+            colours = [self.bands[0].colour.name, self.bands[1].colour.name, None, self.bands[2].colour.name, None,
+                       None]
 
         elif type == 4:
-            colours = [self.bands[0].colour, self.bands[1].colour, None, self.bands[2].colour,
-                       self.bands[3].colour, None]
+            colours = [self.bands[0].colour.name, self.bands[1].colour.name, None, self.bands[2].colour.name,
+                       self.bands[3].colour.name, None]
 
         elif type == 5:
-            colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
-                       self.bands[4].colour, None]
+            colours = [self.bands[0].colour.name, self.bands[1].colour.name, self.bands[2].colour.name,
+                       self.bands[3].colour.name,
+                       self.bands[4].colour.name, None]
 
         elif type == 6:
-            colours = [self.bands[0].colour, self.bands[1].colour, self.bands[2].colour, self.bands[3].colour,
-                       self.bands[4].colour, self.bands[5].colour]
+            colours = [self.bands[0].colour.name, self.bands[1].colour.name, self.bands[2].colour.name,
+                       self.bands[3].colour.name,
+                       self.bands[4].colour.name, self.bands[5].colour.name]
         else:
             colours = [None, None, None, None, None, None]
 
@@ -61,8 +65,8 @@ class Resistor:
 
                 return digit_band_colours
 
-        except:
-            raise Exception("Error getting digit band colours")
+        except Exception as error:
+            raise Exception(f'Error getting digit band colours, {error}')
 
     # Checks if the resistor digit band bands are in the standard values database.
     def check_valid(self):
@@ -93,8 +97,8 @@ class Resistor:
             else:
                 return False
 
-        except:
-            print("Error validating resistor")
+        except Exception as error:
+            print(f'check_valid(), {error}')
 
     # Finds the most probable correct version of a resistor.
     def main(self):
@@ -112,4 +116,4 @@ class Resistor:
                 return self
 
         except Exception as error:
-            raise Exception(f'Error while trying to validate resistor {error}')
+            raise Exception(f'Error while trying to validate resistor, {error}')

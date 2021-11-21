@@ -21,7 +21,6 @@ def ui():
 # Calls the detector program.
 @app.route('/api/detect', methods=['POST'])
 def detect():
-
     file = request.files['file']
 
     if request.values:

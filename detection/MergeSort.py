@@ -1,72 +1,61 @@
+# The merge sort algorithm.
 class MergeSort:
     def __init__(self):
         pass
 
-    # Sorts input data.
-    def sort(self, data, reverse=False):
-        # The last data split
-        if len(data) <= 1:
-            return data
+    # Responsible for sorting and merging the lists
+    def sort_and_merge_lists(self, left, right, reverse):
 
-        middle_index = len(data) // 2
-        # Perform merge_sort recursively on both halves
-        left = self.sort(data[:middle_index])
-        right = self.sort(data[middle_index:])
+        left_index = 0
+        right_index = 0
 
-        # Merge each side together
-        merged = self.merge(left, right, data.copy(), reverse)
+        sorted_and_merged_list = []
 
-        return merged
-
-    # Merges and sorts a list.
-    def merge(self, left, right, merged, reverse):
-        left_cursor = 0
-        right_cursor = 0
-
-        while left_cursor < len(left) and right_cursor < len(right):
+        while left_index < len(left) and right_index < len(right):
 
             if reverse:
-                # Sort each one and place into the result
-                if left[left_cursor] >= right[right_cursor]:
-                    merged[left_cursor + right_cursor] = left[left_cursor]
-                    left_cursor += 1
+                if left[left_index] > right[right_index]:
+                    sorted_and_merged_list.append(left[left_index])
+                    left_index += 1
+
                 else:
-                    merged[left_cursor + right_cursor] = right[right_cursor]
-                    right_cursor += 1
+                    sorted_and_merged_list.append(right[right_index])
+                    right_index += 1
 
             else:
-                if left[left_cursor] <= right[right_cursor]:
-                    merged[left_cursor + right_cursor] = left[left_cursor]
-                    left_cursor += 1
+                if left[left_index] < right[right_index]:
+                    sorted_and_merged_list.append(left[left_index])
+                    left_index += 1
 
                 else:
-                    merged[left_cursor + right_cursor] = right[right_cursor]
-                    right_cursor += 1
+                    sorted_and_merged_list.append(right[right_index])
+                    right_index += 1
 
-        for left_cursor in range(left_cursor, len(left)):
-            merged[left_cursor + right_cursor] = left[left_cursor]
+        sorted_and_merged_list.extend(left[left_index:])
+        sorted_and_merged_list.extend(right[right_index:])
 
-        for right_cursor in range(right_cursor, len(right)):
-            merged[left_cursor + right_cursor] = right[right_cursor]
+        return sorted_and_merged_list
 
-        return merged
-
-    def split(self, data):
-        middle_index = len(data) // 2
+    # The entry point for the sort
+    def sort(self, data, reverse=False):
 
         if len(data) <= 1:
             return data
+
+        middle_index = len(data) // 2
 
         left = data[:middle_index]
         right = data[middle_index:]
 
-        return left, right
+        left = self.sort(left, reverse)
+        right = self.sort(right, reverse)
 
-    def sorting(self, left, right=None):
+        sorted_and_merged_list = self.sort_and_merge_lists(left, right, reverse)
 
-        while len(left) > 1:
-            pass
+        return sorted_and_merged_list
 
 
 if __name__ == "__main__":
-    MergeSort().split([38, 27, 43, 3, 9, 82, 10])
+    print('Original:', [14, 7, 3, 12, 9, 11, 6, 2])
+    sorted = MergeSort().sort([14, 7, 3, 12, 9, 11, 6, 2], False)
+    print(sorted)

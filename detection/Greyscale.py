@@ -2,6 +2,11 @@ import cv2
 
 from detection.Image import Image
 
+'''
+Initiates with an image and current image type (for conversion) and inherits from Image. Responsible for carrying out 
+operations that work on Greyscale images.
+'''
+
 
 class Greyscale(Image):
     def __init__(self, image=None, type='GREYSCALE'):

@@ -7,6 +7,7 @@ from detection.Greyscale import Greyscale
 from detection.Line import Line
 
 
+# Initiates with an image and contains various operations that aid with the location of a resistor.
 class ResistorLocator:
     def __init__(self, image):
         self.image = image
@@ -45,17 +46,17 @@ class ResistorLocator:
 
             points = []
 
-            for x in range(len(squared_contour_areas)):
-                points.append([x, squared_contour_areas[x]])
+            for x_index in range(len(squared_contour_areas)):
+                points.append([x_index, squared_contour_areas[x_index]])
 
             knee = Line().find_knee(points)
 
-            safe_knee = knee + 3
+            safe_knee = knee + 5
 
             return safe_knee
 
-        except:
-            raise Exception("Error trying to find erode iterations")
+        except Exception as error:
+            raise Exception(f'Error trying to find erode iterations, {error}')
 
     # Finding the contour of the resistor body.
     def find_resistor_contour(self):
@@ -85,8 +86,8 @@ class ResistorLocator:
 
             return resistor_body_contour
 
-        except:
-            raise Exception("Error trying to find resistor contour")
+        except Exception as error:
+            raise Exception(f'Error trying to find resistor contour, {error}')
 
     # Extracts the resistor from a rectangle
     def extract_resistor(self, resistor_body_contour):
@@ -119,8 +120,8 @@ class ResistorLocator:
 
             return self.image
 
-        except:
-            raise Exception("Error trying to extract resistor.")
+        except Exception as error:
+            raise Exception(f'Error trying to extract resistor, {error}')
 
     # Extracts the image of the resistor body from a resistor body contour.
     def locate(self):
@@ -132,4 +133,4 @@ class ResistorLocator:
             return resistor_image
 
         except Exception as error:
-            raise Exception(f'Error locating resistor in image {error}')
+            raise Exception(f'Error locating resistor in image, {error}')

@@ -1,15 +1,21 @@
+import numpy as np
+
 from detection.BGR import BGR
 from detection.BoundingRectangle import BoundingRectangle
+from detection.Colour import Colour
 from detection.GlareRemover import GlareRemover
 from detection.Greyscale import Greyscale
 from detection.HSV import HSV
 from detection.HSVRanges import HSVRanges
 from detection.SliceBand import SliceBand
+from detection.SliceBands import SliceBands
 
 
+# Initiates with an image, slices the image and is responsible for finding the slice bands of each slice.
 class SliceBandsFinder:
     def __init__(self, image):
         self.image = image
+        self.slice_bands = SliceBands()
 
     # Check if the band is right at the edge of the image.
     def check_if_edge_band(self, bounding_rectangle):
@@ -22,8 +28,8 @@ class SliceBandsFinder:
             else:
                 return False
 
-        except:
-            raise Exception("Error checking edge band, bounding rectangle is None")
+        except Exception as error:
+            raise Exception(f'Error checking edge band, bounding rectangle is None, {error}')
 
     # Returns a mask for the specified colour on an image slice.
     def band_mask(self, colour, image_slice):
@@ -38,18 +44,13 @@ class SliceBandsFinder:
 
             return greyscale_mask_image
 
-        except:
-            raise Exception(f"Error trying to mask colour {colour}")
+        except Exception as error:
+            raise Exception(f'Error masking band, {error}')
 
     # Finds the bands.
-    def find_bands(self, image_slice):
+    def find_bands(self, image_slice, original_image_slice):
         try:
-            colours = ['BLACK', 'BROWN', 'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'GREY', 'WHITE', 'GOLD',
-                       'SILVER']
-
-            slice_bands = []
-
-            for colour in colours:
+            for colour in Colour:
 
                 greyscale_mask_image = self.band_mask(colour, image_slice)
 
@@ -65,20 +66,78 @@ class SliceBandsFinder:
                     for contour in band_contours:
                         bounding_rectangle = BoundingRectangle(contour)
 
-                        edge_band = self.check_if_edge_band(bounding_rectangle)
+                        edge_band = False
+
+                        if colour == Colour.WHITE or colour == Colour.GREY:
+                            edge_band = self.check_if_edge_band(bounding_rectangle)
 
                         if not edge_band:
-                            slice_band = SliceBand(colour, bounding_rectangle)
+                            hsv_variance = self.get_region_hsv_variance(original_image_slice, bounding_rectangle)
 
-                            slice_bands.append(slice_band)
+                            slice_band = SliceBand(colour, bounding_rectangle, hsv_variance)
 
-            return slice_bands
+                            self.slice_bands.add_band(slice_band)
 
-        except:
-            raise Exception("Error trying to find bands for image slice")
+            return self
+
+        except Exception as error:
+            raise Exception(f'Error trying to find bands for image slice, {error}')
+
+    # Calculating the variance of a list of values
+    def calculate_variance(self, values):
+        try:
+            number_of_values = len(values)
+
+            values_sum = np.sum(values)
+            mean = values_sum / number_of_values
+
+            squared_value_mean_differences = [(value - mean) ** 2 for value in values]
+
+            sum_value_mean_differences = sum(squared_value_mean_differences)
+
+            variance = sum_value_mean_differences / number_of_values
+
+            return variance
+
+        except Exception as error:
+            raise Exception(f'Error to calculate variance: {error}')
+
+    def get_region_hsv_variance(self, image_slice, bounding_rectangle):
+        try:
+
+            slice_band_image = image_slice.clone().region(bounding_rectangle.x,
+                                                          bounding_rectangle.y,
+                                                          bounding_rectangle.width,
+                                                          bounding_rectangle.height)
+
+            h_values = []
+            s_values = []
+            v_values = []
+
+            for x in slice_band_image.image:
+                for y in x:
+                    h_values.append(y[0])
+                    s_values.append(y[1])
+                    v_values.append(y[2])
+
+            h_variance, s_variance, v_variance = self.calculate_variance(h_values), self.calculate_variance(
+                s_values), self.calculate_variance(v_values)
+
+            squared_h_variance, squared_s_variance, squared_v_variance = h_variance ** 2, s_variance ** 2, v_variance ** 2
+
+            squared_hsv_variances = [squared_h_variance, squared_s_variance, squared_v_variance]
+
+            sum_of_squared_hsv_variances = np.sum(squared_hsv_variances)
+
+            hsv_variance = np.sqrt(sum_of_squared_hsv_variances)
+
+            return hsv_variance
+
+        except Exception as error:
+            print(f'get_region_hsv_variance(), {error}')
 
     # Finds all the bands for all slices.
-    def main(self):
+    def find_all_bands(self):
         try:
             self.image = self.image.resize(self.image.width(), self.image.height() * 20)
 
@@ -86,20 +145,23 @@ class SliceBandsFinder:
 
             self.image = self.image.resize(self.image.width(), self.image.height() * 5)
 
-            self.image = BGR(self.image.image).blur(1, round(self.image.height() * 0.5))
+            self.image = self.image.region(0, round(self.image.height() * 0.1), self.image.width(),
+                                           round(self.image.height() * 0.8))
 
-            image_slices = self.image.slices(round(self.image.height() * 0.05))
+            blurred_image = BGR(self.image.image).blur(2, round(self.image.height() * 0.5))
 
-            slice_bands = []
+            # blurred_image.show()
 
-            for image_slice in image_slices:
-                bands_for_slice = self.find_bands(image_slice)
+            image_slices = blurred_image.create_slices(round(blurred_image.height() * 0.05))
 
-                # image_slice.show()
+            original_image = self.image.clone()
 
-                slice_bands.append(bands_for_slice)
+            original_image_slices = original_image.create_slices(round(original_image.height() * 0.05))
 
-            return slice_bands
+            for index in range(len(image_slices)):
+                self.find_bands(image_slices[index], original_image_slices[index])
+
+            return self.slice_bands
 
         except Exception as error:
-            raise Exception(f"Error finding slice bands {error}")
+            raise Exception(f'Error finding slice bands, {error}')
